@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "853677427401",
+    "project_id": "yamyam-ac34b",
+    "storage_bucket": "yamyam-ac34b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:853677427401:android:9406c7bdb219f593eedb18",
+        "android_client_info": {
+          "package_name": "com.ice9b.greendayo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "853677427401-lt3bb0h9is3b4kqjeenq6vhu076nkvjp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKF7UmIQOsZZ--TwQlfBcWU7ZsOfd0a4s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "853677427401-lt3bb0h9is3b4kqjeenq6vhu076nkvjp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "853677427401-pf0ng4om09eqqvoshkkj5a8c0kj6g14l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ice9b.greendayo"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
