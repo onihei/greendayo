@@ -103,13 +103,22 @@ class BbsPage extends HookWidget {
           left: offset.dx + notice.left.toDouble(),
           top: offset.dy + notice.top.toDouble(),
           child: Container(
-            width: 120,
-            height: 120,
-            child: Center(
-              child: Text(notice.text),
+            padding: EdgeInsets.all(4),
+            width: 140,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(notice.text),
+                Row(
+                  children: [
+                    Spacer(),
+                    Text('みつを'),
+                  ],
+                ),
+              ],
             ),
             decoration: BoxDecoration(
-              color: Colors.red,
+              color: Colors.yellow,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black26,
@@ -141,8 +150,7 @@ class BbsPage extends HookWidget {
     return Container(
       key: _keyForm,
       padding: EdgeInsets.all(4),
-      width: 200,
-      color: Colors.yellow,
+      width: 140,
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.multiline,
@@ -151,25 +159,43 @@ class BbsPage extends HookWidget {
         onChanged: (input) {
           context.read(_formProvider).state.text = input;
         },
-        textInputAction: TextInputAction.done,
+        textInputAction: TextInputAction.newline,
+        buildCounter: (_,
+                {required currentLength, maxLength, required isFocused}) =>
+            Row(
+              children: [
+                Text('$currentLength / $maxLength'),
+                Spacer(),
+                Text('みつを'),
+              ],
+            ),
         style: TextStyle(
           fontSize: 14,
           color: Colors.black54,
           fontWeight: FontWeight.w400,
         ),
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.all(10),
+          isCollapsed: true,
+          contentPadding: EdgeInsets.all(0),
           fillColor: Colors.white38,
           errorText: null,
-          counterText: "",
-          border: InputBorder.none,
-          hintText: '投稿内容を記入してください',
+          hintText: '投稿内容',
           hintStyle: TextStyle(
             fontSize: 14,
-            color: Colors.grey,
             fontWeight: FontWeight.w400,
           ),
         ),
+      ),
+      decoration: BoxDecoration(
+        color: Colors.yellow,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            spreadRadius: 1.2,
+            blurRadius: 1,
+            offset: Offset(1, 1),
+          ),
+        ],
       ),
     );
   }
@@ -264,12 +290,28 @@ class _BbsViewModel {
     final left = -offset.dx + formOffset.dx;
     final top = -offset.dy + formOffset.dy;
     final newArticle = Article(text, left, top, now, 'me');
-    await read(articleRepository).save(newArticle);
+    final docId = await read(articleRepository).save(newArticle);
     read(_editProvider).state = false;
 
     read(snackBarController)?.showSnackBar(
       SnackBar(
         content: Text('投稿しました'),
+        duration: const Duration(seconds: 6),
+        action: SnackBarAction(
+          label: '取消',
+          onPressed: () async {
+            await this.undo(docId);
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> undo(String docId) async {
+    await read(articleRepository).delete(docId);
+    read(snackBarController)?.showSnackBar(
+      SnackBar(
+        content: Text('投稿を取り消しました'),
         duration: const Duration(seconds: 3),
       ),
     );
