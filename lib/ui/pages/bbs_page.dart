@@ -34,14 +34,14 @@ class BbsTabConfig implements TabConfig {
 
   @override
   Widget get floatingActionButton => Consumer(
-        builder: (context, watch, child) {
-          final edit = watch(_editProvider).state;
+        builder: (context, ref, child) {
+          final edit = ref.watch(_editProvider);
           final button = FloatingActionButton(
             child: Icon(
               Icons.android,
             ),
             onPressed: () {
-              watch(_bbsViewModel).startCreate();
+              ref.watch(_bbsViewModel).startCreate();
             },
           );
           return Visibility(
@@ -52,7 +52,7 @@ class BbsTabConfig implements TabConfig {
       );
 }
 
-class BbsPage extends HookWidget {
+class BbsPage extends HookConsumerWidget {
   final _keyStack = GlobalKey();
   final _keyForm = GlobalKey();
 
@@ -61,10 +61,10 @@ class BbsPage extends HookWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final result = useProvider(articlesStreamProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final result = ref.watch(articlesStreamProvider);
     return result.when(
-        data: (value) => _buildScreen(value),
+        data: (value) => _buildScreen(value, ref),
         loading: () => Center(
               child: Text('loading'),
             ),
@@ -73,29 +73,29 @@ class BbsPage extends HookWidget {
             ));
   }
 
-  Widget _buildScreen(QuerySnapshot<Article> snapshot) {
-    final edit = useProvider(_editProvider).state;
+  Widget _buildScreen(QuerySnapshot<Article> snapshot, WidgetRef ref) {
+    final edit = ref.watch(_editProvider);
 
     return Stack(
       key: _keyStack,
       alignment: Alignment.bottomCenter,
       children: <Widget>[
-        _buildBoard(snapshot),
+        _buildBoard(snapshot, ref),
         if (edit)
           Positioned(
             top: 20,
             child: Align(
               alignment: Alignment.topCenter,
-              child: _buildForm(),
+              child: _buildForm(ref),
             ),
           ),
-        if (edit) _buildTools(),
+        if (edit) _buildTools(ref),
       ],
     );
   }
 
-  Widget _buildBoard(QuerySnapshot<Article> snapshot) {
-    final offset = useProvider(_offsetProvider).state;
+  Widget _buildBoard(QuerySnapshot<Article> snapshot, WidgetRef ref) {
+    final offset = ref.watch(_offsetProvider);
 
     final papers = snapshot.docs.map((noticeDoc) {
       final notice = noticeDoc.data();
@@ -131,7 +131,7 @@ class BbsPage extends HookWidget {
           ));
     }).toList();
     return GestureDetector(
-      onPanUpdate: useContext().read(_bbsViewModel).pan,
+      onPanUpdate: ref.read(_bbsViewModel).pan,
       child: Container(
         color: Colors.deepPurple,
         child: Stack(
@@ -141,9 +141,9 @@ class BbsPage extends HookWidget {
     );
   }
 
-  Widget _buildForm() {
+  Widget _buildForm(WidgetRef ref) {
     final context = useContext();
-    final form = useProvider(_formProvider).state;
+    final form = ref.watch(_formProvider);
     final controller = TextEditingController();
     controller.text = form.text;
 
@@ -157,18 +157,17 @@ class BbsPage extends HookWidget {
         maxLines: null,
         maxLength: 200,
         onChanged: (input) {
-          context.read(_formProvider).state.text = input;
+          ref.read(_formProvider.notifier).state.text = input;
         },
         textInputAction: TextInputAction.newline,
-        buildCounter: (_,
-                {required currentLength, maxLength, required isFocused}) =>
-            Row(
-              children: [
-                Text('$currentLength / $maxLength'),
-                Spacer(),
-                Text('みつを'),
-              ],
-            ),
+        buildCounter:
+            (_, {required currentLength, maxLength, required isFocused}) => Row(
+          children: [
+            Text('$currentLength / $maxLength'),
+            Spacer(),
+            Text('みつを'),
+          ],
+        ),
         style: TextStyle(
           fontSize: 14,
           color: Colors.black54,
@@ -200,9 +199,7 @@ class BbsPage extends HookWidget {
     );
   }
 
-  Widget _buildTools() {
-    final context = useContext();
-
+  Widget _buildTools(WidgetRef ref) {
     return Stack(
       alignment: Alignment.topLeft,
       children: [
@@ -227,7 +224,7 @@ class BbsPage extends HookWidget {
                     final positionForm = formBox.localToGlobal(Offset.zero);
                     final offset = Offset(positionForm.dx - positionStack.dx,
                         positionForm.dy - positionStack.dy);
-                    await context.read(_bbsViewModel).post(offset);
+                    await ref.read(_bbsViewModel).post(offset);
                   },
                   child: Text('投稿'),
                 ),
@@ -249,7 +246,7 @@ class BbsPage extends HookWidget {
             ),
           ),
           onPressed: () {
-            context.read(_editProvider).state = false;
+            ref.read(_editProvider.notifier).state = false;
           },
         ),
       ],
@@ -265,18 +262,18 @@ class _BbsViewModel {
   _BbsViewModel(this.read);
 
   void pan(DragUpdateDetails details) {
-    final offset = read(_offsetProvider).state;
-    read(_offsetProvider).state =
+    final offset = read(_offsetProvider.notifier).state;
+    read(_offsetProvider.notifier).state =
         offset.translate(details.delta.dx, details.delta.dy);
   }
 
   void startCreate() {
-    read(_editProvider).state = true;
+    read(_editProvider.notifier).state = true;
   }
 
   Future<void> post(Offset formOffset) async {
-    final text = read(_formProvider).state.text;
-    final offset = read(_offsetProvider).state;
+    final text = read(_formProvider).text;
+    final offset = read(_offsetProvider);
     if (text.trim().isEmpty) {
       read(snackBarController)?.showSnackBar(
         SnackBar(
@@ -291,7 +288,7 @@ class _BbsViewModel {
     final top = -offset.dy + formOffset.dy;
     final newArticle = Article(text, left, top, now, 'me');
     final docId = await read(articleRepository).save(newArticle);
-    read(_editProvider).state = false;
+    read(_editProvider.notifier).state = false;
 
     read(snackBarController)?.showSnackBar(
       SnackBar(
