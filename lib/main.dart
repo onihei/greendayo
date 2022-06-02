@@ -9,7 +9,15 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+      options: FirebaseOptions(
+          apiKey: "AIzaSyAABCUV2tq4jvJJfxDv_n0iTIrV8asKuvw",
+          authDomain: "yamyam-ac34b.firebaseapp.com",
+          projectId: "yamyam-ac34b",
+          storageBucket: "yamyam-ac34b.appspot.com",
+          messagingSenderId: "853677427401",
+          appId: "1:853677427401:web:d51bf2dbf8ec5cd2eedb18",
+          measurementId: "G-WN5GNRYG5Y"));
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
