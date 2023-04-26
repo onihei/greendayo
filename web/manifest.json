@@ -1,11 +1,11 @@
 {
-    "name": "greendayo",
-    "short_name": "greendayo",
+    "name": "すしぺろ",
+    "short_name": "すしぺろ",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "すしぺろは出会えるインターネット！楽しいゲームで遊んだり、チャットで楽しくおしゃべりしたり、遊び方はみんなで見つけよう。",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

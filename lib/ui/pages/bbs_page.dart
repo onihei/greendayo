@@ -1,15 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:greendayo/entity/article.dart';
-import 'package:greendayo/my_app.dart';
 import 'package:greendayo/provider/article_provider.dart';
+import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/repository/article_repository.dart';
 import 'package:greendayo/tab_config.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-final _offsetProvider = StateProvider.autoDispose<Offset>((ref) => Offset.zero);
+final _screenOffsetProvider = StateProvider.autoDispose<Offset>((ref) => Offset.zero);
 
 final _editProvider = StateProvider.autoDispose<bool>((ref) => false);
 
@@ -19,18 +18,20 @@ class BbsForm {
   String text = '';
 }
 
+final _formWidthProvider = StateProvider.autoDispose<double>((ref) => 270);
+
 class BbsTabConfig implements TabConfig {
   @override
   String get label => '掲示板';
 
   @override
-  Widget get icon => Icon(Icons.dangerous_sharp, color: Colors.red);
+  Widget get icon => Icon(Icons.forum_outlined);
 
   @override
-  Widget get activeIcon => Icon(Icons.dangerous_sharp);
+  Widget get activeIcon => Icon(Icons.forum);
 
   @override
-  Function get factoryMethod => BbsPage.factoryMethod;
+  Function get factoryMethod => BbsPage.new;
 
   @override
   Widget get floatingActionButton => Consumer(
@@ -38,10 +39,10 @@ class BbsTabConfig implements TabConfig {
           final edit = ref.watch(_editProvider);
           final button = FloatingActionButton(
             child: Icon(
-              Icons.android,
+              Icons.add,
             ),
             onPressed: () {
-              ref.watch(_bbsViewModel).startCreate();
+              ref.watch(_bbsViewController).startCreate();
             },
           );
           return Visibility(
@@ -53,18 +54,13 @@ class BbsTabConfig implements TabConfig {
 }
 
 class BbsPage extends HookConsumerWidget {
-  final _keyStack = GlobalKey();
-  final _keyForm = GlobalKey();
-
-  static BbsPage factoryMethod() {
-    return BbsPage();
-  }
+  const BbsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(articlesStreamProvider);
     return result.when(
-        data: (value) => _buildScreen(value, ref),
+        data: (value) => _buildScreen(context, ref, value),
         loading: () => Center(
               child: Text('loading'),
             ),
@@ -73,67 +69,70 @@ class BbsPage extends HookConsumerWidget {
             ));
   }
 
-  Widget _buildScreen(QuerySnapshot<Article> snapshot, WidgetRef ref) {
+  Widget _buildScreen(BuildContext context, WidgetRef ref, QuerySnapshot<Article> snapshot) {
     final edit = ref.watch(_editProvider);
+    final keyFormContainer = ref.watch(globalKeyProvider("formContainer"));
 
     return Stack(
-      key: _keyStack,
+      key: keyFormContainer,
       alignment: Alignment.bottomCenter,
       children: <Widget>[
-        _buildBoard(snapshot, ref),
+        _buildBoard(context, ref, snapshot),
         if (edit)
-          Positioned(
-            top: 20,
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: _buildForm(ref),
-            ),
+          Align(
+            alignment: Alignment(0, -0.2),
+            child: _buildForm(context, ref),
           ),
-        if (edit) _buildTools(ref),
+        if (edit) _buildEditActions(ref),
       ],
     );
   }
 
-  Widget _buildBoard(QuerySnapshot<Article> snapshot, WidgetRef ref) {
-    final offset = ref.watch(_offsetProvider);
+  Widget _buildBoard(BuildContext context, WidgetRef ref, QuerySnapshot<Article> snapshot) {
+    final screenOffset = ref.watch(_screenOffsetProvider);
 
-    final papers = snapshot.docs.map((noticeDoc) {
-      final notice = noticeDoc.data();
+    final papers = snapshot.docs.map((articleDoc) {
+      final article = articleDoc.data();
       return Positioned(
-          left: offset.dx + notice.left.toDouble(),
-          top: offset.dy + notice.top.toDouble(),
-          child: Container(
-            padding: EdgeInsets.all(4),
-            width: 140,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(notice.text),
-                Row(
-                  children: [
-                    Spacer(),
-                    Text('みつを'),
-                  ],
-                ),
-              ],
-            ),
-            decoration: BoxDecoration(
-              color: Colors.yellow,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  spreadRadius: 1.2,
-                  blurRadius: 1,
-                  offset: Offset(1, 1),
-                ),
-              ],
+          left: screenOffset.dx + article.left.toDouble(),
+          top: screenOffset.dy + article.top.toDouble(),
+          child: InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, "/profile", arguments: article.createdBy);
+            },
+            child: Container(
+              padding: EdgeInsets.all(10),
+              width: article.width.toDouble(),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    spreadRadius: 1.2,
+                    blurRadius: 1,
+                    offset: Offset(1, 1),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(article.text),
+                  Row(
+                    children: [
+                      Spacer(),
+                      Text(article.signature),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ));
     }).toList();
     return GestureDetector(
-      onPanUpdate: ref.read(_bbsViewModel).pan,
+      onPanUpdate: ref.read(_bbsViewController).pan,
       child: Container(
-        color: Colors.deepPurple,
+        color: Theme.of(context).colorScheme.background,
         child: Stack(
           children: papers,
         ),
@@ -141,16 +140,29 @@ class BbsPage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildForm(WidgetRef ref) {
-    final context = useContext();
+  Widget _buildForm(BuildContext context, WidgetRef ref) {
     final form = ref.watch(_formProvider);
+    final formWidth = ref.watch(_formWidthProvider);
     final controller = TextEditingController();
     controller.text = form.text;
+    final keyForm = ref.watch(globalKeyProvider("form"));
+    final myProfile = ref.watch(myProfileProvider);
 
     return Container(
-      key: _keyForm,
+      key: keyForm,
       padding: EdgeInsets.all(4),
-      width: 140,
+      width: formWidth,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            spreadRadius: 1.2,
+            blurRadius: 1,
+            offset: Offset(1, 1),
+          ),
+        ],
+      ),
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.multiline,
@@ -160,157 +172,142 @@ class BbsPage extends HookConsumerWidget {
           ref.read(_formProvider.notifier).state.text = input;
         },
         textInputAction: TextInputAction.newline,
-        buildCounter:
-            (_, {required currentLength, maxLength, required isFocused}) => Row(
+        buildCounter: (_, {required currentLength, maxLength, required isFocused}) => Row(
           children: [
             Text('$currentLength / $maxLength'),
             Spacer(),
-            Text('みつを'),
+            Text(myProfile.nickname),
           ],
         ),
         style: TextStyle(
           fontSize: 14,
-          color: Colors.black54,
           fontWeight: FontWeight.w400,
         ),
         decoration: InputDecoration(
           isCollapsed: true,
-          contentPadding: EdgeInsets.all(0),
-          fillColor: Colors.white38,
+          contentPadding: EdgeInsets.all(10),
+          fillColor: Theme.of(context).colorScheme.onSecondaryContainer,
           errorText: null,
-          hintText: '投稿内容',
+          hintText: '投稿内容をここに書いてください。',
           hintStyle: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w400,
           ),
         ),
       ),
-      decoration: BoxDecoration(
-        color: Colors.yellow,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            spreadRadius: 1.2,
-            blurRadius: 1,
-            offset: Offset(1, 1),
-          ),
-        ],
-      ),
     );
   }
 
-  Widget _buildTools(WidgetRef ref) {
-    return Stack(
-      alignment: Alignment.topLeft,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: 32),
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 4,
-            ),
-            color: Colors.cyan,
-            child: Row(
-              children: [
-                Spacer(),
-                ElevatedButton(
-                  onPressed: () async {
-                    final stackBox = _keyStack.currentContext
-                        ?.findRenderObject() as RenderBox;
-                    final formBox = _keyForm.currentContext?.findRenderObject()
-                        as RenderBox;
-                    final positionStack = stackBox.localToGlobal(Offset.zero);
-                    final positionForm = formBox.localToGlobal(Offset.zero);
-                    final offset = Offset(positionForm.dx - positionStack.dx,
-                        positionForm.dy - positionStack.dy);
-                    await ref.read(_bbsViewModel).post(offset);
-                  },
-                  child: Text('投稿'),
-                ),
-              ],
-            ),
-          ),
+  Widget _buildEditActions(WidgetRef ref) {
+    final context = useContext();
+    return Padding(
+      padding: EdgeInsets.only(top: 32),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: 8,
+          vertical: 4,
         ),
-        ElevatedButton(
-          child: Icon(Icons.clear),
-          style: ElevatedButton.styleFrom(
-            primary: Colors.white,
-            onPrimary: Colors.black,
-            shape: const CircleBorder(
-              side: BorderSide(
-                color: Colors.black,
-                width: 2,
-                style: BorderStyle.solid,
-              ),
+        color: Theme.of(context).colorScheme.primaryContainer,
+        child: Row(
+          children: [
+            Spacer(),
+            ElevatedButton(
+              onPressed: () async {
+                await ref.read(_bbsViewController).post();
+              },
+              child: Text('投稿する'),
             ),
-          ),
-          onPressed: () {
-            ref.read(_editProvider.notifier).state = false;
-          },
+            SizedBox(
+              width: 20,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                ref.read(_editProvider.notifier).state = false;
+              },
+              child: Text('キャンセル'),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
 
-final _bbsViewModel = Provider.autoDispose((ref) => _BbsViewModel(ref.read));
+final _bbsViewController = Provider.autoDispose<_BbsViewController>((ref) => _BbsViewController(ref));
 
-class _BbsViewModel {
-  final Reader read;
+class _BbsViewController {
+  final Ref ref;
 
-  _BbsViewModel(this.read);
+  _BbsViewController(this.ref);
 
   void pan(DragUpdateDetails details) {
-    final offset = read(_offsetProvider.notifier).state;
-    read(_offsetProvider.notifier).state =
-        offset.translate(details.delta.dx, details.delta.dy);
+    final offset = ref.read(_screenOffsetProvider.notifier).state;
+    ref.read(_screenOffsetProvider.notifier).state = offset.translate(details.delta.dx, details.delta.dy);
   }
 
   void startCreate() {
-    read(_editProvider.notifier).state = true;
+    ref.read(_editProvider.notifier).state = true;
   }
 
-  Future<void> post(Offset formOffset) async {
-    final text = read(_formProvider).text;
-    final offset = read(_offsetProvider);
+  Future<void> post() async {
+    final myProfile = ref.read(myProfileProvider);
+
+    final keyFormContainer = ref.read(globalKeyProvider("formContainer"));
+    final keyForm = ref.read(globalKeyProvider("form"));
+    final stackBox = keyFormContainer.currentContext?.findRenderObject() as RenderBox;
+    final formBox = keyForm.currentContext?.findRenderObject() as RenderBox;
+    final positionStack = stackBox.localToGlobal(Offset.zero);
+    final positionForm = formBox.localToGlobal(Offset.zero);
+    final formOffset = Offset(positionForm.dx - positionStack.dx, positionForm.dy - positionStack.dy);
+    final formWidth = ref.read(_formWidthProvider);
+
+    final text = ref.read(_formProvider).text;
+    final screenOffset = ref.read(_screenOffsetProvider);
     if (text.trim().isEmpty) {
-      read(snackBarController)?.showSnackBar(
-        SnackBar(
-          content: Text('投稿内容を記入してください'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      ref.read(snackBarController)?.showSnackBar(
+            SnackBar(
+              content: Text('投稿内容を記入してください'),
+              duration: const Duration(seconds: 3),
+            ),
+          );
       return;
     }
     final now = DateTime.now();
-    final left = -offset.dx + formOffset.dx;
-    final top = -offset.dy + formOffset.dy;
-    final newArticle = Article(text, left, top, now, 'me');
-    final docId = await read(articleRepository).save(newArticle);
-    read(_editProvider.notifier).state = false;
-
-    read(snackBarController)?.showSnackBar(
-      SnackBar(
-        content: Text('投稿しました'),
-        duration: const Duration(seconds: 6),
-        action: SnackBarAction(
-          label: '取消',
-          onPressed: () async {
-            await this.undo(docId);
-          },
-        ),
-      ),
+    final left = -screenOffset.dx + formOffset.dx;
+    final top = -screenOffset.dy + formOffset.dy;
+    final newArticle = Article(
+      text: text,
+      signature: myProfile.nickname,
+      left: left,
+      top: top,
+      width: formWidth,
+      createdAt: now,
+      createdBy: myProfile.userId,
     );
+    final docId = await ref.read(articleRepository).save(newArticle);
+    ref.read(_editProvider.notifier).state = false;
+
+    ref.read(snackBarController)?.showSnackBar(
+          SnackBar(
+            content: Text('投稿しました'),
+            duration: const Duration(seconds: 6),
+            action: SnackBarAction(
+              label: '取消',
+              onPressed: () async {
+                await this.undo(docId);
+              },
+            ),
+          ),
+        );
   }
 
   Future<void> undo(String docId) async {
-    await read(articleRepository).delete(docId);
-    read(snackBarController)?.showSnackBar(
-      SnackBar(
-        content: Text('投稿を取り消しました'),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    await ref.read(articleRepository).delete(docId);
+    ref.read(snackBarController)?.showSnackBar(
+          SnackBar(
+            content: Text('投稿を取り消しました'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
   }
 }

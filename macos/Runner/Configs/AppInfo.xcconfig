@@ -8,7 +8,7 @@
 PRODUCT_NAME = greendayo
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.ice9b.greendayo
+PRODUCT_BUNDLE_IDENTIFIER = com.susipero.greendayo
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2022 com.ice9b. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2023 com.susipero. All rights reserved.

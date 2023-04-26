@@ -1,33 +1,28 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:greendayo/tab_config.dart';
 
 class CommunityTabConfig implements TabConfig {
   @override
-  String get label => 'サークル';
+  String get label => 'チーム';
 
   @override
-  Widget get icon => Icon(Icons.escalator, color: Colors.red);
+  Widget get icon => Icon(Icons.hive_outlined);
 
   @override
-  Widget get activeIcon => Icon(Icons.escalator);
+  Widget get activeIcon => Icon(Icons.hive);
 
   @override
-  Function get factoryMethod => CommunityPage.factoryMethod;
+  Function get factoryMethod => CommunityPage.new;
 
   @override
   Widget? get floatingActionButton => null;
 }
 
 class CommunityPage extends StatelessWidget {
-  static CommunityPage factoryMethod() {
-    return CommunityPage();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('サークル'),
+      child: Text('チーム'),
     );
   }
 }

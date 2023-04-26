@@ -14,6 +14,50 @@
       },
       "oauth_client": [
         {
+          "client_id": "853677427401-p9ck239cuvu8ebtnh343muamcr9dqipl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ice9b.greendayo",
+            "certificate_hash": "83ff71c4d7328978145d25ae2de197ec67be4945"
+          }
+        },
+        {
+          "client_id": "853677427401-lt3bb0h9is3b4kqjeenq6vhu076nkvjp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKF7UmIQOsZZ--TwQlfBcWU7ZsOfd0a4s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "853677427401-lt3bb0h9is3b4kqjeenq6vhu076nkvjp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "853677427401-pf0ng4om09eqqvoshkkj5a8c0kj6g14l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ice9b.greendayo"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:853677427401:android:3f8288d5ce178a99eedb18",
+        "android_client_info": {
+          "package_name": "com.susipero.greendayo"
+        }
+      },
+      "oauth_client": [
+        {
           "client_id": "853677427401-lt3bb0h9is3b4kqjeenq6vhu076nkvjp.apps.googleusercontent.com",
           "client_type": 3
         }
