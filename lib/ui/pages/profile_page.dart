@@ -44,7 +44,7 @@ class ProfilePage extends ConsumerWidget {
                     SizedBox(
                       height: 40,
                     ),
-                    Text(data.text),
+                    Text(data.text ?? "こんにちは！私は${data.nickname}"),
                   ],
                 ),
               ),

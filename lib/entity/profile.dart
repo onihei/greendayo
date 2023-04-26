@@ -16,6 +16,7 @@ class Profile {
   final String? movie;
   final String? goal;
   final String? treasure;
+  final String? text;
 
   Profile({
     required this.userId,
@@ -29,15 +30,8 @@ class Profile {
     this.movie,
     this.goal,
     this.treasure,
+    this.text,
   });
-
-  String get text {
-    return "こんにちは、私は${nickname}と申します。${born}出身の${age}。現在は${job}として活動しています。"
-        "空いた時間にはよく${interesting}をしています。"
-        "私の好きな本は${book}、映画では${movie}が大好きです。"
-        "\n\n\n"
-        "将来の目標は${goal}。人生の宝物は${treasure}。";
-  }
 
   Widget get photo {
     if (photoUrl != null) {
@@ -102,6 +96,7 @@ class Profile {
       movie: snapshot.getIfExists('movie'),
       goal: snapshot.getIfExists('goal'),
       treasure: snapshot.getIfExists('treasure'),
+      text: snapshot.getIfExists('text'),
     );
   }
 
@@ -117,6 +112,7 @@ class Profile {
       "movie": movie,
       "goal": goal,
       "treasure": treasure,
+      "text": text,
     };
   }
 
@@ -132,6 +128,7 @@ class Profile {
     String? movie,
     String? goal,
     String? treasure,
+    String? text,
   }) {
     return Profile(
       userId: userId ?? this.userId,
@@ -145,6 +142,7 @@ class Profile {
       movie: movie ?? this.movie,
       goal: goal ?? this.goal,
       treasure: treasure ?? this.treasure,
+      text: text ?? this.text,
     );
   }
 }

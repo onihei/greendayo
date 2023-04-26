@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/provider/profile_provider.dart';
+import 'package:greendayo/provider/socket_provider.dart';
 import 'package:greendayo/repository/profile_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -18,13 +21,37 @@ final _treasureControllerProvider = Provider.autoDispose<TextEditingController>(
 
 final _viewControllerProvider = Provider.autoDispose<_ViewController>((ref) => _ViewController(ref));
 
+final _loadingProvider = StateProvider<bool>((ref) => false);
+
 class _ViewController {
   final Ref ref;
 
   _ViewController(this.ref);
 
   Future<void> save() async {
+    ref.read(_loadingProvider.notifier).state = true;
     final myProfile = ref.read(myProfileProvider);
+    final socket = ref.read(socketProvider);
+
+    final param = {
+      "nickname": ref.read(_nicknameControllerProvider).value.text,
+      "age": ref.read(_ageControllerProvider).value.text,
+      "born": ref.read(_bornControllerProvider).value.text,
+      "job": ref.read(_jobControllerProvider).value.text,
+      "interesting": ref.read(_interestingControllerProvider).value.text,
+      "book": ref.read(_bookControllerProvider).value.text,
+      "movie": ref.read(_movieControllerProvider).value.text,
+      "goal": ref.read(_goalControllerProvider).value.text,
+      "treasure": ref.read(_treasureControllerProvider).value.text,
+    };
+
+    final completer = Completer<String>();
+    socket.emitWithAck("makeText", param, ack: (data) {
+      final text = data as String;
+      completer.complete(text);
+    });
+    final text = await completer.future;
+
     final entity = myProfile.copyWith(
       nickname: ref.read(_nicknameControllerProvider).value.text,
       age: ref.read(_ageControllerProvider).value.text,
@@ -35,10 +62,12 @@ class _ViewController {
       movie: ref.read(_movieControllerProvider).value.text,
       goal: ref.read(_goalControllerProvider).value.text,
       treasure: ref.read(_treasureControllerProvider).value.text,
+      text: text,
     );
     ref.read(profileRepository).save(entity);
     ref.invalidate(profileProvider(myProfile.userId));
     ref.read(myProfileProvider.notifier).state = entity;
+    ref.read(_loadingProvider.notifier).state = false;
   }
 }
 
@@ -47,6 +76,8 @@ class ProfileEditPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(socketProvider);
+
     final pageController = ref.watch(_pageControllerProvider);
 
     final items = [
@@ -61,25 +92,45 @@ class ProfileEditPage extends ConsumerWidget {
       _treasure(context, ref),
     ];
 
+    final body = Container(
+      color: Theme.of(context).colorScheme.background,
+      alignment: Alignment.center,
+      child: Stack(
+        children: [
+          PageView(
+            controller: pageController,
+            children: items,
+          ),
+          Align(
+            alignment: Alignment(0, 0.9),
+            child: _indicator(context, ref, items),
+          ),
+        ],
+      ),
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: Text("プロフィールの設定"),
       ),
-      body: Container(
-        color: Theme.of(context).colorScheme.background,
-        alignment: Alignment.center,
-        child: Stack(
-          children: [
-            PageView(
-              controller: pageController,
-              children: items,
-            ),
-            Align(
-              alignment: Alignment(0, 0.9),
-              child: _indicator(context, ref, items),
-            ),
-          ],
-        ),
+      body: Stack(
+        children: [
+          body,
+          Consumer(
+            builder: (context, ref, child) {
+              final loading = ref.watch(_loadingProvider);
+              if (!loading) {
+                return SizedBox.shrink();
+              }
+              return Container(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                child: Center(
+                    child: CircularProgressIndicator(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

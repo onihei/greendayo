@@ -1,0 +1,24 @@
+{
+  "name": "greendayo-server",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "exports": "./index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "forever start --uid greendayo -a --killSignal=SIGTERM -c 'nodemon --exitcrash' index.js",
+    "stop": "forever stop greendayo",
+    "restart": "forever restart greendayo"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dayjs": "^1.11.7",
+    "express": "^4.18.2",
+    "openai": "^3.2.1",
+    "socket.io": "^4.6.1",
+    "sqlite": "^4.1.2",
+    "sqlite3": "^5.1.6"
+  }
+}
