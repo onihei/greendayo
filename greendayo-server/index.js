@@ -31,11 +31,22 @@ io.on('connection', async (socket) => {
     }
 
     socket.on('generateProfileText', async (param, ack) => {
+        const input = {
+            '名前': param.nickname,
+            '出身地': param.born,
+            '年齢': param.age,
+            '仕事': param.job,
+            '趣味': param.interesting,
+            '好きな本': param.book,
+            '好きな映画': param.movie,
+            '目標': param.goal,
+            '人生の宝物': param.treasure,
+        };
         const response = await openai.createCompletion({
             model: "text-davinci-003",
-            prompt: `次の情報を使って他人に興味を持ってもらえる自己紹介文を作成してください。結果だけで良いです。nullの値は無視してください。各キーの意味の対応は次の通りです。nickname:名前, born:出身地, age:年齢, job:仕事, interesting: 趣味: book: 好きな本, movie:好きな映画, goal:目標, treasure:人生の宝物。${JSON.stringify(param)}`,
+            prompt: `次の情報を使って他人に興味を持ってもらえる自己紹介文を作成してください。最後に一文を加えて面白くしてください。。${JSON.stringify(input)}`,
             max_tokens: 2048,
-            temperature: 0.9,
+            temperature: 1.1,
             stream: false,
             logprobs: null,
         });
