@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/provider/top_provider.dart';
@@ -30,11 +31,20 @@ class _HeaderViewController {
 
   Future<bool> signIn(authProvider) async {
     try {
-      final userCredential = await FirebaseAuth.instance.signInWithPopup(authProvider);
+      final userCredential = await _signIn(authProvider);
       return userCredential.user != null;
     } catch (e) {
+      print(e);
       // 認証を完了せずに終了した場合など
       return false;
+    }
+  }
+
+  Future<UserCredential> _signIn(authProvider) async {
+    if (kIsWeb) {
+      return await FirebaseAuth.instance.signInWithPopup(authProvider);
+    } else {
+      return await FirebaseAuth.instance.signInWithProvider(authProvider);
     }
   }
 }

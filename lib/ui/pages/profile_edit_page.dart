@@ -30,28 +30,9 @@ class _ViewController {
 
   Future<void> save() async {
     ref.read(_loadingProvider.notifier).state = true;
+    final text = await generateProfileText();
+
     final myProfile = ref.read(myProfileProvider);
-    final socket = ref.read(socketProvider);
-
-    final param = {
-      "nickname": ref.read(_nicknameControllerProvider).value.text,
-      "age": ref.read(_ageControllerProvider).value.text,
-      "born": ref.read(_bornControllerProvider).value.text,
-      "job": ref.read(_jobControllerProvider).value.text,
-      "interesting": ref.read(_interestingControllerProvider).value.text,
-      "book": ref.read(_bookControllerProvider).value.text,
-      "movie": ref.read(_movieControllerProvider).value.text,
-      "goal": ref.read(_goalControllerProvider).value.text,
-      "treasure": ref.read(_treasureControllerProvider).value.text,
-    };
-
-    final completer = Completer<String>();
-    socket.emitWithAck("makeText", param, ack: (data) {
-      final text = data as String;
-      completer.complete(text);
-    });
-    final text = await completer.future;
-
     final entity = myProfile.copyWith(
       nickname: ref.read(_nicknameControllerProvider).value.text,
       age: ref.read(_ageControllerProvider).value.text,
@@ -68,6 +49,29 @@ class _ViewController {
     ref.invalidate(profileProvider(myProfile.userId));
     ref.read(myProfileProvider.notifier).state = entity;
     ref.read(_loadingProvider.notifier).state = false;
+  }
+
+  Future<String> generateProfileText() async {
+    final socket = ref.read(socketProvider);
+
+    final param = {
+      "nickname": ref.read(_nicknameControllerProvider).value.text,
+      "age": ref.read(_ageControllerProvider).value.text,
+      "born": ref.read(_bornControllerProvider).value.text,
+      "job": ref.read(_jobControllerProvider).value.text,
+      "interesting": ref.read(_interestingControllerProvider).value.text,
+      "book": ref.read(_bookControllerProvider).value.text,
+      "movie": ref.read(_movieControllerProvider).value.text,
+      "goal": ref.read(_goalControllerProvider).value.text,
+      "treasure": ref.read(_treasureControllerProvider).value.text,
+    };
+    final completer = Completer<String>();
+    socket.emitWithAck("generateProfileText", param, ack: (data) {
+      final text = data as String;
+      completer.complete(text);
+    });
+    final text = await completer.future;
+    return text;
   }
 }
 

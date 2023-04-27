@@ -3,23 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>853677427401-9ruom7t23cd5l693ve6l3vctpgvpohpj.apps.googleusercontent.com</string>
+	<string>145740451737-tafc94jm6k7o75bpkih3gdjvjo79qrem.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.853677427401-9ruom7t23cd5l693ve6l3vctpgvpohpj</string>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>853677427401-p9ck239cuvu8ebtnh343muamcr9dqipl.apps.googleusercontent.com</string>
+	<string>com.googleusercontent.apps.145740451737-tafc94jm6k7o75bpkih3gdjvjo79qrem</string>
 	<key>API_KEY</key>
-	<string>AIzaSyDqFh5maunSFucf6OaderHYgjoMrKm6j94</string>
+	<string>AIzaSyCpXbILblFiINuyeEbVCzS4_btByeYovwo</string>
 	<key>GCM_SENDER_ID</key>
-	<string>853677427401</string>
+	<string>145740451737</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.susipero.greendayo</string>
 	<key>PROJECT_ID</key>
-	<string>yamyam-ac34b</string>
+	<string>greendao-a5344</string>
 	<key>STORAGE_BUCKET</key>
-	<string>yamyam-ac34b.appspot.com</string>
+	<string>greendao-a5344.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:853677427401:ios:7050cd82d43d6728eedb18</string>
+	<string>1:145740451737:ios:6136db1e2e41e5e15c0d08</string>
 </dict>
 </plist>

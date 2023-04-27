@@ -1,6 +1,9 @@
 # greendayo
 
-susipero.com のWebアプリケーションの実装です
+susipero.com のWebアプリケーションの実装です。
+基本的には webビルドだけです。
+しかしできるだけNativeビルドと動作ができるように目指します。
+パフォーマンスやメモリリークの調査にはnativeで動作させてFlutter Dev Toolsが必要だからです。
 
 ## Getting Started
 

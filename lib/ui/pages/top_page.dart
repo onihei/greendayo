@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:greendayo/fragments/dot_image.dart';
@@ -171,7 +172,8 @@ class TopPage extends ConsumerWidget {
                 height: 400,
                 child: ModelViewer(
                   cameraControls: false,
-                  src: 'assets/assets/models/rock.glb',
+                  // fixme : bug?
+                  src: kIsWeb ? 'assets/assets/models/rock.glb' : 'assets/models/rock.glb',
                   alt: "A 3D model of an astronaut",
                   autoRotate: true,
                 ),
