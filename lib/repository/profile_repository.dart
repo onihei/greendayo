@@ -1,5 +1,7 @@
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:greendayo/entity/profile.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -43,6 +45,8 @@ class _ProfileRepositoryImpl implements ProfileRepository {
       nickname: user.displayName ?? "名無し",
       photoUrl: user.photoURL,
     );
+
+    await _uploadPhoto(user.uid, user.photoURL);
     save(profile);
     return profile;
   }
@@ -53,5 +57,26 @@ class _ProfileRepositoryImpl implements ProfileRepository {
     final newDoc = profilesRef.doc(entity.userId);
     await newDoc.set(entity);
     return newDoc.id;
+  }
+
+  Future<void> _uploadPhoto(String userId, String? url) async {
+    http.Response data;
+    try {
+      data = await http.get(Uri.parse(url!));
+      if (data.statusCode != 200) {
+        throw StateError("load photo error:${data.statusCode}");
+      }
+    } catch (e) {
+      final url = await FirebaseStorage.instance.ref().child('default_avatar.png').getDownloadURL();
+      data = await http.get(Uri.parse(url));
+    }
+    final storageRef = FirebaseStorage.instance.ref().child('users/${userId}/photo');
+    final uploadTask = storageRef.putData(
+      data.bodyBytes,
+      SettableMetadata(
+        contentType: data.headers['content-type'],
+      ),
+    );
+    await uploadTask;
   }
 }

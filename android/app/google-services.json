@@ -1,85 +1,34 @@
 {
   "project_info": {
-    "project_number": "853677427401",
-    "project_id": "yamyam-ac34b",
-    "storage_bucket": "yamyam-ac34b.appspot.com"
+    "project_number": "145740451737",
+    "project_id": "greendao-a5344",
+    "storage_bucket": "greendao-a5344.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:853677427401:android:9406c7bdb219f593eedb18",
-        "android_client_info": {
-          "package_name": "com.ice9b.greendayo"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "853677427401-p9ck239cuvu8ebtnh343muamcr9dqipl.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ice9b.greendayo",
-            "certificate_hash": "83ff71c4d7328978145d25ae2de197ec67be4945"
-          }
-        },
-        {
-          "client_id": "853677427401-lt3bb0h9is3b4kqjeenq6vhu076nkvjp.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAKF7UmIQOsZZ--TwQlfBcWU7ZsOfd0a4s"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "853677427401-lt3bb0h9is3b4kqjeenq6vhu076nkvjp.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "853677427401-pf0ng4om09eqqvoshkkj5a8c0kj6g14l.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.ice9b.greendayo"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:853677427401:android:3f8288d5ce178a99eedb18",
+        "mobilesdk_app_id": "1:145740451737:android:af6ef58fabd4130e5c0d08",
         "android_client_info": {
           "package_name": "com.susipero.greendayo"
         }
       },
       "oauth_client": [
         {
-          "client_id": "853677427401-lt3bb0h9is3b4kqjeenq6vhu076nkvjp.apps.googleusercontent.com",
+          "client_id": "145740451737-7un5t0k4a127li7dalnlfu58k3v6dj6b.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAKF7UmIQOsZZ--TwQlfBcWU7ZsOfd0a4s"
+          "current_key": "AIzaSyD9Ir0abgf4qP8n2TyfQxWHlMic0ASDpu8"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "853677427401-lt3bb0h9is3b4kqjeenq6vhu076nkvjp.apps.googleusercontent.com",
+              "client_id": "145740451737-7un5t0k4a127li7dalnlfu58k3v6dj6b.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "853677427401-pf0ng4om09eqqvoshkkj5a8c0kj6g14l.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.ice9b.greendayo"
-              }
             }
           ]
         }
