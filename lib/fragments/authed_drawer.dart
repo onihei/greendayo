@@ -15,49 +15,51 @@ class AuthedDrawer extends ConsumerWidget {
   }
 
   Widget _drawer(context, ref, Profile myProfile) {
-    return Drawer(
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () async {
-              Navigator.popAndPushNamed(context, "/profile", arguments: myProfile.userId);
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  myProfile.photo,
-                  SizedBox(
-                    width: 8,
-                  ),
-                  Text(myProfile.nickname),
-                ],
+    return SafeArea(
+      child: Drawer(
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () async {
+                Navigator.popAndPushNamed(context, "/profile", arguments: myProfile.userId);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    myProfile.photo,
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text(myProfile.nickname),
+                  ],
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-            child: Divider(),
-          ),
-          InkWell(
-            onTap: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pop(context);
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Icon(Icons.logout),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  Text("ログアウト"),
-                ],
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+              child: Divider(),
+            ),
+            InkWell(
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Icon(Icons.logout),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text("ログアウト"),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

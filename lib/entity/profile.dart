@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:greendayo/lang/firebase_ext.dart';
+import 'package:greendayo/provider/global_provider.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class Profile {
   final String userId;
@@ -21,6 +22,7 @@ class Profile {
   Profile({
     required this.userId,
     required this.nickname,
+    /// 認証時の画像
     required this.photoUrl,
     this.age,
     this.born,
@@ -34,45 +36,49 @@ class Profile {
   });
 
   Widget get photo {
-    if (photoUrl != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(32.0),
-        child: Container(
-            width: 32,
-            height: 32,
-            child: Image.network(
-              photoUrl!,
-              fit: BoxFit.cover,
-            )),
-      );
-    } else {
-      return FaIcon(
-        FontAwesomeIcons.circleUser,
-        color: Colors.grey,
-        size: 32,
-      );
-    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(32.0),
+      child: Container(
+          width: 32,
+          height: 32,
+          child: Consumer(
+            builder: (context, ref, child) {
+              final avatar = ref.watch(avatarProvider(userId));
+              return avatar.when(
+                  data: (data) => Image.memory(
+                    data,
+                    fit: BoxFit.cover,
+                  ),
+                  error: (error, _) => Icon(Icons.error),
+                  loading: () => CircularProgressIndicator(),
+              );
+            }
+          ),
+      ),
+    );
   }
 
   Widget get photoLarge {
-    if (photoUrl != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(160.0),
-        child: Container(
-            width: 160,
-            height: 160,
-            child: Image.network(
-              photoUrl!,
-              fit: BoxFit.cover,
-            )),
-      );
-    } else {
-      return FaIcon(
-        FontAwesomeIcons.circleUser,
-        color: Colors.grey,
-        size: 160,
-      );
-    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(160.0),
+      child: Container(
+        width: 160,
+        height: 160,
+        child: Consumer(
+            builder: (context, ref, child) {
+              final avatar = ref.watch(avatarProvider(userId));
+              return avatar.when(
+                data: (data) => Image.memory(
+                  data,
+                  fit: BoxFit.cover,
+                ),
+                error: (error, _) => Icon(Icons.error),
+                loading: () => CircularProgressIndicator(),
+              );
+            }
+        ),
+      ),
+    );
   }
 
   factory Profile.anonymous() {

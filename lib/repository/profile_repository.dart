@@ -1,9 +1,9 @@
-import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:greendayo/entity/profile.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:http/http.dart' as http;
 
 final profilesRef = FirebaseFirestore.instance.collection('profiles').withConverter<Profile>(
       fromFirestore: (snapshot, _) => Profile.fromSnapShot(snapshot),

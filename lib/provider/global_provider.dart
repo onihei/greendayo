@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:greendayo/entity/profile.dart';
 import 'package:greendayo/repository/profile_repository.dart';
@@ -19,6 +21,7 @@ final globalKeyProvider = Provider.autoDispose.family<GlobalKey, String>((ref, k
 
 final userProvider = StreamProvider<User?>((ref) {
   final controller = StreamController<User?>();
+  print(FirebaseAuth.instance.currentUser);
   controller.sink.add(FirebaseAuth.instance.currentUser);
   FirebaseAuth.instance.authStateChanges().listen((User? user) async {
     if (user == null) {
@@ -33,3 +36,8 @@ final userProvider = StreamProvider<User?>((ref) {
 });
 
 final myProfileProvider = StateProvider<Profile>((ref) => Profile.anonymous());
+
+final avatarProvider = FutureProvider.family<Uint8List, String>((ref, userId) {
+  // fixme: ディスクキャッシュに変える
+  return FirebaseStorage.instance.ref().child('users/${userId}/photo').getData().then((value) => value!);
+});
