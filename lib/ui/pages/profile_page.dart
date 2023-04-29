@@ -30,6 +30,7 @@ class ProfilePage extends ConsumerWidget {
         ),
         body: Container(
           color: Theme.of(context).colorScheme.background,
+          alignment: Alignment.topCenter,
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(32.0),

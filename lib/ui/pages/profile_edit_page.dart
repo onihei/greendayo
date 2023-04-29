@@ -139,11 +139,22 @@ class ProfileEditPage extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(32.0),
-            child: InkWell(
-              onTap: () async {
-                await ref.read(_viewControllerProvider).uploadPhoto();
-              },
-              child: myProfile.photoLarge,
+            child: Stack(
+              children: [
+                myProfile.photoLarge,
+                // 画像にリップルエフェクトを加えるトリック
+                Positioned.fill(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(80),
+                      onTap: () async {
+                        await ref.read(_viewControllerProvider).uploadPhoto();
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(

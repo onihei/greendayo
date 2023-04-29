@@ -22,6 +22,7 @@ class Profile {
   Profile({
     required this.userId,
     required this.nickname,
+
     /// 認証時の画像
     required this.photoUrl,
     this.age,
@@ -39,21 +40,25 @@ class Profile {
     return ClipRRect(
       borderRadius: BorderRadius.circular(32.0),
       child: Container(
-          width: 32,
-          height: 32,
-          child: Consumer(
-            builder: (context, ref, child) {
-              final avatar = ref.watch(avatarProvider(userId));
-              return avatar.when(
-                  data: (data) => Image.memory(
-                    data,
-                    fit: BoxFit.cover,
-                  ),
-                  error: (error, _) => Icon(Icons.error),
-                  loading: () => CircularProgressIndicator(),
-              );
-            }
-          ),
+        width: 32,
+        height: 32,
+        child: Consumer(builder: (context, ref, child) {
+          if (userId == "anonymous") {
+            return Icon(
+              Icons.account_circle,
+              size: 32,
+            );
+          }
+          final avatar = ref.watch(avatarProvider(userId));
+          return avatar.when(
+            data: (data) => Image.memory(
+              data,
+              fit: BoxFit.cover,
+            ),
+            error: (error, _) => Icon(Icons.error),
+            loading: () => CircularProgressIndicator(),
+          );
+        }),
       ),
     );
   }
@@ -64,19 +69,23 @@ class Profile {
       child: Container(
         width: 160,
         height: 160,
-        child: Consumer(
-            builder: (context, ref, child) {
-              final avatar = ref.watch(avatarProvider(userId));
-              return avatar.when(
-                data: (data) => Image.memory(
-                  data,
-                  fit: BoxFit.cover,
-                ),
-                error: (error, _) => Icon(Icons.error),
-                loading: () => CircularProgressIndicator(),
-              );
-            }
-        ),
+        child: Consumer(builder: (context, ref, child) {
+          if (userId == "anonymous") {
+            return Icon(
+              Icons.account_circle,
+              size: 160,
+            );
+          }
+          final avatar = ref.watch(avatarProvider(userId));
+          return avatar.when(
+            data: (data) => Image.memory(
+              data,
+              fit: BoxFit.cover,
+            ),
+            error: (error, _) => Icon(Icons.error),
+            loading: () => CircularProgressIndicator(),
+          );
+        }),
       ),
     );
   }
