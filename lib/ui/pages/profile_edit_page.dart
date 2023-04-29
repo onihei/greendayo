@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'package:greendayo/provider/profile_provider.dart';
 import 'package:image/image.dart' as img;
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/provider/socket_provider.dart';
 import 'package:greendayo/repository/profile_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 final _pageControllerProvider = Provider.autoDispose<PageController>((ref) => PageController());
@@ -76,24 +75,16 @@ class _ViewController {
 
   Future<void> uploadPhoto() async {
     final snackBar = ref.read(snackBarController);
-    final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ["jpg, png"],
-    );
+    final picker = ImagePicker();
+    final result = await picker.pickImage(source: ImageSource.gallery);
     if (result == null) {
       return;
     }
-    final resultBytes = result.files.single.bytes;
-    if (resultBytes == null) {
-      snackBar?.showSnackBar(
-        SnackBar(
-          content: Text('ファイルの読み込みに失敗しました。'),
-        ),
-      );
-      return;
-    }
+    ref.read(_loadingProvider.notifier).state = true;
+    final resultBytes = await result.readAsBytes();
     final tempImage = img.decodeImage(resultBytes);
     if (tempImage == null) {
+      ref.read(_loadingProvider.notifier).state = false;
       snackBar?.showSnackBar(
         SnackBar(
           content: Text('ファイルの読み込みに失敗しました。'),
@@ -103,7 +94,6 @@ class _ViewController {
     }
     final resized = img.copyResize(tempImage, width: 500);
     final bytes = img.encodeJpg(resized).buffer.asUint8List();
-    ref.read(_loadingProvider.notifier).state = true;
     await ref.read(profileRepository).uploadMyProfilePhoto("image/jpeg", bytes);
   }
 }
