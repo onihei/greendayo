@@ -100,13 +100,14 @@ class MyApp extends HookConsumerWidget {
   Widget _home() {
     return Consumer(builder: (context, ref, child) {
       final user = ref.watch(userProvider);
-      if (user.hasValue) {
-        FlutterNativeSplash.remove();
-      }
+
       final tabIndex = ref.watch(_tabIndexProvider);
       final tab = ref.watch(_tabProvider);
       final scaffoldKey = ref.watch(globalKeyProvider("Scaffold"));
       final authed = user.value != null;
+      if (authed) {
+        FlutterNativeSplash.remove();
+      }
       final appBar = authed
           ? AppBar(
               title: Text(_tabConfigs[tabIndex].label),
