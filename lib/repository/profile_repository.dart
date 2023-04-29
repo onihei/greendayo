@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:greendayo/entity/profile.dart';
+import 'package:greendayo/provider/global_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,9 +18,13 @@ final profileRepository = Provider.autoDispose<ProfileRepository>((ref) => _Prof
 abstract class ProfileRepository {
   Future<Profile> get(String userId);
 
+  Stream<DocumentSnapshot<Profile>> observe(String userId);
+
   Future<Profile> createOrGet(User user);
 
   Future<String> save(Profile entity);
+
+  Future<void> uploadMyProfilePhoto(String contentType, Uint8List bytes);
 }
 
 class _ProfileRepositoryImpl implements ProfileRepository {
@@ -33,6 +40,9 @@ class _ProfileRepositoryImpl implements ProfileRepository {
     }
     return doc.data()!;
   }
+
+  @override
+  Stream<DocumentSnapshot<Profile>> observe(String userId) => profilesRef.doc(userId).snapshots();
 
   @override
   Future<Profile> createOrGet(User user) async {
@@ -57,6 +67,20 @@ class _ProfileRepositoryImpl implements ProfileRepository {
     final newDoc = profilesRef.doc(entity.userId);
     await newDoc.set(entity);
     return newDoc.id;
+  }
+
+  @override
+  Future<void> uploadMyProfilePhoto(String contentType, Uint8List bytes) async {
+    final myProfile = ref.read(myProfileProvider);
+    final storageRef = FirebaseStorage.instance.ref().child('users/${myProfile.userId}/photo');
+    final uploadTask = storageRef.putData(
+      bytes,
+      SettableMetadata(
+        contentType: contentType
+      ),
+    );
+    await uploadTask;
+    ref.invalidate(avatarProvider(myProfile.userId));
   }
 
   Future<void> _uploadPhoto(String userId, String? url) async {

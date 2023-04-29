@@ -9,7 +9,9 @@ import 'package:greendayo/repository/profile_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final snackBarController = Provider.autoDispose<ScaffoldMessengerState?>((ref) {
-  final context = ref.watch(globalKeyProvider("Scaffold")).currentContext;
+  final context = ref
+      .watch(globalKeyProvider("Scaffold"))
+      .currentContext;
   if (context != null) {
     return ScaffoldMessenger.maybeOf(context);
   }
@@ -21,21 +23,29 @@ final globalKeyProvider = Provider.autoDispose.family<GlobalKey, String>((ref, k
 
 final userProvider = StreamProvider<User?>((ref) {
   final controller = StreamController<User?>();
-  print(FirebaseAuth.instance.currentUser);
   controller.sink.add(FirebaseAuth.instance.currentUser);
   FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-    if (user == null) {
-      ref.read(myProfileProvider.notifier).state = Profile.anonymous();
-    } else {
-      final profile = await ref.read(profileRepository).createOrGet(user);
-      ref.read(myProfileProvider.notifier).state = profile;
-    }
     controller.sink.add(user);
   });
   return controller.stream;
 });
 
-final myProfileProvider = StateProvider<Profile>((ref) => Profile.anonymous());
+StateProvider<Profile> myProfileProvider = StateProvider<Profile>((ref) {
+  Future.microtask(() {
+    final user = ref.watch(userProvider);
+    user.when(
+        data: (data) {
+          if (data != null) {
+            ref.read(profileRepository).createOrGet(data).then((value) {
+              ref.read(myProfileProvider.notifier).state = value;
+            });
+          }
+        },
+        error: (err, _) {},
+        loading: () {});
+  });
+  return Profile.anonymous();
+});
 
 final avatarProvider = FutureProvider.family<Uint8List, String>((ref, userId) {
   // fixme: ディスクキャッシュに変える

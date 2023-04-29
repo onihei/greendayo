@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:greendayo/provider/profile_provider.dart';
+import 'package:image/image.dart' as img;
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:greendayo/provider/global_provider.dart';
-import 'package:greendayo/provider/profile_provider.dart';
 import 'package:greendayo/provider/socket_provider.dart';
 import 'package:greendayo/repository/profile_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -46,8 +48,6 @@ class _ViewController {
       text: text,
     );
     ref.read(profileRepository).save(entity);
-    ref.invalidate(profileProvider(myProfile.userId));
-    ref.read(myProfileProvider.notifier).state = entity;
     ref.read(_loadingProvider.notifier).state = false;
   }
 
@@ -73,6 +73,39 @@ class _ViewController {
     final text = await completer.future;
     return text;
   }
+
+  Future<void> uploadPhoto() async {
+    final snackBar = ref.read(snackBarController);
+    final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ["jpg, png"],
+    );
+    if (result == null) {
+      return;
+    }
+    final resultBytes = result.files.single.bytes;
+    if (resultBytes == null) {
+      snackBar?.showSnackBar(
+        SnackBar(
+          content: Text('ファイルの読み込みに失敗しました。'),
+        ),
+      );
+      return;
+    }
+    final tempImage = img.decodeImage(resultBytes);
+    if (tempImage == null) {
+      snackBar?.showSnackBar(
+        SnackBar(
+          content: Text('ファイルの読み込みに失敗しました。'),
+        ),
+      );
+      return;
+    }
+    final resized = img.copyResize(tempImage, width: 500);
+    final bytes = img.encodeJpg(resized).buffer.asUint8List();
+    ref.read(_loadingProvider.notifier).state = true;
+    await ref.read(profileRepository).uploadMyProfilePhoto("image/jpeg", bytes);
+  }
 }
 
 class ProfileEditPage extends ConsumerWidget {
@@ -82,7 +115,11 @@ class ProfileEditPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(socketProvider);
 
+    final myProfile = ref.watch(myProfileProvider);
     final pageController = ref.watch(_pageControllerProvider);
+    ref.watch(avatarProvider(myProfile.userId).future).then((_) {
+      ref.read(_loadingProvider.notifier).state = false;
+    });
 
     final items = [
       _nickname(context, ref),
@@ -98,16 +135,30 @@ class ProfileEditPage extends ConsumerWidget {
 
     final body = Container(
       color: Theme.of(context).colorScheme.background,
-      alignment: Alignment.center,
-      child: Stack(
+      child: Column(
         children: [
-          PageView(
-            controller: pageController,
-            children: items,
+          Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: InkWell(
+              onTap: () async {
+                await ref.read(_viewControllerProvider).uploadPhoto();
+              },
+              child: myProfile.photoLarge,
+            ),
           ),
-          Align(
-            alignment: Alignment(0, 0.9),
-            child: _indicator(context, ref, items),
+          Expanded(
+            child: Stack(
+              children: [
+                PageView(
+                  controller: pageController,
+                  children: items,
+                ),
+                Align(
+                  alignment: Alignment(0, 0.9),
+                  child: _indicator(context, ref, items),
+                ),
+              ],
+            ),
           ),
         ],
       ),

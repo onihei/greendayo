@@ -44,13 +44,13 @@ io.on('connection', async (socket) => {
         };
         const response = await openai.createCompletion({
             model: "text-davinci-003",
-            prompt: `次の情報を使って他人に興味を持ってもらえる自己紹介文を作成してください。最後に一文を加えて面白くしてください。。${JSON.stringify(input)}`,
+            prompt: `次の情報を使って他人に興味を持ってもらえる自己紹介文を作成してください。nullは特にないか教えたくないとこを意味しますので無視して良いです。最後に幸せ自慢を加えてください。${JSON.stringify(input)}`,
             max_tokens: 2048,
-            temperature: 1.1,
+            temperature: 0.9,
             stream: false,
             logprobs: null,
         });
-        ack(response.data.choices[0].text);
+        ack(response.data.choices[0].text.trim());
     });
 
     socket.on('disconnecting', () => {

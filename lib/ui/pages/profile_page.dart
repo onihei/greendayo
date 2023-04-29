@@ -11,7 +11,7 @@ class ProfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final myProfile = ref.watch(myProfileProvider);
-    final profile = ref.watch(profileProvider(userId));
+    final profile = ref.watch(profileStreamProvider(userId));
     final isMe = userId == myProfile.userId;
 
     return profile.when(
@@ -30,20 +30,18 @@ class ProfilePage extends ConsumerWidget {
         ),
         body: Container(
           color: Theme.of(context).colorScheme.background,
-          alignment: Alignment.center,
-          child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: ConstrainedBox(
-              constraints: BoxConstraints.tightFor(width: 400),
-              child: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: ConstrainedBox(
+                constraints: BoxConstraints.tightFor(width: 400),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     data.photoLarge,
+                    SizedBox(height: 10,),
                     Text(data.nickname),
-                    SizedBox(
-                      height: 40,
-                    ),
+                    SizedBox(height: 32,),
                     Text(data.text ?? "こんにちは！私は${data.nickname}"),
                   ],
                 ),
