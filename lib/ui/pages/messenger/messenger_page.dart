@@ -41,7 +41,7 @@ class MessengerPage extends ConsumerWidget {
           child: _sessionList(context, ref),
         ),
         Flexible(
-          child: TalkSession.loaded(sessionId),
+          child: sessionId == null ? Container() : TalkSession.loaded(sessionId),
         ),
       ],
     );

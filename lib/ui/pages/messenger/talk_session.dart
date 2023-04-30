@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:greendayo/entity/talk.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/provider/talks_provider.dart';
+import 'package:greendayo/repository/session_repository.dart';
 import 'package:greendayo/repository/talk_repository.dart';
+import 'package:greendayo/usecase/talk_use_case.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class _FormNotifier extends StateNotifier<TalkForm> {
@@ -50,7 +52,6 @@ class _TalkSessionViewController {
   _TalkSessionViewController(this.ref, {this.sessionId});
 
   Future<void> post() async {
-    final myProfile = ref.read(myProfileProvider);
     final text = ref.read(_formProvider).text;
     if (text.trim().isEmpty) {
       ref.read(snackBarController)?.showSnackBar(
@@ -61,14 +62,9 @@ class _TalkSessionViewController {
           );
       return;
     }
-
-    final newTalk = Talk(
-      content: text,
-      sender: myProfile.userId,
-      createdAt: DateTime.now(),
-    );
-
-    await ref.read(talkRepository(sessionId)).save(newTalk);
+    if (sessionId != null) {
+      await ref.read(talkUseCase).createTalk(sessionId: sessionId!, text: text);
+    }
     ref.read(_formProvider.notifier).clear();
   }
 }
@@ -88,7 +84,7 @@ class TalkSession extends ConsumerWidget {
     );
   }
 
-  factory TalkSession.loaded(String? sessionId, {key}) {
+  factory TalkSession.loaded(String sessionId, {key}) {
     return TalkSession._(
       key: key,
       sessionId: sessionId,
@@ -211,30 +207,34 @@ class TalkSession extends ConsumerWidget {
 
   Widget _form(BuildContext context, WidgetRef ref) {
     final form = ref.watch(_formProvider);
-    final controller = TextEditingController();
-    controller.text = form.text;
+    final controller = ref.watch(textEditingControllerProvider("TalkForm"));
+    controller.value = controller.value.copyWith(text: form.text);
     return Container(
       color: Theme.of(context).colorScheme.primaryContainer,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Expanded(
-            child: TextField(
-              keyboardType: TextInputType.multiline,
-              controller: controller,
-              maxLines: null,
-              onChanged: (input) {
-                ref.read(_formProvider.notifier).changeText(input);
-              },
-              textInputAction: TextInputAction.send,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: TextField(
+                keyboardType: TextInputType.multiline,
+                controller: controller,
+                maxLines: null,
+                onChanged: (input) {
+                  ref.read(_formProvider.notifier).changeText(input);
+                },
+                textInputAction: TextInputAction.send,
+              ),
             ),
-          ),
-          IconButton(
-              onPressed: () {
-                ref.read(_talkSessionViewControllerProvider(sessionId)).post();
-              },
-              icon: Icon(Icons.send)),
-        ],
+            IconButton(
+                onPressed: () {
+                  ref.read(_talkSessionViewControllerProvider(sessionId)).post();
+                },
+                icon: Icon(Icons.send)),
+          ],
+        ),
       ),
     );
   }

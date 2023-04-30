@@ -7,6 +7,8 @@ final sessionRepository = Provider.autoDispose<SessionRepository>((ref) => _Sess
 
 abstract class SessionRepository {
   Stream<QuerySnapshot<Session>> observe();
+
+  Future<void> updateTimestamp(String sessionId);
 }
 
 final sessionsRef = FirebaseFirestore.instance.collection('sessions').withConverter<Session>(
@@ -21,10 +23,15 @@ class _SessionRepositoryImpl implements SessionRepository {
 
   @override
   Stream<QuerySnapshot<Session>> observe() {
-    final myProfile = ref.watch(myProfileProvider);
+    final myProfile = ref.read(myProfileProvider);
     return sessionsRef
         .orderBy('updatedAt', descending: true)
         .where("members", arrayContains: myProfile.userId)
         .snapshots();
+  }
+
+  @override
+  Future<void> updateTimestamp(String sessionId) async {
+    await sessionsRef.doc(sessionId).update({"updatedAt": Timestamp.fromDate(DateTime.now())});
   }
 }

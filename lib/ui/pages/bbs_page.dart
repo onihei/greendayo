@@ -12,10 +12,32 @@ final _screenOffsetProvider = StateProvider.autoDispose<Offset>((ref) => Offset.
 
 final _editProvider = StateProvider.autoDispose<bool>((ref) => false);
 
-final _formProvider = StateProvider.autoDispose<BbsForm>((ref) => BbsForm());
+class _FormNotifier extends StateNotifier<BbsForm> {
+  _FormNotifier() : super(BbsForm(text: ""));
+
+  void changeText(String text) {
+    state = state.copyWith(text: text);
+  }
+
+  void clear() {
+    state = BbsForm(text: "");
+  }
+}
+
+final _formProvider = StateNotifierProvider.autoDispose<_FormNotifier, BbsForm>((ref) {
+  return _FormNotifier();
+});
 
 class BbsForm {
-  String text = '';
+  const BbsForm({required this.text});
+
+  final String text;
+
+  BbsForm copyWith({String? text}) {
+    return BbsForm(
+      text: text ?? this.text,
+    );
+  }
 }
 
 final _formWidthProvider = StateProvider.autoDispose<double>((ref) => 270);
@@ -143,8 +165,8 @@ class BbsPage extends HookConsumerWidget {
   Widget _buildForm(BuildContext context, WidgetRef ref) {
     final form = ref.watch(_formProvider);
     final formWidth = ref.watch(_formWidthProvider);
-    final controller = TextEditingController();
-    controller.text = form.text;
+    final controller = ref.watch(textEditingControllerProvider("BbsForm"));
+    controller.value = controller.value.copyWith(text: form.text);
     final keyForm = ref.watch(globalKeyProvider("form"));
     final myProfile = ref.watch(myProfileProvider);
 
@@ -169,7 +191,7 @@ class BbsPage extends HookConsumerWidget {
         maxLines: null,
         maxLength: 200,
         onChanged: (input) {
-          ref.read(_formProvider.notifier).state.text = input;
+          ref.read(_formProvider.notifier).changeText(input);
         },
         textInputAction: TextInputAction.newline,
         buildCounter: (_, {required currentLength, maxLength, required isFocused}) => Row(

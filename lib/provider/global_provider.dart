@@ -9,6 +9,14 @@ import 'package:greendayo/repository/profile_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 
+final textEditingControllerProvider = Provider.autoDispose.family<TextEditingController, String>((ref, key) {
+  final controller = TextEditingController();
+  ref.onDispose(() {
+    controller.dispose();
+  });
+  return controller;
+});
+
 final snackBarController = Provider.autoDispose<ScaffoldMessengerState?>((ref) {
   final context = ref.watch(globalKeyProvider("Scaffold")).currentContext;
   if (context != null) {
@@ -46,7 +54,7 @@ final myProfileSubjectProvider = Provider<BehaviorSubject<Profile>>((ref) {
   return subject;
 });
 
-final myProfileProvider = Provider<Profile>((ref) {
+final myProfileProvider = Provider.autoDispose<Profile>((ref) {
   final behaviorSubject = ref.watch(myProfileSubjectProvider);
   behaviorSubject.doOnData((newProfileState) {
     ref.invalidateSelf();
