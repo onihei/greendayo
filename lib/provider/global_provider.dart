@@ -32,12 +32,7 @@ final userProvider = StreamProvider<User?>((ref) {
   final controller = StreamController<User?>();
   controller.sink.add(FirebaseAuth.instance.currentUser);
   FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-    if (user != null) {
-      final profile = await ref.read(profileRepository).createOrGet(user);
-      ref.read(myProfileSubjectProvider).sink.add(profile);
-    } else {
-      ref.read(myProfileSubjectProvider).sink.add(Profile.anonymous());
-    }
+    ref.invalidate(myProfileSubjectProvider);
     controller.sink.add(user);
   });
   return controller.stream;
@@ -47,16 +42,18 @@ final myProfileSubjectProvider = Provider<BehaviorSubject<Profile>>((ref) {
   final subject = BehaviorSubject.seeded(Profile.anonymous());
   final uid = FirebaseAuth.instance.currentUser?.uid;
   if (uid != null) {
-    Future(() async {
-      subject.sink.add(await ref.read(profileRepository).get(uid));
-    });
+    ref.read(profileRepository).observe(uid).asyncMap((event) => event.data() ?? Profile.anonymous()).pipe(subject);
   }
+  ref.onDispose(() async {
+    await subject.drain();
+    await subject.close();
+  });
   return subject;
 });
 
 final myProfileProvider = Provider.autoDispose<Profile>((ref) {
   final behaviorSubject = ref.watch(myProfileSubjectProvider);
-  behaviorSubject.doOnData((newProfileState) {
+  behaviorSubject.listen((newProfileState) {
     ref.invalidateSelf();
   });
   return behaviorSubject.value;

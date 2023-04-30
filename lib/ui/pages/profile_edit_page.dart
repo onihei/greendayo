@@ -10,15 +10,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 final _pageControllerProvider = Provider.autoDispose<PageController>((ref) => PageController());
-final _nicknameControllerProvider = Provider.autoDispose<TextEditingController>((ref) => TextEditingController());
-final _ageControllerProvider = Provider.autoDispose<TextEditingController>((ref) => TextEditingController());
-final _bornControllerProvider = Provider.autoDispose<TextEditingController>((ref) => TextEditingController());
-final _jobControllerProvider = Provider.autoDispose<TextEditingController>((ref) => TextEditingController());
-final _interestingControllerProvider = Provider.autoDispose<TextEditingController>((ref) => TextEditingController());
-final _bookControllerProvider = Provider.autoDispose<TextEditingController>((ref) => TextEditingController());
-final _movieControllerProvider = Provider.autoDispose<TextEditingController>((ref) => TextEditingController());
-final _goalControllerProvider = Provider.autoDispose<TextEditingController>((ref) => TextEditingController());
-final _treasureControllerProvider = Provider.autoDispose<TextEditingController>((ref) => TextEditingController());
 
 final _viewControllerProvider = Provider.autoDispose<_ViewController>((ref) => _ViewController(ref));
 
@@ -35,15 +26,15 @@ class _ViewController {
 
     final myProfile = ref.read(myProfileProvider);
     final entity = myProfile.copyWith(
-      nickname: ref.read(_nicknameControllerProvider).value.text,
-      age: ref.read(_ageControllerProvider).value.text,
-      born: ref.read(_bornControllerProvider).value.text,
-      job: ref.read(_jobControllerProvider).value.text,
-      interesting: ref.read(_interestingControllerProvider).value.text,
-      book: ref.read(_bookControllerProvider).value.text,
-      movie: ref.read(_movieControllerProvider).value.text,
-      goal: ref.read(_goalControllerProvider).value.text,
-      treasure: ref.read(_treasureControllerProvider).value.text,
+      nickname: ref.read(textEditingControllerProvider("nickname")).value.text,
+      age: ref.read(textEditingControllerProvider("age")).value.text,
+      born: ref.read(textEditingControllerProvider("born")).value.text,
+      job: ref.read(textEditingControllerProvider("job")).value.text,
+      interesting: ref.read(textEditingControllerProvider("interesting")).value.text,
+      book: ref.read(textEditingControllerProvider("book")).value.text,
+      movie: ref.read(textEditingControllerProvider("movie")).value.text,
+      goal: ref.read(textEditingControllerProvider("goal")).value.text,
+      treasure: ref.read(textEditingControllerProvider("treasure")).value.text,
       text: text,
     );
     ref.read(profileRepository).save(entity);
@@ -54,15 +45,15 @@ class _ViewController {
     final socket = ref.read(socketProvider);
 
     final param = {
-      "nickname": ref.read(_nicknameControllerProvider).value.text,
-      "age": ref.read(_ageControllerProvider).value.text,
-      "born": ref.read(_bornControllerProvider).value.text,
-      "job": ref.read(_jobControllerProvider).value.text,
-      "interesting": ref.read(_interestingControllerProvider).value.text,
-      "book": ref.read(_bookControllerProvider).value.text,
-      "movie": ref.read(_movieControllerProvider).value.text,
-      "goal": ref.read(_goalControllerProvider).value.text,
-      "treasure": ref.read(_treasureControllerProvider).value.text,
+      "nickname": ref.read(textEditingControllerProvider("nickname")).value.text,
+      "age": ref.read(textEditingControllerProvider("age")).value.text,
+      "born": ref.read(textEditingControllerProvider("born")).value.text,
+      "job": ref.read(textEditingControllerProvider("job")).value.text,
+      "interesting": ref.read(textEditingControllerProvider("interesting")).value.text,
+      "book": ref.read(textEditingControllerProvider("book")).value.text,
+      "movie": ref.read(textEditingControllerProvider("movie")).value.text,
+      "goal": ref.read(textEditingControllerProvider("goal")).value.text,
+      "treasure": ref.read(textEditingControllerProvider("treasure")).value.text,
     };
     final completer = Completer<String>();
     socket.emitWithAck("generateProfileText", param, ack: (data) {
@@ -193,7 +184,7 @@ class ProfileEditPage extends ConsumerWidget {
 
   Widget _nickname(BuildContext context, WidgetRef ref) {
     final myProfile = ref.watch(myProfileProvider);
-    final controller = ref.watch(_nicknameControllerProvider);
+    final controller = ref.watch(textEditingControllerProvider("nickname"));
     controller.text = myProfile.nickname;
     final text = "名前またはニックネーム";
     return _form(context, ref, text, controller, isFirst: true);
@@ -201,7 +192,7 @@ class ProfileEditPage extends ConsumerWidget {
 
   Widget _age(BuildContext context, WidgetRef ref) {
     final myProfile = ref.watch(myProfileProvider);
-    final controller = ref.watch(_ageControllerProvider);
+    final controller = ref.watch(textEditingControllerProvider("age"));
     controller.text = myProfile.age ?? "";
     final text = "年齢を教えて";
     return _form(context, ref, text, controller);
@@ -209,7 +200,7 @@ class ProfileEditPage extends ConsumerWidget {
 
   Widget _born(BuildContext context, WidgetRef ref) {
     final myProfile = ref.watch(myProfileProvider);
-    final controller = ref.watch(_bornControllerProvider);
+    final controller = ref.watch(textEditingControllerProvider("born"));
     controller.text = myProfile.born ?? "";
     final text = "出身地はどこ？";
     return _form(context, ref, text, controller);
@@ -217,7 +208,7 @@ class ProfileEditPage extends ConsumerWidget {
 
   Widget _job(BuildContext context, WidgetRef ref) {
     final myProfile = ref.watch(myProfileProvider);
-    final controller = ref.watch(_jobControllerProvider);
+    final controller = ref.watch(textEditingControllerProvider("job"));
     controller.text = myProfile.job ?? "";
     final text = "どんな仕事？";
     return _form(context, ref, text, controller, maxLength: 20);
@@ -225,7 +216,7 @@ class ProfileEditPage extends ConsumerWidget {
 
   Widget _interesting(BuildContext context, WidgetRef ref) {
     final myProfile = ref.watch(myProfileProvider);
-    final controller = ref.watch(_interestingControllerProvider);
+    final controller = ref.watch(textEditingControllerProvider("interesting"));
     controller.text = myProfile.interesting ?? "";
     final text = "興味のあることは？";
     return _form(context, ref, text, controller, maxLength: 20);
@@ -233,7 +224,7 @@ class ProfileEditPage extends ConsumerWidget {
 
   Widget _book(BuildContext context, WidgetRef ref) {
     final myProfile = ref.watch(myProfileProvider);
-    final controller = ref.watch(_bookControllerProvider);
+    final controller = ref.watch(textEditingControllerProvider("book"));
     controller.text = myProfile.book ?? "";
     final text = "好きな本は";
     return _form(context, ref, text, controller, maxLength: 20);
@@ -241,7 +232,7 @@ class ProfileEditPage extends ConsumerWidget {
 
   Widget _movie(BuildContext context, WidgetRef ref) {
     final myProfile = ref.watch(myProfileProvider);
-    final controller = ref.watch(_movieControllerProvider);
+    final controller = ref.watch(textEditingControllerProvider("movie"));
     controller.text = myProfile.movie ?? "";
     final text = "好きな映画は";
     return _form(context, ref, text, controller, maxLength: 20);
@@ -249,7 +240,7 @@ class ProfileEditPage extends ConsumerWidget {
 
   Widget _goal(BuildContext context, WidgetRef ref) {
     final myProfile = ref.watch(myProfileProvider);
-    final controller = ref.watch(_goalControllerProvider);
+    final controller = ref.watch(textEditingControllerProvider("goal"));
     controller.text = myProfile.goal ?? "";
     final text = "目標は？";
     return _form(context, ref, text, controller, maxLength: 20);
@@ -257,7 +248,7 @@ class ProfileEditPage extends ConsumerWidget {
 
   Widget _treasure(BuildContext context, WidgetRef ref) {
     final myProfile = ref.watch(myProfileProvider);
-    final controller = ref.watch(_treasureControllerProvider);
+    final controller = ref.watch(textEditingControllerProvider("treasure"));
     controller.text = myProfile.treasure ?? "";
     final text = "人生の宝物は？";
     return _form(context, ref, text, controller, maxLength: 20, isLast: true);

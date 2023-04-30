@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:greendayo/entity/talk.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/provider/talks_provider.dart';
-import 'package:greendayo/repository/session_repository.dart';
-import 'package:greendayo/repository/talk_repository.dart';
 import 'package:greendayo/usecase/talk_use_case.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 

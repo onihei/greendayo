@@ -1,4 +1,3 @@
-
 import 'package:greendayo/entity/talk.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/repository/session_repository.dart';
@@ -9,6 +8,7 @@ final talkUseCase = Provider.autoDispose<TalkUseCase>((ref) => TalkUseCase(ref))
 
 class TalkUseCase {
   final Ref ref;
+
   TalkUseCase(this.ref);
 
   Future<void> createTalk({required String sessionId, required String text}) async {
