@@ -42,7 +42,7 @@ final myProfileSubjectProvider = Provider<BehaviorSubject<Profile>>((ref) {
   final subject = BehaviorSubject.seeded(Profile.anonymous());
   final uid = FirebaseAuth.instance.currentUser?.uid;
   if (uid != null) {
-    ref.read(profileRepository).observe(uid).asyncMap((event) => event.data() ?? Profile.anonymous()).pipe(subject);
+    ref.read(profileRepository).observe(uid).map((event) => event.data() ?? Profile.anonymous()).pipe(subject);
   }
   ref.onDispose(() async {
     await subject.drain();
