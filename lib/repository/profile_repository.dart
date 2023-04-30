@@ -75,9 +75,7 @@ class _ProfileRepositoryImpl implements ProfileRepository {
     final storageRef = FirebaseStorage.instance.ref().child('users/${myProfile.userId}/photo');
     final uploadTask = storageRef.putData(
       bytes,
-      SettableMetadata(
-        contentType: contentType
-      ),
+      SettableMetadata(contentType: contentType),
     );
     await uploadTask;
     ref.invalidate(avatarProvider(myProfile.userId));

@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'package:image/image.dart' as img;
 
 import 'package:flutter/material.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/provider/socket_provider.dart';
 import 'package:greendayo/repository/profile_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -181,7 +181,7 @@ class ProfileEditPage extends ConsumerWidget {
               return Container(
                 color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
                 child: Center(
-                    child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(),
                 ),
               );
             },

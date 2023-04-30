@@ -40,9 +40,13 @@ class ProfilePage extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     data.photoLarge,
-                    SizedBox(height: 10,),
+                    SizedBox(
+                      height: 10,
+                    ),
                     Text(data.nickname),
-                    SizedBox(height: 32,),
+                    SizedBox(
+                      height: 32,
+                    ),
                     Text(data.text ?? "こんにちは！私は${data.nickname}"),
                   ],
                 ),

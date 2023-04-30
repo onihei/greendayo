@@ -147,7 +147,8 @@ class Header extends HookConsumerWidget {
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
                     onPressed: () async {
-                      await FirebaseAuth.instance.signInWithEmailAndPassword(email: "do@not.ask", password: "do@not.ask");
+                      await FirebaseAuth.instance
+                          .signInWithEmailAndPassword(email: "do@not.ask", password: "do@not.ask");
                       Navigator.pop(context);
                     },
                     icon: Icon(Icons.android),

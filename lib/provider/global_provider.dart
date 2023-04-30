@@ -10,9 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 
 final snackBarController = Provider.autoDispose<ScaffoldMessengerState?>((ref) {
-  final context = ref
-      .watch(globalKeyProvider("Scaffold"))
-      .currentContext;
+  final context = ref.watch(globalKeyProvider("Scaffold")).currentContext;
   if (context != null) {
     return ScaffoldMessenger.maybeOf(context);
   }
