@@ -208,15 +208,6 @@ class ProfileEditPage extends ConsumerWidget {
       _goal(context, ref),
       _treasure(context, ref),
     ];
-    final padding = MediaQuery.of(context).size.width / 100;
-    final largeScreen = MediaQuery.of(context).viewInsets.bottom == 0;
-    final photo = AnimatedSwitcher(
-      duration: Duration(milliseconds: 300),
-      child: largeScreen ? myProfile.photoLarge : myProfile.photoMiddle,
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        return ScaleTransition(scale: animation, child: child);
-      },
-    );
 
     final body = SingleChildScrollView(
       child: Container(
@@ -224,11 +215,24 @@ class ProfileEditPage extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 220,
+                  child: PageView(
+                    controller: pageController,
+                    children: items,
+                  ),
+                ),
+                _indicator(context, ref, items),
+              ],
+            ),
             Padding(
-              padding: EdgeInsets.all(padding),
+              padding: EdgeInsets.all(32.0),
               child: Stack(
                 children: [
-                  photo,
+                  myProfile.photoLarge,
                   // 画像にリップルエフェクトを加えるトリック
                   Positioned.fill(
                     child: Material(
@@ -244,27 +248,13 @@ class ProfileEditPage extends ConsumerWidget {
                 ],
               ),
             ),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 250),
-              child: Stack(
-                children: [
-                  PageView(
-                    controller: pageController,
-                    children: items,
-                  ),
-                  Align(
-                    alignment: Alignment(0, 0.9),
-                    child: _indicator(context, ref, items),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
     );
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text("プロフィールの設定"),
       ),
@@ -388,7 +378,7 @@ class ProfileEditPage extends ConsumerWidget {
       Function(String input)? onChanged}) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
         child: ConstrainedBox(
           constraints: BoxConstraints.tightFor(width: 400, height: 200),
           child: Column(
