@@ -7,7 +7,7 @@ import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/ui/pages/bbs_page.dart';
 import 'package:greendayo/ui/pages/community_page.dart';
 import 'package:greendayo/ui/pages/games_page.dart';
-import 'package:greendayo/ui/pages/messenger_page.dart';
+import 'package:greendayo/ui/pages/messenger/messenger_page.dart';
 import 'package:greendayo/ui/pages/profile_edit_page.dart';
 import 'package:greendayo/ui/pages/profile_page.dart';
 import 'package:greendayo/ui/pages/top_page.dart';

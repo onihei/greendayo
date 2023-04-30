@@ -36,44 +36,23 @@ class Profile {
     this.text,
   });
 
-  Widget get photo {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(32.0),
-      child: Container(
-        width: 32,
-        height: 32,
-        child: Consumer(builder: (context, ref, child) {
-          if (userId == "anonymous") {
-            return Icon(
-              Icons.account_circle,
-              size: 32,
-            );
-          }
-          final avatar = ref.watch(avatarProvider(userId));
-          return avatar.when(
-            data: (data) => Image.memory(
-              data,
-              fit: BoxFit.cover,
-            ),
-            error: (error, _) => Icon(Icons.error),
-            loading: () => CircularProgressIndicator(),
-          );
-        }),
-      ),
-    );
-  }
+  Widget get photoSmall => _photo(32);
 
-  Widget get photoLarge {
+  Widget get photoMiddle => _photo(44);
+
+  Widget get photoLarge => _photo(160);
+
+  Widget _photo(double size) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(160.0),
+      borderRadius: BorderRadius.circular(size),
       child: Container(
-        width: 160,
-        height: 160,
+        width: size,
+        height: size,
         child: Consumer(builder: (context, ref, child) {
           if (userId == "anonymous") {
             return Icon(
               Icons.account_circle,
-              size: 160,
+              size: size,
             );
           }
           final avatar = ref.watch(avatarProvider(userId));
@@ -82,7 +61,10 @@ class Profile {
               data,
               fit: BoxFit.cover,
             ),
-            error: (error, _) => Icon(Icons.error),
+            error: (error, _) => Icon(
+              Icons.error,
+              size: size,
+            ),
             loading: () => CircularProgressIndicator(),
           );
         }),

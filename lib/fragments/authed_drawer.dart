@@ -27,7 +27,7 @@ class AuthedDrawer extends ConsumerWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   children: [
-                    myProfile.photo,
+                    myProfile.photoSmall,
                     SizedBox(
                       width: 8,
                     ),
