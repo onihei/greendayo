@@ -44,6 +44,7 @@ class Profile {
 
   Widget _photo(double size) {
     return ClipRRect(
+      key: ValueKey(size),
       borderRadius: BorderRadius.circular(size),
       child: Container(
         width: size,

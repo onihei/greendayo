@@ -15,6 +15,99 @@ final _viewControllerProvider = Provider.autoDispose<_ViewController>((ref) => _
 
 final _loadingProvider = StateProvider<bool>((ref) => false);
 
+class _FormNotifier extends StateNotifier<ProfileForm> {
+  _FormNotifier(ProfileForm initial) : super(initial);
+
+  void changeNickname(String text) {
+    state = state.copyWith(nickname: text);
+  }
+
+  void changeAge(String text) {
+    state = state.copyWith(age: text);
+  }
+
+  void changeBorn(String text) {
+    state = state.copyWith(born: text);
+  }
+
+  void changeJob(String text) {
+    state = state.copyWith(job: text);
+  }
+
+  void changeInteresting(String text) {
+    state = state.copyWith(interesting: text);
+  }
+
+  void changeBook(String text) {
+    state = state.copyWith(book: text);
+  }
+
+  void changeMovie(String text) {
+    state = state.copyWith(movie: text);
+  }
+
+  void changeGoal(String text) {
+    state = state.copyWith(goal: text);
+  }
+
+  void changeTreasure(String text) {
+    state = state.copyWith(treasure: text);
+  }
+}
+
+final _formProvider = StateNotifierProvider.autoDispose<_FormNotifier, ProfileForm>((ref) {
+  final myProfile = ref.watch(myProfileProvider);
+  final initialForm = ProfileForm();
+  initialForm.nickname = myProfile.nickname;
+  initialForm.age = myProfile.age;
+  initialForm.born = myProfile.born;
+  initialForm.job = myProfile.job;
+  initialForm.interesting = myProfile.interesting;
+  initialForm.book = myProfile.book;
+  initialForm.movie = myProfile.movie;
+  initialForm.goal = myProfile.goal;
+  initialForm.treasure = myProfile.treasure;
+  return _FormNotifier(initialForm);
+});
+
+class ProfileForm {
+  ProfileForm();
+
+  String? nickname;
+  String? age;
+  String? born;
+  String? job;
+  String? interesting;
+  String? book;
+  String? movie;
+  String? goal;
+  String? treasure;
+
+  ProfileForm copyWith({
+    String? nickname,
+    String? age,
+    String? born,
+    String? job,
+    String? interesting,
+    String? book,
+    String? movie,
+    String? goal,
+    String? treasure,
+  }) {
+    final form = ProfileForm();
+    form.nickname = nickname ?? this.nickname;
+    form.age = age ?? this.age;
+    form.born = born ?? this.born;
+    form.job = job ?? this.job;
+    form.interesting = interesting ?? this.interesting;
+    form.book = book ?? this.book;
+    form.movie = movie ?? this.movie;
+    form.goal = goal ?? this.goal;
+    form.treasure = treasure ?? this.treasure;
+    return form;
+  }
+}
+
 class _ViewController {
   final Ref ref;
 
@@ -24,17 +117,18 @@ class _ViewController {
     ref.read(_loadingProvider.notifier).state = true;
     final text = await generateProfileText();
 
+    final form = ref.read(_formProvider);
     final myProfile = ref.read(myProfileProvider);
     final entity = myProfile.copyWith(
-      nickname: ref.read(textEditingControllerProvider("nickname")).value.text,
-      age: ref.read(textEditingControllerProvider("age")).value.text,
-      born: ref.read(textEditingControllerProvider("born")).value.text,
-      job: ref.read(textEditingControllerProvider("job")).value.text,
-      interesting: ref.read(textEditingControllerProvider("interesting")).value.text,
-      book: ref.read(textEditingControllerProvider("book")).value.text,
-      movie: ref.read(textEditingControllerProvider("movie")).value.text,
-      goal: ref.read(textEditingControllerProvider("goal")).value.text,
-      treasure: ref.read(textEditingControllerProvider("treasure")).value.text,
+      nickname: form.nickname,
+      age: form.age,
+      born: form.born,
+      job: form.job,
+      interesting: form.interesting,
+      book: form.book,
+      movie: form.movie,
+      goal: form.goal,
+      treasure: form.treasure,
       text: text,
     );
     ref.read(profileRepository).save(entity);
@@ -44,16 +138,17 @@ class _ViewController {
   Future<String> generateProfileText() async {
     final socket = ref.read(socketProvider);
 
+    final form = ref.read(_formProvider);
     final param = {
-      "nickname": ref.read(textEditingControllerProvider("nickname")).value.text,
-      "age": ref.read(textEditingControllerProvider("age")).value.text,
-      "born": ref.read(textEditingControllerProvider("born")).value.text,
-      "job": ref.read(textEditingControllerProvider("job")).value.text,
-      "interesting": ref.read(textEditingControllerProvider("interesting")).value.text,
-      "book": ref.read(textEditingControllerProvider("book")).value.text,
-      "movie": ref.read(textEditingControllerProvider("movie")).value.text,
-      "goal": ref.read(textEditingControllerProvider("goal")).value.text,
-      "treasure": ref.read(textEditingControllerProvider("treasure")).value.text,
+      "nickname": form.nickname,
+      "age": form.age,
+      "born": form.born,
+      "job": form.job,
+      "interesting": form.interesting,
+      "book": form.book,
+      "movie": form.movie,
+      "goal": form.goal,
+      "treasure": form.treasure,
     };
     final completer = Completer<String>();
     socket.emitWithAck("generateProfileText", param, ack: (data) {
@@ -113,46 +208,59 @@ class ProfileEditPage extends ConsumerWidget {
       _goal(context, ref),
       _treasure(context, ref),
     ];
+    final padding = MediaQuery.of(context).size.width / 100;
+    final largeScreen = MediaQuery.of(context).viewInsets.bottom == 0;
+    final photo = AnimatedSwitcher(
+      duration: Duration(milliseconds: 300),
+      child: largeScreen ? myProfile.photoLarge : myProfile.photoMiddle,
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return ScaleTransition(scale: animation, child: child);
+      },
+    );
 
-    final body = Container(
-      color: Theme.of(context).colorScheme.background,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Stack(
-              children: [
-                myProfile.photoLarge,
-                // 画像にリップルエフェクトを加えるトリック
-                Positioned.fill(
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(80),
-                      onTap: () async {
-                        await ref.read(_viewControllerProvider).uploadPhoto();
-                      },
+    final body = SingleChildScrollView(
+      child: Container(
+        color: Theme.of(context).colorScheme.background,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(padding),
+              child: Stack(
+                children: [
+                  photo,
+                  // 画像にリップルエフェクトを加えるトリック
+                  Positioned.fill(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(80),
+                        onTap: () async {
+                          await ref.read(_viewControllerProvider).uploadPhoto();
+                        },
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Stack(
-              children: [
-                PageView(
-                  controller: pageController,
-                  children: items,
-                ),
-                Align(
-                  alignment: Alignment(0, 0.9),
-                  child: _indicator(context, ref, items),
-                ),
-              ],
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 250),
+              child: Stack(
+                children: [
+                  PageView(
+                    controller: pageController,
+                    children: items,
+                  ),
+                  Align(
+                    alignment: Alignment(0, 0.9),
+                    child: _indicator(context, ref, items),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
 
@@ -183,96 +291,123 @@ class ProfileEditPage extends ConsumerWidget {
   }
 
   Widget _nickname(BuildContext context, WidgetRef ref) {
-    final myProfile = ref.watch(myProfileProvider);
+    final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("nickname"));
-    controller.text = myProfile.nickname;
+    controller.value = controller.value.copyWith(text: form.nickname);
     final text = "名前またはニックネーム";
-    return _form(context, ref, text, controller, isFirst: true);
+    return _form(context, ref, text, controller, isFirst: true, autofocus: false, onChanged: (input) {
+      ref.read(_formProvider.notifier).changeNickname(input);
+    });
   }
 
   Widget _age(BuildContext context, WidgetRef ref) {
-    final myProfile = ref.watch(myProfileProvider);
+    final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("age"));
-    controller.text = myProfile.age ?? "";
+    controller.value = controller.value.copyWith(text: form.age);
     final text = "年齢を教えて";
-    return _form(context, ref, text, controller);
+    return _form(context, ref, text, controller, onChanged: (input) {
+      ref.read(_formProvider.notifier).changeAge(input);
+    });
   }
 
   Widget _born(BuildContext context, WidgetRef ref) {
-    final myProfile = ref.watch(myProfileProvider);
+    final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("born"));
-    controller.text = myProfile.born ?? "";
+    controller.value = controller.value.copyWith(text: form.born);
     final text = "出身地はどこ？";
-    return _form(context, ref, text, controller);
+    return _form(context, ref, text, controller, onChanged: (input) {
+      ref.read(_formProvider.notifier).changeBorn(input);
+    });
   }
 
   Widget _job(BuildContext context, WidgetRef ref) {
-    final myProfile = ref.watch(myProfileProvider);
+    final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("job"));
-    controller.text = myProfile.job ?? "";
+    controller.value = controller.value.copyWith(text: form.job);
     final text = "どんな仕事？";
-    return _form(context, ref, text, controller, maxLength: 20);
+    return _form(context, ref, text, controller, maxLength: 20, onChanged: (input) {
+      ref.read(_formProvider.notifier).changeJob(input);
+    });
   }
 
   Widget _interesting(BuildContext context, WidgetRef ref) {
-    final myProfile = ref.watch(myProfileProvider);
+    final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("interesting"));
-    controller.text = myProfile.interesting ?? "";
+    controller.value = controller.value.copyWith(text: form.interesting);
     final text = "興味のあることは？";
-    return _form(context, ref, text, controller, maxLength: 20);
+    return _form(context, ref, text, controller, maxLength: 20, onChanged: (input) {
+      ref.read(_formProvider.notifier).changeInteresting(input);
+    });
   }
 
   Widget _book(BuildContext context, WidgetRef ref) {
-    final myProfile = ref.watch(myProfileProvider);
+    final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("book"));
-    controller.text = myProfile.book ?? "";
+    controller.value = controller.value.copyWith(text: form.book);
     final text = "好きな本は";
-    return _form(context, ref, text, controller, maxLength: 20);
+    return _form(context, ref, text, controller, maxLength: 20, onChanged: (input) {
+      ref.read(_formProvider.notifier).changeBook(input);
+    });
   }
 
   Widget _movie(BuildContext context, WidgetRef ref) {
-    final myProfile = ref.watch(myProfileProvider);
+    final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("movie"));
-    controller.text = myProfile.movie ?? "";
+    controller.value = controller.value.copyWith(text: form.movie);
     final text = "好きな映画は";
-    return _form(context, ref, text, controller, maxLength: 20);
+    return _form(context, ref, text, controller, maxLength: 20, onChanged: (input) {
+      ref.read(_formProvider.notifier).changeMovie(input);
+    });
   }
 
   Widget _goal(BuildContext context, WidgetRef ref) {
-    final myProfile = ref.watch(myProfileProvider);
+    final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("goal"));
-    controller.text = myProfile.goal ?? "";
+    controller.value = controller.value.copyWith(text: form.goal);
     final text = "目標は？";
-    return _form(context, ref, text, controller, maxLength: 20);
+    return _form(context, ref, text, controller, maxLength: 20, onChanged: (input) {
+      ref.read(_formProvider.notifier).changeGoal(input);
+    });
   }
 
   Widget _treasure(BuildContext context, WidgetRef ref) {
-    final myProfile = ref.watch(myProfileProvider);
+    final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("treasure"));
-    controller.text = myProfile.treasure ?? "";
+    controller.value = controller.value.copyWith(text: form.treasure);
     final text = "人生の宝物は？";
-    return _form(context, ref, text, controller, maxLength: 20, isLast: true);
+    return _form(context, ref, text, controller, maxLength: 20, isLast: true, onChanged: (input) {
+      ref.read(_formProvider.notifier).changeTreasure(input);
+    });
   }
 
   Widget _form(BuildContext context, WidgetRef ref, String text, TextEditingController controller,
-      {bool isFirst = false, bool isLast = false, int maxLength = 10}) {
+      {bool isFirst = false,
+      bool isLast = false,
+      int maxLength = 10,
+      bool autofocus = true,
+      Function(String input)? onChanged}) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: const EdgeInsets.all(8),
         child: ConstrainedBox(
-          constraints: BoxConstraints.tightFor(width: 400),
+          constraints: BoxConstraints.tightFor(width: 400, height: 200),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(text),
               TextField(
-                autofocus: true,
+                autofocus: autofocus,
                 controller: controller,
                 keyboardType: TextInputType.text,
                 maxLines: null,
                 maxLength: maxLength,
-                onChanged: (input) {},
-                textInputAction: TextInputAction.next,
+                onChanged: onChanged,
+                onSubmitted: (input) async {
+                  await ref
+                      .read(_pageControllerProvider)
+                      .nextPage(duration: Duration(milliseconds: 300), curve: Curves.linear);
+                },
+                textInputAction: TextInputAction.done,
                 buildCounter: (_, {required currentLength, maxLength, required isFocused}) => Row(
                   children: [
                     Text('$currentLength / $maxLength'),

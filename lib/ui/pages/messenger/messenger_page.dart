@@ -57,7 +57,7 @@ class MessengerPage extends ConsumerWidget {
                 return _sessionTile(context, ref, doc);
               },
             ),
-        orElse: () => SizedBox.shrink(),
+        orElse: () => Container(),
         error: (error, stackTrace) => Center(
               child: SelectableText('error ${error}'),
             ));
