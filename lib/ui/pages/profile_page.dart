@@ -28,6 +28,7 @@ class ProfilePage extends ConsumerWidget {
               ),
           ],
         ),
+        floatingActionButton: _floatingActionButton(context, ref),
         body: Container(
           color: Theme.of(context).colorScheme.background,
           alignment: Alignment.topCenter,
@@ -57,6 +58,18 @@ class ProfilePage extends ConsumerWidget {
       ),
       error: (err, _) => Text(err.toString()),
       loading: () => SizedBox.shrink(),
+    );
+  }
+
+  Widget _floatingActionButton(BuildContext context, WidgetRef ref) {
+    return FloatingActionButton(
+      child: const Icon(
+        Icons.email,
+      ),
+      onPressed: () {
+        final current = ModalRoute.of(context)?.settings.name;
+        Navigator.pushNamed(context, "$current/newSession", arguments: userId);
+      },
     );
   }
 }

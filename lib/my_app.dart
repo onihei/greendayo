@@ -1,13 +1,15 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:greendayo/fragments/authed_drawer.dart';
-import 'package:greendayo/fragments/header.dart';
 import 'package:greendayo/provider/global_provider.dart';
+import 'package:greendayo/ui/fragments/authed_drawer.dart';
+import 'package:greendayo/ui/fragments/header.dart';
 import 'package:greendayo/ui/pages/bbs_page.dart';
 import 'package:greendayo/ui/pages/community_page.dart';
 import 'package:greendayo/ui/pages/games_page.dart';
 import 'package:greendayo/ui/pages/messenger/messenger_page.dart';
+import 'package:greendayo/ui/pages/messenger/new_session_page.dart';
 import 'package:greendayo/ui/pages/profile_edit_page.dart';
 import 'package:greendayo/ui/pages/profile_page.dart';
 import 'package:greendayo/ui/pages/top_page.dart';
@@ -71,8 +73,13 @@ class MyApp extends HookConsumerWidget {
 
   Route<dynamic>? generateRoute(context, RouteSettings settings) {
     final path = settings.name ?? "";
-    if (path.startsWith("/profile")) {
-      if (settings.arguments is String) {
+    final pattern = RegExp("/profile(?:/(?=\\w+))?(\\w+)?(/newSession)?\$");
+    final matches = pattern.allMatches(path);
+    if (matches.isNotEmpty) {
+      final userId = matches.first.group(1);
+      final newSession = matches.first.group(2) == "/newSession";
+      if (userId == null && settings.arguments is String) {
+        // /profile に引数ありで来た
         return MaterialPageRoute(
           builder: (_) {
             return ProfilePage(userId: settings.arguments as String);
@@ -81,20 +88,27 @@ class MyApp extends HookConsumerWidget {
           settings: RouteSettings(name: "/profile/${settings.arguments}"),
         );
       }
-      final uri = Uri(path: path);
-      if (uri.pathSegments.length != 2) {
-        return null;
+      if (userId != null) {
+        if (newSession) {
+          if (FirebaseAuth.instance.currentUser == null) {
+            // fixme: トップにリダイレクトさせる
+            return null;
+          }
+          return MaterialPageRoute(
+            builder: (_) {
+              return NewSessionPage(userId: userId);
+            },
+            settings: settings,
+          );
+        }
+        return MaterialPageRoute(
+          builder: (_) {
+            return ProfilePage(userId: userId);
+          },
+          settings: settings,
+        );
       }
-      // パスパラメータで遷移された場合（ディープリンクなど）
-      final userId = uri.pathSegments[1];
-      return MaterialPageRoute(
-        builder: (_) {
-          return ProfilePage(userId: userId);
-        },
-        settings: settings,
-      );
     }
-    throw Exception('Route not found');
   }
 
   Widget _home() {

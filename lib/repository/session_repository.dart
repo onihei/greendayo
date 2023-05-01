@@ -9,6 +9,8 @@ abstract class SessionRepository {
   Stream<QuerySnapshot<Session>> observe();
 
   Future<void> updateTimestamp(String sessionId);
+
+  Future<String> save(Session entity);
 }
 
 final sessionsRef = FirebaseFirestore.instance.collection('sessions').withConverter<Session>(
@@ -33,5 +35,12 @@ class _SessionRepositoryImpl implements SessionRepository {
   @override
   Future<void> updateTimestamp(String sessionId) async {
     await sessionsRef.doc(sessionId).update({"updatedAt": Timestamp.fromDate(DateTime.now())});
+  }
+
+  @override
+  Future<String> save(Session entity) async {
+    final newDoc = sessionsRef.doc();
+    await newDoc.set(entity);
+    return newDoc.id;
   }
 }

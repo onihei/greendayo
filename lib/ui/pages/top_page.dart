@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:greendayo/fragments/dot_image.dart';
-import 'package:greendayo/fragments/footer.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/provider/top_provider.dart';
+import 'package:greendayo/ui/fragments/dot_image.dart';
+import 'package:greendayo/ui/fragments/footer.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:rxdart/rxdart.dart';

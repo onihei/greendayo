@@ -90,6 +90,20 @@ class MessengerPage extends ConsumerWidget {
                       width: 8,
                     ),
                     Text(data.nickname),
+                    Spacer(),
+                    PopupMenuButton<String>(
+                      onSelected: (String s) {
+                        Navigator.pushNamed(context, "/profile", arguments: data.userId);
+                      },
+                      itemBuilder: (BuildContext context) {
+                        return [
+                          PopupMenuItem(
+                            child: Text("プロフィールを見る"),
+                            value: "profile",
+                          ),
+                        ];
+                      },
+                    ),
                   ],
                 ),
               ),
