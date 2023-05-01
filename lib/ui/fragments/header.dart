@@ -50,6 +50,8 @@ class _HeaderViewController {
 }
 
 class Header extends HookConsumerWidget {
+  const Header({super.key});
+
   @override
   Widget build(context, ref) {
     final screenSize = MediaQuery.of(context).size;

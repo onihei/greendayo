@@ -54,6 +54,7 @@ class MessengerPage extends ConsumerWidget {
         Flexible(
           child: _sessionList(context, ref),
         ),
+        const VerticalDivider(),
         Flexible(
           child: sessionId == null ? Container() : TalkSession.loaded(sessionId),
         ),
@@ -82,63 +83,49 @@ class MessengerPage extends ConsumerWidget {
     final session = snapshot.data();
     final myProfile = ref.watch(myProfileProvider);
     final displayMemberId = session.members.where((id) => id != myProfile.userId).single;
-    return InkWell(
-      onTap: () {
-        ref.read(_selectedSessionIdProvider.notifier).state = snapshot.id;
-      },
-      child: Consumer(
-        builder: (context, ref, child) {
-          final profile = ref.watch(profileProvider(displayMemberId));
-          final selectedId = ref.watch(_selectedSessionIdProvider);
-          final color = snapshot.id == selectedId
-              ? Theme.of(context).colorScheme.onBackground.withOpacity(0.1)
-              : Colors.transparent;
-          return profile.maybeWhen(
-            data: (data) => Ink(
-              color: color,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    data.photoMiddle,
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Text(data.nickname),
-                    Spacer(),
-                    PopupMenuButton<String>(
-                      onSelected: (String s) async {
-                        if (s == "profile") {
-                          await Navigator.pushNamed(context, "/profile", arguments: data.userId);
-                        }
-                        if (s == "delete") {
-                          if (currentSelectedId == snapshot.id) {
-                            ref.read(_selectedSessionIdProvider.notifier).state = null;
-                          }
-                          await ref.read(_messengerViewControllerProvider).deleteSession(snapshot.id);
-                        }
-                      },
-                      itemBuilder: (BuildContext context) {
-                        return [
-                          const PopupMenuItem(
-                            value: "profile",
-                            child: Text("プロフィールを見る"),
-                          ),
-                          const PopupMenuItem(
-                            value: "delete",
-                            child: Text("この会話を削除する"),
-                          ),
-                        ];
-                      },
-                    ),
-                  ],
-                ),
-              ),
+    return Consumer(
+      builder: (context, ref, child) {
+        final profile = ref.watch(profileProvider(displayMemberId));
+        final selectedId = ref.watch(_selectedSessionIdProvider);
+        return profile.maybeWhen(
+          data: (data) => ListTile(
+            selectedTileColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            selected: snapshot.id == selectedId,
+            contentPadding: EdgeInsets.all(8),
+            onTap: () {
+              ref.read(_selectedSessionIdProvider.notifier).state = snapshot.id;
+            },
+            leading: data.photoMiddle,
+            title: Text(data.nickname),
+            trailing: PopupMenuButton<String>(
+              onSelected: (String s) async {
+                if (s == "profile") {
+                  await Navigator.pushNamed(context, "/profile", arguments: data.userId);
+                }
+                if (s == "delete") {
+                  if (currentSelectedId == snapshot.id) {
+                    ref.read(_selectedSessionIdProvider.notifier).state = null;
+                  }
+                  await ref.read(_messengerViewControllerProvider).deleteSession(snapshot.id);
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return [
+                  const PopupMenuItem(
+                    value: "profile",
+                    child: Text("プロフィールを見る"),
+                  ),
+                  const PopupMenuItem(
+                    value: "delete",
+                    child: Text("この会話を削除する"),
+                  ),
+                ];
+              },
             ),
-            orElse: () => SizedBox.shrink(),
-          );
-        },
-      ),
+          ),
+          orElse: () => SizedBox.shrink(),
+        );
+      },
     );
   }
 }

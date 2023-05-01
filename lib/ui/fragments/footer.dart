@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class Footer extends ConsumerWidget {
+  const Footer({super.key});
+
   @override
   Widget build(context, ref) {
     return Container(
@@ -18,7 +20,7 @@ class Footer extends ConsumerWidget {
                   children: [
                     _help(),
                     _social(),
-                    VerticalDivider(),
+                    const VerticalDivider(),
                     _address(),
                   ],
                 ),

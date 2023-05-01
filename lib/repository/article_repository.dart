@@ -1,6 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:greendayo/entity/article.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ulid/ulid.dart';
 
 final articleRepository = Provider.autoDispose<ArticleRepository>((ref) => _ArticleRepositoryImpl(ref));
 
@@ -10,6 +14,8 @@ abstract class ArticleRepository {
   Future<String> save(Article entity);
 
   Future<void> delete(String docId);
+
+  Future<String> uploadJpeg(Uint8List bytes);
 }
 
 final articlesRef = FirebaseFirestore.instance.collection('articles').withConverter<Article>(
@@ -36,5 +42,17 @@ class _ArticleRepositoryImpl implements ArticleRepository {
   Future<void> delete(String docId) async {
     final doc = articlesRef.doc(docId);
     await doc.delete();
+  }
+
+  @override
+  Future<String> uploadJpeg(Uint8List bytes) async {
+    final storageRef = FirebaseStorage.instance.ref().child('bbs/photo/${Ulid()}');
+    final uploadTask = storageRef.putData(
+      bytes,
+      SettableMetadata(contentType: "image/jpeg"),
+    );
+    final result = await uploadTask;
+    final url = await result.ref.getDownloadURL();
+    return url;
   }
 }
