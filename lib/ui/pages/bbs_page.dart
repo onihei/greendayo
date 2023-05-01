@@ -16,6 +16,8 @@ final _screenOffsetProvider = StateProvider.autoDispose<Offset>((ref) => Offset.
 
 final _editProvider = StateProvider.autoDispose<bool>((ref) => false);
 
+final _loadingProvider = StateProvider<bool>((ref) => false);
+
 class _FormNotifier extends StateNotifier<BbsForm> {
   _FormNotifier() : super(const BbsForm());
 
@@ -54,7 +56,7 @@ class BbsForm {
   Image? get photo {
     final bytes = photoJpgBytes;
     if (bytes != null) {
-      return Image.memory(bytes);
+      return Image.memory(bytes, fit: BoxFit.cover);
     }
     return null;
   }
@@ -78,10 +80,10 @@ class BbsTabConfig implements TabConfig {
   String get label => '掲示板';
 
   @override
-  Widget get icon => Icon(Icons.forum_outlined);
+  Widget get icon => const Icon(Icons.forum_outlined);
 
   @override
-  Widget get activeIcon => Icon(Icons.forum);
+  Widget get activeIcon => const Icon(Icons.forum);
 
   @override
   Function get factoryMethod => BbsPage.new;
@@ -91,11 +93,11 @@ class BbsTabConfig implements TabConfig {
         builder: (context, ref, child) {
           final edit = ref.watch(_editProvider);
           final button = FloatingActionButton(
-            child: Icon(
+            child: const Icon(
               Icons.add,
             ),
             onPressed: () {
-              ref.watch(_bbsViewController).startCreate();
+              ref.read(_bbsViewController).startCreate();
             },
           );
           return Visibility(
@@ -174,7 +176,7 @@ class _BbsViewController {
             action: SnackBarAction(
               label: '取消',
               onPressed: () async {
-                await this.undo(docId);
+                await undo(docId);
               },
             ),
           ),
@@ -202,9 +204,11 @@ class _BbsViewController {
     if (result == null) {
       return;
     }
+    ref.read(_loadingProvider.notifier).state = true;
     final resultBytes = await result.readAsBytes();
     final tempImage = img.decodeImage(resultBytes);
     if (tempImage == null) {
+      ref.read(_loadingProvider.notifier).state = false;
       snackBar?.showSnackBar(
         const SnackBar(
           content: Text('ファイルの読み込みに失敗しました。'),
@@ -212,9 +216,10 @@ class _BbsViewController {
       );
       return;
     }
-    final resized = img.copyResize(tempImage, width: 500);
-    final bytes = img.encodeJpg(resized).buffer.asUint8List();
+    final resized = img.copyResize(tempImage, width: min(tempImage.width, 500));
+    final bytes = img.encodeJpg(resized, quality: 80).buffer.asUint8List();
     ref.read(_formProvider.notifier).changePhotoJpgBytes(bytes);
+    ref.read(_loadingProvider.notifier).state = false;
   }
 }
 
@@ -241,7 +246,7 @@ class BbsPage extends HookConsumerWidget {
         _buildBoard(context, ref, snapshot),
         if (edit)
           Align(
-            alignment: Alignment(0, -0.2),
+            alignment: const Alignment(0, -0.2),
             child: _buildForm(context, ref),
           ),
         if (edit) _buildEditActions(context, ref),
@@ -301,8 +306,9 @@ class BbsPage extends HookConsumerWidget {
 
   Widget _photoContent(BuildContext context, WidgetRef ref, Article article) {
     final content = Container(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, 32),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       width: article.width.toDouble(),
+      height: article.width.toDouble() + 16,
       decoration: _photoBoxDecoration(context),
       child: article.photoImage,
     );
@@ -315,7 +321,7 @@ class BbsPage extends HookConsumerWidget {
 
   Widget _textContent(BuildContext context, WidgetRef ref, Article article) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       width: article.width.toDouble(),
       decoration: _textBoxDecoration(context, color: Theme.of(context).colorScheme.primaryContainer),
       child: Column(
@@ -324,7 +330,7 @@ class BbsPage extends HookConsumerWidget {
           Text(article.content),
           Row(
             children: [
-              Spacer(),
+              const Spacer(),
               Text(article.signature),
             ],
           ),
@@ -334,7 +340,11 @@ class BbsPage extends HookConsumerWidget {
   }
 
   Widget _buildForm(BuildContext context, WidgetRef ref) {
+    final loading = ref.watch(_loadingProvider);
     final form = ref.watch(_formProvider);
+    if (loading) {
+      return SizedBox.shrink();
+    }
     if (form.isPhotoMode) {
       return _photoForm(context, ref);
     } else {
@@ -348,8 +358,9 @@ class BbsPage extends HookConsumerWidget {
 
     final content = Container(
       key: keyForm,
-      padding: EdgeInsets.fromLTRB(16, 16, 16, 32),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       width: form.width,
+      height: form.width + 16,
       decoration: _photoBoxDecoration(context),
       child: form.photo,
     );
@@ -368,7 +379,7 @@ class BbsPage extends HookConsumerWidget {
 
     return Container(
       key: keyForm,
-      padding: EdgeInsets.all(4),
+      padding: const EdgeInsets.all(4),
       width: form.width,
       decoration: _textBoxDecoration(context, color: Theme.of(context).colorScheme.secondaryContainer),
       child: TextField(
@@ -383,21 +394,21 @@ class BbsPage extends HookConsumerWidget {
         buildCounter: (_, {required currentLength, maxLength, required isFocused}) => Row(
           children: [
             Text('$currentLength / $maxLength'),
-            Spacer(),
+            const Spacer(),
             Text(myProfile.nickname),
           ],
         ),
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w400,
         ),
         decoration: InputDecoration(
           isCollapsed: true,
-          contentPadding: EdgeInsets.all(10),
+          contentPadding: const EdgeInsets.all(10),
           fillColor: Theme.of(context).colorScheme.onSecondaryContainer,
           errorText: null,
           hintText: '投稿内容をここに書いてください。',
-          hintStyle: TextStyle(
+          hintStyle: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w400,
           ),
@@ -408,7 +419,7 @@ class BbsPage extends HookConsumerWidget {
 
   Widget _buildEditActions(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: EdgeInsets.only(top: 32),
+      padding: const EdgeInsets.only(top: 32),
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: 8,
@@ -431,7 +442,7 @@ class BbsPage extends HookConsumerWidget {
               onPressed: () async {
                 await ref.read(_bbsViewController).post();
               },
-              child: Text('投稿する'),
+              child: const Text('投稿する'),
             ),
             const SizedBox(
               width: 20,
@@ -440,7 +451,7 @@ class BbsPage extends HookConsumerWidget {
               onPressed: () async {
                 ref.read(_editProvider.notifier).state = false;
               },
-              child: Text('キャンセル'),
+              child: const Text('キャンセル'),
             ),
           ],
         ),
@@ -456,7 +467,7 @@ class BbsPage extends HookConsumerWidget {
           color: color,
           spreadRadius: 1.2,
           blurRadius: 1,
-          offset: Offset(1, 1),
+          offset: const Offset(1, 1),
         ),
       ],
     );
@@ -477,13 +488,13 @@ class BbsPage extends HookConsumerWidget {
           1.0,
         ],
       ),
-      borderRadius: BorderRadius.all(Radius.circular(4)),
+      borderRadius: const BorderRadius.all(Radius.circular(4)),
       boxShadow: [
         BoxShadow(
           color: Colors.white.withOpacity(0.2),
           spreadRadius: 0,
           blurRadius: 12,
-          offset: Offset(0, 2),
+          offset: const Offset(0, 2),
         ),
       ],
     );

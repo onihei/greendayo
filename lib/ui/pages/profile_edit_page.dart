@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:greendayo/provider/global_provider.dart';
@@ -178,8 +179,8 @@ class _ViewController {
       );
       return;
     }
-    final resized = img.copyResize(tempImage, width: 500);
-    final bytes = img.encodeJpg(resized).buffer.asUint8List();
+    final resized = img.copyResize(tempImage, width: min(tempImage.width, 500));
+    final bytes = img.encodeJpg(resized, quality: 80).buffer.asUint8List();
     await ref.read(profileRepository).uploadMyProfilePhoto("image/jpeg", bytes);
   }
 }
@@ -265,11 +266,11 @@ class ProfileEditPage extends ConsumerWidget {
             builder: (context, ref, child) {
               final loading = ref.watch(_loadingProvider);
               if (!loading) {
-                return SizedBox.shrink();
+                return const SizedBox.shrink();
               }
               return Container(
                 color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                child: Center(
+                child: const Center(
                   child: CircularProgressIndicator(),
                 ),
               );

@@ -115,7 +115,6 @@ class TalkSession extends ConsumerWidget {
 
   Widget _talkList(BuildContext context, WidgetRef ref) {
     final currentSessionId = ref.watch(_currentSessionIdProvider(userId));
-
     if (currentSessionId == null) {
       return SizedBox.shrink();
     }

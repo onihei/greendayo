@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:greendayo/lang/firebase_ext.dart';
@@ -58,8 +59,8 @@ class Profile {
           }
           final avatar = ref.watch(avatarProvider(userId));
           return avatar.when(
-            data: (data) => Image.memory(
-              data,
+            data: (url) => CachedNetworkImage(
+              imageUrl: url,
               fit: BoxFit.cover,
             ),
             error: (error, _) => Icon(

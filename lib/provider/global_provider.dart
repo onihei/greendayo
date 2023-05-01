@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -66,7 +65,6 @@ final myProfileProvider = Provider.autoDispose<Profile>((ref) {
   return behaviorSubject.value;
 });
 
-final avatarProvider = FutureProvider.family<Uint8List, String>((ref, userId) {
-  // fixme: ディスクキャッシュに変える
-  return FirebaseStorage.instance.ref().child('users/${userId}/photo').getData().then((value) => value!);
+final avatarProvider = FutureProvider.family<String, String>((ref, userId) {
+  return FirebaseStorage.instance.ref().child('users/$userId/photo').getDownloadURL();
 });

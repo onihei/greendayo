@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -23,11 +24,14 @@ class Article {
     if (matches.isEmpty) {
       return null;
     }
-    final src = matches.single.group(1);
-    if (src == null) {
+    final url = matches.single.group(1);
+    if (url == null) {
       return null;
     }
-    return Image.network(src);
+    return CachedNetworkImage(
+      imageUrl: url,
+      fit: BoxFit.cover,
+    );
   }
 
   double? get rotation {
