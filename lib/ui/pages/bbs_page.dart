@@ -116,40 +116,10 @@ class BbsPage extends HookConsumerWidget {
     final papers = snapshot.docs.map((articleDoc) {
       final article = articleDoc.data();
       return Positioned(
-          left: screenOffset.dx + article.left.toDouble(),
-          top: screenOffset.dy + article.top.toDouble(),
-          child: InkWell(
-            onTap: () {
-              Navigator.pushNamed(context, "/profile", arguments: article.createdBy);
-            },
-            child: Container(
-              padding: EdgeInsets.all(10),
-              width: article.width.toDouble(),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    spreadRadius: 1.2,
-                    blurRadius: 1,
-                    offset: Offset(1, 1),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(article.text),
-                  Row(
-                    children: [
-                      Spacer(),
-                      Text(article.signature),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ));
+        left: screenOffset.dx + article.left.toDouble(),
+        top: screenOffset.dy + article.top.toDouble(),
+        child: _articleCard(context, ref, articleDoc),
+      );
     }).toList();
     return GestureDetector(
       onPanUpdate: ref.read(_bbsViewController).pan,
@@ -157,6 +127,60 @@ class BbsPage extends HookConsumerWidget {
         color: Theme.of(context).colorScheme.background,
         child: Stack(
           children: papers,
+        ),
+      ),
+    );
+  }
+
+  Widget _articleCard(BuildContext context, WidgetRef ref, QueryDocumentSnapshot<Article> snapShot) {
+    final article = snapShot.data();
+    return PopupMenuButton<String>(
+      position: PopupMenuPosition.under,
+      onSelected: (s) async {
+        if (s == "profile") {
+          await Navigator.pushNamed(context, "/profile", arguments: article.createdBy);
+        }
+        if (s == "delete") {
+          await ref.read(_bbsViewController).deleteArticle(docId: snapShot.id);
+        }
+      },
+      itemBuilder: (BuildContext context) {
+        return [
+          const PopupMenuItem(
+            value: "profile",
+            child: Text("プロフィールを見る"),
+          ),
+          const PopupMenuItem(
+            value: "delete",
+            child: Text("削除する"),
+          ),
+        ];
+      },
+      child: Container(
+        padding: EdgeInsets.all(10),
+        width: article.width.toDouble(),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              spreadRadius: 1.2,
+              blurRadius: 1,
+              offset: Offset(1, 1),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(article.text),
+            Row(
+              children: [
+                Spacer(),
+                Text(article.signature),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -331,5 +355,9 @@ class _BbsViewController {
             duration: const Duration(seconds: 3),
           ),
         );
+  }
+
+  Future<void> deleteArticle({required String docId}) async {
+    await ref.read(articleRepository).delete(docId);
   }
 }

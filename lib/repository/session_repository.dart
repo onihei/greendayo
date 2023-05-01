@@ -11,6 +11,8 @@ abstract class SessionRepository {
   Future<void> updateTimestamp(String sessionId);
 
   Future<String> save(Session entity);
+
+  Future<void> delete(String sessionId);
 }
 
 final sessionsRef = FirebaseFirestore.instance.collection('sessions').withConverter<Session>(
@@ -42,5 +44,10 @@ class _SessionRepositoryImpl implements SessionRepository {
     final newDoc = sessionsRef.doc();
     await newDoc.set(entity);
     return newDoc.id;
+  }
+
+  @override
+  Future<void> delete(String sessionId) async {
+    await sessionsRef.doc(sessionId).delete();
   }
 }

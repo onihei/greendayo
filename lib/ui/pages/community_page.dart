@@ -3,7 +3,7 @@ import 'package:greendayo/tab_config.dart';
 
 class CommunityTabConfig implements TabConfig {
   @override
-  String get label => 'チーム';
+  String get label => 'ファミリー';
 
   @override
   Widget get icon => Icon(Icons.hive_outlined);

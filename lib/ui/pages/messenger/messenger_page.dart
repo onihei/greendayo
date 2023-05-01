@@ -6,6 +6,7 @@ import 'package:greendayo/provider/profile_provider.dart';
 import 'package:greendayo/provider/sessions_provider.dart';
 import 'package:greendayo/tab_config.dart';
 import 'package:greendayo/ui/pages/messenger/talk_session.dart';
+import 'package:greendayo/usecase/talk_use_case.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final _selectedSessionIdProvider = StateProvider<String?>((ref) => null);
@@ -25,6 +26,19 @@ class MessengerTabConfig implements TabConfig {
 
   @override
   Widget? get floatingActionButton => null;
+}
+
+final _messengerViewControllerProvider =
+    Provider.autoDispose<_MessengerViewController>((ref) => _MessengerViewController(ref));
+
+class _MessengerViewController {
+  final Ref ref;
+
+  _MessengerViewController(this.ref);
+
+  Future<void> deleteSession(sessionId) async {
+    await ref.read(talkUseCase).deleteSession(sessionId: sessionId);
+  }
 }
 
 class MessengerPage extends ConsumerWidget {
@@ -64,6 +78,7 @@ class MessengerPage extends ConsumerWidget {
   }
 
   Widget _sessionTile(BuildContext context, WidgetRef ref, QueryDocumentSnapshot<Session> snapshot) {
+    final currentSelectedId = ref.watch(_selectedSessionIdProvider);
     final session = snapshot.data();
     final myProfile = ref.watch(myProfileProvider);
     final displayMemberId = session.members.where((id) => id != myProfile.userId).single;
@@ -86,20 +101,32 @@ class MessengerPage extends ConsumerWidget {
                 child: Row(
                   children: [
                     data.photoMiddle,
-                    SizedBox(
+                    const SizedBox(
                       width: 8,
                     ),
                     Text(data.nickname),
                     Spacer(),
                     PopupMenuButton<String>(
-                      onSelected: (String s) {
-                        Navigator.pushNamed(context, "/profile", arguments: data.userId);
+                      onSelected: (String s) async {
+                        if (s == "profile") {
+                          await Navigator.pushNamed(context, "/profile", arguments: data.userId);
+                        }
+                        if (s == "delete") {
+                          if (currentSelectedId == snapshot.id) {
+                            ref.read(_selectedSessionIdProvider.notifier).state = null;
+                          }
+                          await ref.read(_messengerViewControllerProvider).deleteSession(snapshot.id);
+                        }
                       },
                       itemBuilder: (BuildContext context) {
                         return [
-                          PopupMenuItem(
-                            child: Text("プロフィールを見る"),
+                          const PopupMenuItem(
                             value: "profile",
+                            child: Text("プロフィールを見る"),
+                          ),
+                          const PopupMenuItem(
+                            value: "delete",
+                            child: Text("この会話を削除する"),
                           ),
                         ];
                       },

@@ -42,4 +42,8 @@ class TalkUseCase {
     await ref.read(talkRepository(newSessionId)).save(newTalk);
     return newSessionId;
   }
+
+  Future<void> deleteSession({required String sessionId}) async {
+    await ref.read(sessionRepository).delete(sessionId);
+  }
 }

@@ -61,7 +61,12 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  Widget _floatingActionButton(BuildContext context, WidgetRef ref) {
+  Widget? _floatingActionButton(BuildContext context, WidgetRef ref) {
+    final myProfile = ref.watch(myProfileProvider);
+    final isMe = userId == myProfile.userId;
+    if (isMe) {
+      return null;
+    }
     return FloatingActionButton(
       child: const Icon(
         Icons.email,
