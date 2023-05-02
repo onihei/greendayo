@@ -7,7 +7,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:greendayo/firebase_options.dart';
 import 'package:greendayo/my_app.dart';
-import 'package:greendayo/my_url_strategy.dart';
+import 'package:greendayo/web/my_url_strategy.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 Future<void> main() async {

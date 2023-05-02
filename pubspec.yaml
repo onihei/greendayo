@@ -66,6 +66,7 @@ dependencies:
   image: ^4.0.16
   ulid: ^2.0.0
   cached_network_image: ^3.2.3
+  html: ^0.15.2
 
 dev_dependencies:
   flutter_test:

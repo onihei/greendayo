@@ -8,6 +8,7 @@ import 'package:greendayo/provider/article_provider.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/repository/article_repository.dart';
 import 'package:greendayo/tab_config.dart';
+import 'package:greendayo/web/my_image_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
@@ -26,8 +27,24 @@ class _FormNotifier extends StateNotifier<BbsForm> {
   }
 
   void changePhotoJpgBytes(Uint8List bytes) {
-    final r = Random().nextDouble() * 0.632;
-    final rotation = (Random().nextBool() ? 1.0 : -1) * (1 - (-1 * log(1 - r))) * 0.035;
+    random() {
+      double u1 = 0;
+      double u2 = 0;
+      while (u1 == 0) {
+        u1 = Random().nextDouble();
+      }
+      while (u2 == 0) {
+        u2 = Random().nextDouble();
+      }
+      final r = sqrt(-2.0 * log(u1)) * cos(2 * pi * u2);
+      if (r < 0) {
+        return 0.035 + r / 5;
+      } else {
+        return r / 5 - 0.035;
+      }
+    }
+
+    final rotation = random();
 
     state = state.copyWith(
       photoJpgBytes: bytes,
@@ -206,7 +223,17 @@ class _BbsViewController {
     }
     ref.read(_loadingProvider.notifier).state = true;
     final resultBytes = await result.readAsBytes();
-    final tempImage = img.decodeImage(resultBytes);
+    final mimeType = result.mimeType;
+    if (mimeType == null) {
+      ref.read(_loadingProvider.notifier).state = false;
+      snackBar?.showSnackBar(
+        const SnackBar(
+          content: Text('ファイルの読み込みに失敗しました。'),
+        ),
+      );
+      return;
+    }
+    final tempImage = await decodeBytes(mimeType: mimeType, bytes: resultBytes);
     if (tempImage == null) {
       ref.read(_loadingProvider.notifier).state = false;
       snackBar?.showSnackBar(

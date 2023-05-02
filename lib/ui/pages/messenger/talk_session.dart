@@ -116,12 +116,12 @@ class TalkSession extends ConsumerWidget {
   Widget _talkList(BuildContext context, WidgetRef ref) {
     final currentSessionId = ref.watch(_currentSessionIdProvider(userId));
     if (currentSessionId == null) {
-      return SizedBox.shrink();
+      return Container();
     }
     final talks = ref.watch(talksStreamProvider(currentSessionId));
     return talks.maybeWhen(
         data: (value) => _talkListContent(context, ref, value),
-        orElse: () => SizedBox.shrink(),
+        orElse: () => Container(),
         error: (error, stackTrace) => Center(
               child: SelectableText('error ${error}'),
             ));
