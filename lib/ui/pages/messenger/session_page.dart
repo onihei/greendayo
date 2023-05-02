@@ -17,8 +17,8 @@ class SessionPage extends ConsumerWidget {
       data: (session) {
         return Consumer(builder: (context, ref, child) {
           final myProfile = ref.watch(myProfileProvider);
-          final some = session.membersExclude(myProfile.userId).single;
-          final profileFuture = ref.watch(profileProvider(some));
+          final someone = session.membersExclude(myProfile.userId).single;
+          final profileFuture = ref.watch(profileProvider(someone));
           return profileFuture.maybeWhen(
             data: (profile) {
               return Scaffold(

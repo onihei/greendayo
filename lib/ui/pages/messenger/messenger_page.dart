@@ -49,9 +49,9 @@ class MessengerPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sessionId = ref.watch(_selectedSessionIdProvider);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth > 600) {
+    return Builder(
+      builder: (context) {
+        if (MediaQuery.of(context).size.width > 600) {
           return Flex(
             direction: Axis.horizontal,
             children: [
@@ -97,9 +97,9 @@ class MessengerPage extends ConsumerWidget {
       builder: (context, ref, child) {
         final profileFuture = ref.watch(profileProvider(displayMemberId));
         return profileFuture.maybeWhen(
-          data: (profile) => LayoutBuilder(
-            builder: (context, constraints) {
-              if (constraints.maxWidth > 600) {
+          data: (profile) => Builder(
+            builder: (context) {
+              if (MediaQuery.of(context).size.width > 600) {
                 return _sessionTileContent(context, ref, snapshot: snapshot, profile: profile, onTap: () {
                   ref.read(_selectedSessionIdProvider.notifier).state = snapshot.id;
                 });

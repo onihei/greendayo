@@ -37,11 +37,7 @@ class _FormNotifier extends StateNotifier<BbsForm> {
         u2 = Random().nextDouble();
       }
       final r = sqrt(-2.0 * log(u1)) * cos(2 * pi * u2);
-      if (r < 0) {
-        return 0.035 + r / 5;
-      } else {
-        return r / 5 - 0.035;
-      }
+      return (2.71828 - r.abs()) * (Random().nextBool() ? 1 : -1) / 8;
     }
 
     final rotation = random();
