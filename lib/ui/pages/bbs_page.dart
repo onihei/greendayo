@@ -340,9 +340,11 @@ class BbsPage extends HookConsumerWidget {
       child: article.photoImage,
     );
     final rotation = article.rotation ?? 0;
-    return Transform.rotate(
-      angle: rotation,
-      child: content,
+    return Container(
+      child: Transform.rotate(
+        angle: rotation,
+        child: content,
+      ),
     );
   }
 
@@ -370,7 +372,7 @@ class BbsPage extends HookConsumerWidget {
     final loading = ref.watch(_loadingProvider);
     final form = ref.watch(_formProvider);
     if (loading) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
     if (form.isPhotoMode) {
       return _photoForm(context, ref);
@@ -384,16 +386,18 @@ class BbsPage extends HookConsumerWidget {
     final keyForm = ref.watch(globalKeyProvider("form"));
 
     final content = Container(
-      key: keyForm,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       width: form.width,
       height: form.width + 16,
       decoration: _photoBoxDecoration(context),
       child: form.photo,
     );
-    return Transform.rotate(
-      angle: form.rotation,
-      child: content,
+    return Container(
+      key: keyForm,
+      child: Transform.rotate(
+        angle: form.rotation,
+        child: content,
+      ),
     );
   }
 
