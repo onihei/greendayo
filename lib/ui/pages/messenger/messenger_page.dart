@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:greendayo/entity/profile.dart';
 import 'package:greendayo/entity/session.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/provider/profile_provider.dart';
-import 'package:greendayo/provider/sessions_provider.dart';
+import 'package:greendayo/provider/session_provider.dart';
 import 'package:greendayo/tab_config.dart';
 import 'package:greendayo/ui/pages/messenger/talk_session.dart';
 import 'package:greendayo/usecase/talk_use_case.dart';
@@ -48,17 +49,27 @@ class MessengerPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sessionId = ref.watch(_selectedSessionIdProvider);
 
-    return Flex(
-      direction: Axis.horizontal,
-      children: [
-        Flexible(
-          child: _sessionList(context, ref),
-        ),
-        const VerticalDivider(),
-        Flexible(
-          child: sessionId == null ? Container() : TalkSession.loaded(sessionId),
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth > 600) {
+          return Flex(
+            direction: Axis.horizontal,
+            children: [
+              Flexible(
+                child: _sessionList(context, ref),
+              ),
+              const VerticalDivider(),
+              Flexible(
+                child: sessionId == null ? Container() : TalkSession.loaded(sessionId),
+              ),
+            ],
+          );
+        } else {
+          return Container(
+            child: _sessionList(context, ref),
+          );
+        }
+      },
     );
   }
 
@@ -79,53 +90,69 @@ class MessengerPage extends ConsumerWidget {
   }
 
   Widget _sessionTile(BuildContext context, WidgetRef ref, QueryDocumentSnapshot<Session> snapshot) {
-    final currentSelectedId = ref.watch(_selectedSessionIdProvider);
     final session = snapshot.data();
     final myProfile = ref.watch(myProfileProvider);
-    final displayMemberId = session.members.where((id) => id != myProfile.userId).single;
+    final displayMemberId = session.membersExclude(myProfile.userId).single;
     return Consumer(
       builder: (context, ref, child) {
-        final profile = ref.watch(profileProvider(displayMemberId));
-        final selectedId = ref.watch(_selectedSessionIdProvider);
-        return profile.maybeWhen(
-          data: (data) => ListTile(
-            selectedTileColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-            selected: snapshot.id == selectedId,
-            contentPadding: EdgeInsets.all(8),
-            onTap: () {
-              ref.read(_selectedSessionIdProvider.notifier).state = snapshot.id;
+        final profileFuture = ref.watch(profileProvider(displayMemberId));
+        return profileFuture.maybeWhen(
+          data: (profile) => LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 600) {
+                return _sessionTileContent(context, ref, snapshot: snapshot, profile: profile, onTap: () {
+                  ref.read(_selectedSessionIdProvider.notifier).state = snapshot.id;
+                });
+              } else {
+                return _sessionTileContent(context, ref, snapshot: snapshot, profile: profile, onTap: () {
+                  ref.read(_selectedSessionIdProvider.notifier).state = snapshot.id;
+                  Navigator.of(context).pushNamed("/session", arguments: snapshot.id);
+                });
+              }
             },
-            leading: data.photoMiddle,
-            title: Text(data.nickname),
-            trailing: PopupMenuButton<String>(
-              onSelected: (String s) async {
-                if (s == "profile") {
-                  await Navigator.pushNamed(context, "/profile", arguments: data.userId);
-                }
-                if (s == "delete") {
-                  if (currentSelectedId == snapshot.id) {
-                    ref.read(_selectedSessionIdProvider.notifier).state = null;
-                  }
-                  await ref.read(_messengerViewControllerProvider).deleteSession(snapshot.id);
-                }
-              },
-              itemBuilder: (BuildContext context) {
-                return [
-                  const PopupMenuItem(
-                    value: "profile",
-                    child: Text("プロフィールを見る"),
-                  ),
-                  const PopupMenuItem(
-                    value: "delete",
-                    child: Text("この会話を削除する"),
-                  ),
-                ];
-              },
-            ),
           ),
-          orElse: () => SizedBox.shrink(),
+          orElse: () => const ListTile(),
         );
       },
+    );
+  }
+
+  Widget _sessionTileContent(BuildContext context, WidgetRef ref,
+      {required QueryDocumentSnapshot<Session> snapshot, required Profile profile, required GestureTapCallback onTap}) {
+    final selectedId = ref.watch(_selectedSessionIdProvider);
+
+    return ListTile(
+      selectedTileColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+      selected: snapshot.id == selectedId,
+      contentPadding: const EdgeInsets.all(8),
+      onTap: onTap,
+      leading: profile.photoMiddle,
+      title: Text(profile.nickname),
+      trailing: PopupMenuButton<String>(
+        onSelected: (String s) async {
+          if (s == "profile") {
+            await Navigator.pushNamed(context, "/profile", arguments: profile.userId);
+          }
+          if (s == "delete") {
+            if (selectedId == snapshot.id) {
+              ref.read(_selectedSessionIdProvider.notifier).state = null;
+            }
+            await ref.read(_messengerViewControllerProvider).deleteSession(snapshot.id);
+          }
+        },
+        itemBuilder: (BuildContext context) {
+          return [
+            const PopupMenuItem(
+              value: "profile",
+              child: Text("プロフィールを見る"),
+            ),
+            const PopupMenuItem(
+              value: "delete",
+              child: Text("この会話を削除する"),
+            ),
+          ];
+        },
+      ),
     );
   }
 }

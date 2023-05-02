@@ -10,6 +10,7 @@ import 'package:greendayo/ui/pages/community_page.dart';
 import 'package:greendayo/ui/pages/games_page.dart';
 import 'package:greendayo/ui/pages/messenger/messenger_page.dart';
 import 'package:greendayo/ui/pages/messenger/new_session_page.dart';
+import 'package:greendayo/ui/pages/messenger/session_page.dart';
 import 'package:greendayo/ui/pages/profile_edit_page.dart';
 import 'package:greendayo/ui/pages/profile_page.dart';
 import 'package:greendayo/ui/pages/top_page.dart';
@@ -66,26 +67,34 @@ class MyApp extends HookConsumerWidget {
       onGenerateRoute: (settings) => generateRoute(context, settings),
       routes: <String, WidgetBuilder>{
         "/": (_) => _home(),
-        "/profileEdit": (_) => ProfileEditPage(),
+        "/profileEdit": (_) => const ProfileEditPage(),
       },
     );
   }
 
   Route<dynamic>? generateRoute(context, RouteSettings settings) {
+    Route<dynamic>? route;
+    route = _handleProfileRoute(context, settings);
+    route ??= _handleSessionRoute(context, settings);
+    return route;
+  }
+
+  Route<dynamic>? _handleProfileRoute(context, RouteSettings settings) {
     final path = settings.name ?? "";
     final pattern = RegExp("/profile(?:/(?=\\w+))?(\\w+)?(/newSession)?\$");
     final matches = pattern.allMatches(path);
     if (matches.isNotEmpty) {
       final userId = matches.first.group(1);
       final newSession = matches.first.group(2) == "/newSession";
-      if (userId == null && settings.arguments is String) {
+      final arguments = settings.arguments;
+      if (userId == null && arguments is String) {
         // /profile に引数ありで来た
         return MaterialPageRoute(
           builder: (_) {
-            return ProfilePage(userId: settings.arguments as String);
+            return ProfilePage(userId: arguments);
           },
           // 引数オブジェクトが渡された場合は、リロードできるようにパスパラメータにして移動
-          settings: RouteSettings(name: "/profile/${settings.arguments}"),
+          settings: RouteSettings(name: "/profile/$arguments"),
         );
       }
       if (userId != null) {
@@ -109,6 +118,38 @@ class MyApp extends HookConsumerWidget {
         );
       }
     }
+    return null;
+  }
+
+  Route<dynamic>? _handleSessionRoute(context, RouteSettings settings) {
+    final path = settings.name ?? "";
+    final pattern = RegExp("/session(?:/(?=\\w+))?(\\w+)?\$");
+    final matches = pattern.allMatches(path);
+    if (matches.isNotEmpty) {
+      final sessionId = matches.first.group(1);
+      final arguments = settings.arguments;
+      if (sessionId == null && arguments is String) {
+        return MaterialPageRoute(
+          builder: (_) {
+            return SessionPage(sessionId: arguments);
+          },
+          settings: RouteSettings(name: "/session/$arguments"),
+        );
+      }
+      if (sessionId != null) {
+        if (FirebaseAuth.instance.currentUser == null) {
+          // fixme: トップにリダイレクトさせる
+          return null;
+        }
+        return MaterialPageRoute(
+          builder: (_) {
+            return SessionPage(sessionId: sessionId);
+          },
+          settings: settings,
+        );
+      }
+    }
+    return null;
   }
 
   Widget _home() {

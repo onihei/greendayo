@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/provider/socket_provider.dart';
 import 'package:greendayo/repository/profile_repository.dart';
+import 'package:greendayo/web/my_image_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
@@ -167,13 +168,22 @@ class _ViewController {
     if (result == null) {
       return;
     }
+    final mimeType = result.mimeType;
+    if (mimeType == null) {
+      snackBar?.showSnackBar(
+        const SnackBar(
+          content: Text('ファイルの読み込みに失敗しました。'),
+        ),
+      );
+      return;
+    }
     ref.read(_loadingProvider.notifier).state = true;
     final resultBytes = await result.readAsBytes();
-    final tempImage = img.decodeImage(resultBytes);
+    final tempImage = await decodeBytes(mimeType: mimeType, bytes: resultBytes);
     if (tempImage == null) {
       ref.read(_loadingProvider.notifier).state = false;
       snackBar?.showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('ファイルの読み込みに失敗しました。'),
         ),
       );

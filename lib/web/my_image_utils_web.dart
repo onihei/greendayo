@@ -14,7 +14,7 @@ Future<img.Image> decodeUrl(String url) async {
   ctx.drawImage(myImageElement, 0, 0);
   html.ImageData rgbaData = ctx.getImageData(0, 0, width, height);
   final data = rgbaData.data.buffer;
-  return img.Image.fromBytes(width: width, height: height, bytes: data);
+  return img.Image.fromBytes(width: width, height: height, bytes: data, numChannels: 4);
 }
 
 Future<img.Image?> decodeBytes({required String mimeType, required Uint8List bytes}) async {

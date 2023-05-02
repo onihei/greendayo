@@ -9,6 +9,10 @@ class Session {
     required this.updatedAt,
   });
 
+  List<String> membersExclude(String userId) {
+    return members.where((id) => id != userId).toList();
+  }
+
   factory Session.fromSnapShot(DocumentSnapshot snapshot) {
     return Session(
       members: [...snapshot.get('members')],

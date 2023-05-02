@@ -221,11 +221,8 @@ class _BbsViewController {
     if (result == null) {
       return;
     }
-    ref.read(_loadingProvider.notifier).state = true;
-    final resultBytes = await result.readAsBytes();
     final mimeType = result.mimeType;
     if (mimeType == null) {
-      ref.read(_loadingProvider.notifier).state = false;
       snackBar?.showSnackBar(
         const SnackBar(
           content: Text('ファイルの読み込みに失敗しました。'),
@@ -233,6 +230,8 @@ class _BbsViewController {
       );
       return;
     }
+    ref.read(_loadingProvider.notifier).state = true;
+    final resultBytes = await result.readAsBytes();
     final tempImage = await decodeBytes(mimeType: mimeType, bytes: resultBytes);
     if (tempImage == null) {
       ref.read(_loadingProvider.notifier).state = false;
