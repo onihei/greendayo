@@ -27,30 +27,37 @@ class _FormNotifier extends StateNotifier<BbsForm> {
   }
 
   void changePhotoJpgBytes(Uint8List bytes) {
-    random() {
-      double u1 = 0;
-      double u2 = 0;
-      while (u1 == 0) {
-        u1 = Random().nextDouble();
-      }
-      while (u2 == 0) {
-        u2 = Random().nextDouble();
-      }
-      final r = sqrt(-2.0 * log(u1)) * cos(2 * pi * u2);
-      return (2.71828 - r.abs()) * (Random().nextBool() ? 1 : -1) / 8;
-    }
-
-    final rotation = random();
-
     state = state.copyWith(
       photoJpgBytes: bytes,
-      rotation: rotation,
+      rotation: _randomRotation(),
       width: 200,
+    );
+  }
+
+  void shake() {
+    if (!state.isPhotoMode) {
+      return;
+    }
+    state = state.copyWith(
+      rotation: _randomRotation(),
     );
   }
 
   void clear() {
     state = const BbsForm();
+  }
+
+  double _randomRotation() {
+    double u1 = 0;
+    double u2 = 0;
+    while (u1 == 0) {
+      u1 = Random().nextDouble();
+    }
+    while (u2 == 0) {
+      u2 = Random().nextDouble();
+    }
+    final r = sqrt(-2.0 * log(u1)) * cos(2 * pi * u2);
+    return (2.71828 - r.abs()) * (Random().nextBool() ? 1 : -1) / 8;
   }
 }
 
@@ -128,9 +135,13 @@ class _BbsViewController {
 
   _BbsViewController(this.ref);
 
-  void pan(DragUpdateDetails details) {
+  void onPanUpdate(DragUpdateDetails details) {
     final offset = ref.read(_screenOffsetProvider.notifier).state;
     ref.read(_screenOffsetProvider.notifier).state = offset.translate(details.delta.dx, details.delta.dy);
+  }
+
+  void onPanEnd(DragEndDetails details) {
+    ref.read(_formProvider.notifier).shake();
   }
 
   void startCreate() {
@@ -288,7 +299,8 @@ class BbsPage extends HookConsumerWidget {
       );
     }).toList();
     return GestureDetector(
-      onPanUpdate: ref.read(_bbsViewController).pan,
+      onPanUpdate: ref.read(_bbsViewController).onPanUpdate,
+      onPanEnd: ref.read(_bbsViewController).onPanEnd,
       child: Container(
         color: Theme.of(context).colorScheme.background,
         child: Stack(
