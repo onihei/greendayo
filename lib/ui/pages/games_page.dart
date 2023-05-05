@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fx_widget/main.dart';
 import 'package:greendayo/tab_config.dart';
 
 class GamesTabConfig implements TabConfig {
@@ -6,10 +7,10 @@ class GamesTabConfig implements TabConfig {
   String get label => 'ゲーム';
 
   @override
-  Widget get icon => Icon(Icons.games_outlined);
+  Widget get icon => const Icon(Icons.games_outlined);
 
   @override
-  Widget get activeIcon => Icon(Icons.games);
+  Widget get activeIcon => const Icon(Icons.games);
 
   @override
   Function get factoryMethod => GamesPage.new;
@@ -19,10 +20,15 @@ class GamesTabConfig implements TabConfig {
 }
 
 class GamesPage extends StatelessWidget {
+  const GamesPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('games'),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints.tightFor(width: 400),
+        child: FxGame(userId: "xxx",),
+      ),
     );
   }
 }

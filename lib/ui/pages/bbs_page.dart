@@ -13,7 +13,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
-final _screenOffsetProvider = StateProvider.autoDispose<Offset>((ref) => Offset.zero);
+final _screenOffsetProvider = StateProvider<Offset>((ref) => Offset.zero);
 
 final _editProvider = StateProvider.autoDispose<bool>((ref) => false);
 

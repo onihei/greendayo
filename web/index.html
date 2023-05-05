@@ -61,6 +61,17 @@
         onEntrypointLoaded: function(engineInitializer) {
           engineInitializer.initializeEngine().then(function(appRunner) {
             appRunner.runApp();
+          }).then(function (_) {
+
+            // fixme: iOSサファリの戻るジェスチャー問題の回避策。
+            const flutterRoot = document.getElementsByTagName('flt-glass-pane').item(0);
+            flutterRoot.addEventListener('touchstart', (e) => {
+              // is not near edge of view, exit
+              if (e.pageX > 32 && e.pageX < window.innerWidth - 32) return;
+              // prevent swipe to navigate gesture
+              e.preventDefault();
+            });
+
           });
         }
       });

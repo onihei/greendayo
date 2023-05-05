@@ -160,6 +160,7 @@ class Header extends HookConsumerWidget {
               ],
             ),
           ),
-        ));
+        ),
+    );
   }
 }
