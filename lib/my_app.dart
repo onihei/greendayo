@@ -154,12 +154,12 @@ class MyApp extends HookConsumerWidget {
 
   Widget _home() {
     return Consumer(builder: (context, ref, child) {
-      final user = ref.watch(userProvider);
+      final myProfile = ref.watch(myProfileProvider);
 
       final tabIndex = ref.watch(_tabIndexProvider);
       final tab = ref.watch(_tabProvider);
       final scaffoldKey = ref.watch(globalKeyProvider("Scaffold"));
-      final authed = user.value != null;
+      final authed = myProfile.userId != "anonymous";
       if (authed) {
         FlutterNativeSplash.remove();
       }
