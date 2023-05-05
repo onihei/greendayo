@@ -54,10 +54,13 @@ final myProfileSubjectProvider = Provider<BehaviorSubject<Profile>>((ref) {
 
 final myProfileProvider = Provider.autoDispose<Profile>((ref) {
   final behaviorSubject = ref.watch(myProfileSubjectProvider);
+  final current = behaviorSubject.value;
   behaviorSubject.listen((newProfileState) {
-    ref.invalidateSelf();
+    if (current.userId != newProfileState.userId) {
+      ref.invalidateSelf();
+    }
   });
-  return behaviorSubject.value;
+  return current;
 });
 
 final avatarProvider = FutureProvider.family<String, String>((ref, userId) {

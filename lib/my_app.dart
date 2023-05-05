@@ -154,6 +154,7 @@ class MyApp extends HookConsumerWidget {
 
   Widget _home() {
     return Consumer(builder: (context, ref, child) {
+      ref.watch(userProvider);
       final myProfile = ref.watch(myProfileProvider);
 
       final tabIndex = ref.watch(_tabIndexProvider);
