@@ -154,13 +154,19 @@ class MyApp extends HookConsumerWidget {
 
   Widget _home() {
     return Consumer(builder: (context, ref, child) {
-      ref.watch(userProvider);
+      final user = ref.watch(userProvider);
       final myProfile = ref.watch(myProfileProvider);
 
       final tabIndex = ref.watch(_tabIndexProvider);
       final tab = ref.watch(_tabProvider);
       final scaffoldKey = ref.watch(globalKeyProvider("Scaffold"));
       final authed = myProfile.userId != "anonymous";
+      final loaded = user.value == null || authed;
+      if (!loaded) {
+        return Container(
+          color: Theme.of(context).colorScheme.background,
+        );
+      }
       if (authed) {
         FlutterNativeSplash.remove();
       }

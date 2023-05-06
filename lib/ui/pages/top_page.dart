@@ -23,7 +23,9 @@ final videoPlayerControllerProvider = FutureProvider.autoDispose<VideoPlayerCont
   });
 
   streamSubject.stream.distinct().listen((event) {
-    FlutterNativeSplash.remove();
+    Future.delayed(Duration(milliseconds: 500), () {
+      FlutterNativeSplash.remove();
+    });
   });
 
   ref.onDispose(() async {
