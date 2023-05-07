@@ -49,7 +49,10 @@ class _ArticleRepositoryImpl implements ArticleRepository {
     final storageRef = FirebaseStorage.instance.ref().child('bbs/photo/${Ulid()}');
     final uploadTask = storageRef.putData(
       bytes,
-      SettableMetadata(contentType: "image/jpeg"),
+      SettableMetadata(
+        contentType: "image/jpeg",
+        cacheControl: 'public, max-age=315360000',
+      ),
     );
     final result = await uploadTask;
     final url = await result.ref.getDownloadURL();
