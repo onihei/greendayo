@@ -16,3 +16,10 @@ flutter pub run flutter_native_splash:create
 ```shell
 flutter build web
 ```
+
+他のデバイスからアクセスさせる
+http://192.168.10.201:10010
+```shell
+flutter run -d web-server --web-hostname=0.0.0.0 --web-port=10010
+```
+ß

@@ -13,7 +13,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
-final _screenOffsetProvider = StateProvider<Offset>((ref) => Offset.zero);
+final _boardWidthProvider = StateProvider.autoDispose<double>((ref) => 0.0);
+final _boardHeightProvider = StateProvider.autoDispose<double>((ref) => 0.0);
+
+final _screenScaleProvider = StateProvider.autoDispose<double>((ref) => 1.0);
+final _screenOffsetProvider = StateProvider.autoDispose<Offset>((ref) => Offset.zero);
 
 final _editProvider = StateProvider.autoDispose<bool>((ref) => false);
 
@@ -128,23 +132,43 @@ class BbsTabConfig implements TabConfig {
       );
 }
 
-final _bbsViewController = Provider.autoDispose<_BbsViewController>((ref) => _BbsViewController(ref));
+final _bbsViewController = Provider<_BbsViewController>((ref) => _BbsViewController(ref));
 
 class _BbsViewController {
   final Ref ref;
+  double scaleStarted = 1.0;
+  Offset offsetStarted = Offset.zero;
 
   _BbsViewController(this.ref);
 
-  void onPanUpdate(DragUpdateDetails details) {
-    final offset = ref.read(_screenOffsetProvider.notifier).state;
-    ref.read(_screenOffsetProvider.notifier).state = offset.translate(details.delta.dx, details.delta.dy);
+  void onScaleStart(ScaleStartDetails details) {
+    scaleStarted = ref.read(_screenScaleProvider);
+    offsetStarted = ref.read(_screenOffsetProvider);
   }
 
-  void onPanEnd(DragEndDetails details) {
+  void onScaleEnd(ScaleEndDetails details) {
     ref.read(_formProvider.notifier).shake();
   }
 
+  void onScaleUpdate(ScaleUpdateDetails details) {
+    if (details.pointerCount == 1) {
+      final offset = ref.read(_screenOffsetProvider.notifier).state;
+      ref.read(_screenOffsetProvider.notifier).state =
+          offset.translate(details.focalPointDelta.dx, details.focalPointDelta.dy);
+    } else {
+      final newScale = scaleStarted * details.scale;
+      final width = ref.read(_boardWidthProvider);
+      final height = ref.read(_boardHeightProvider);
+      final local = Offset((-(details.focalPointDelta.dx + width / 2) * (details.scale - 1)),
+          (-(details.focalPointDelta.dy + height / 2) * (details.scale - 1)));
+      final newOffset = local.translate(offsetStarted.dx * details.scale, offsetStarted.dy * details.scale);
+      ref.read(_screenOffsetProvider.notifier).state = newOffset;
+      ref.read(_screenScaleProvider.notifier).state = newScale;
+    }
+  }
+
   void startCreate() {
+    ref.read(_screenScaleProvider.notifier).state = 1.0;
     ref.read(_editProvider.notifier).state = true;
   }
 
@@ -276,7 +300,15 @@ class BbsPage extends HookConsumerWidget {
       key: keyFormContainer,
       alignment: Alignment.bottomCenter,
       children: <Widget>[
-        _buildBoard(context, ref, snapshot),
+        LayoutBuilder(
+          builder: (context, constraint) {
+            Future.microtask(() {
+              ref.watch(_boardWidthProvider.notifier).state = constraint.maxWidth;
+              ref.watch(_boardHeightProvider.notifier).state = constraint.maxHeight;
+            });
+            return _buildBoard(context, ref, snapshot);
+          },
+        ),
         if (edit)
           Align(
             alignment: const Alignment(0, -0.2),
@@ -288,23 +320,31 @@ class BbsPage extends HookConsumerWidget {
   }
 
   Widget _buildBoard(BuildContext context, WidgetRef ref, QuerySnapshot<Article> snapshot) {
-    final screenOffset = ref.watch(_screenOffsetProvider);
+    final offset = ref.watch(_screenOffsetProvider);
+    final scale = ref.watch(_screenScaleProvider);
 
     final papers = snapshot.docs.map((articleDoc) {
       final article = articleDoc.data();
       return Positioned(
-        left: screenOffset.dx + article.left.toDouble(),
-        top: screenOffset.dy + article.top.toDouble(),
+        left: article.left.toDouble(),
+        top: article.top.toDouble(),
         child: _articleCard(context, ref, articleDoc),
       );
     }).toList();
     return GestureDetector(
-      onPanUpdate: ref.read(_bbsViewController).onPanUpdate,
-      onPanEnd: ref.read(_bbsViewController).onPanEnd,
+      onScaleStart: ref.read(_bbsViewController).onScaleStart,
+      onScaleEnd: ref.read(_bbsViewController).onScaleEnd,
+      onScaleUpdate: ref.read(_bbsViewController).onScaleUpdate,
       child: Container(
         color: Theme.of(context).colorScheme.background,
-        child: Stack(
-          children: papers,
+        child: Transform(
+          transform: Matrix4.identity()
+            ..translate(offset.dx, offset.dy)
+            ..scale(scale, scale, 1),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: papers,
+          ),
         ),
       ),
     );
