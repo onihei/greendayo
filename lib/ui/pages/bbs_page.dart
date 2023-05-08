@@ -13,11 +13,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
-final _boardWidthProvider = StateProvider.autoDispose<double>((ref) => 0.0);
-final _boardHeightProvider = StateProvider.autoDispose<double>((ref) => 0.0);
-
-final _screenScaleProvider = StateProvider.autoDispose<double>((ref) => 1.0);
-final _screenOffsetProvider = StateProvider.autoDispose<Offset>((ref) => Offset.zero);
+final _screenScaleProvider = StateProvider<double>((ref) => 1.0);
+final _screenOffsetProvider = StateProvider<Offset>((ref) => Offset.zero);
 
 final _editProvider = StateProvider.autoDispose<bool>((ref) => false);
 
@@ -154,15 +151,10 @@ class _BbsViewController {
     if (details.pointerCount == 1) {
       final offset = ref.read(_screenOffsetProvider.notifier).state;
       ref.read(_screenOffsetProvider.notifier).state =
-          offset.translate(details.focalPointDelta.dx, details.focalPointDelta.dy);
+          offset.translate(details.focalPointDelta.dx / scaleStarted, details.focalPointDelta.dy / scaleStarted);
     } else {
       final newScale = scaleStarted * details.scale;
-      final width = ref.read(_boardWidthProvider);
-      final height = ref.read(_boardHeightProvider);
-      final local = Offset((-(details.focalPointDelta.dx + width / 2) * (details.scale - 1)),
-          (-(details.focalPointDelta.dy + height / 2) * (details.scale - 1)));
-      final newOffset = local.translate(offsetStarted.dx * details.scale, offsetStarted.dy * details.scale);
-      ref.read(_screenOffsetProvider.notifier).state = newOffset;
+      ref.read(_screenOffsetProvider.notifier).state = offsetStarted;
       ref.read(_screenScaleProvider.notifier).state = newScale;
     }
   }
@@ -300,15 +292,7 @@ class BbsPage extends HookConsumerWidget {
       key: keyFormContainer,
       alignment: Alignment.bottomCenter,
       children: <Widget>[
-        LayoutBuilder(
-          builder: (context, constraint) {
-            Future.microtask(() {
-              ref.watch(_boardWidthProvider.notifier).state = constraint.maxWidth;
-              ref.watch(_boardHeightProvider.notifier).state = constraint.maxHeight;
-            });
-            return _buildBoard(context, ref, snapshot);
-          },
-        ),
+        _buildBoard(context, ref, snapshot),
         if (edit)
           Align(
             alignment: const Alignment(0, -0.2),
@@ -326,8 +310,8 @@ class BbsPage extends HookConsumerWidget {
     final papers = snapshot.docs.map((articleDoc) {
       final article = articleDoc.data();
       return Positioned(
-        left: article.left.toDouble(),
-        top: article.top.toDouble(),
+        left: offset.dx + article.left.toDouble(),
+        top: offset.dy + article.top.toDouble(),
         child: _articleCard(context, ref, articleDoc),
       );
     }).toList();
@@ -337,10 +321,8 @@ class BbsPage extends HookConsumerWidget {
       onScaleUpdate: ref.read(_bbsViewController).onScaleUpdate,
       child: Container(
         color: Theme.of(context).colorScheme.background,
-        child: Transform(
-          transform: Matrix4.identity()
-            ..translate(offset.dx, offset.dy)
-            ..scale(scale, scale, 1),
+        child: Transform.scale(
+          scale: scale,
           child: Stack(
             clipBehavior: Clip.none,
             children: papers,
