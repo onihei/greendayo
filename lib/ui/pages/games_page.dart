@@ -27,7 +27,9 @@ class GamesPage extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints.tightFor(width: 400),
-        child: FxGame(userId: "xxx",),
+        child: FxGame(
+          userId: "xxx",
+        ),
       ),
     );
   }

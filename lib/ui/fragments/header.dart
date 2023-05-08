@@ -115,52 +115,51 @@ class Header extends HookConsumerWidget {
 
   Dialog _loginDialog(context, ref) {
     return Dialog(
-        insetPadding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
-        child: Container(
-          padding: const EdgeInsets.all(24.0),
-          child: ConstrainedBox(
-            constraints: BoxConstraints.tightFor(width: 400),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("他サービスIDでログイン"),
-                const SizedBox(height: 16),
-                SocialLoginButton(
-                  buttonType: SocialLoginButtonType.twitter,
-                  onPressed: () async {
-                    final succeed = await ref.read(_headerViewControllerProvider).signIn(TwitterAuthProvider());
-                    if (succeed) {
-                      Navigator.pop(context);
-                    }
-                  },
-                ),
+      insetPadding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
+      child: Container(
+        padding: const EdgeInsets.all(24.0),
+        child: ConstrainedBox(
+          constraints: BoxConstraints.tightFor(width: 400),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("他サービスIDでログイン"),
+              const SizedBox(height: 16),
+              SocialLoginButton(
+                buttonType: SocialLoginButtonType.twitter,
+                onPressed: () async {
+                  final succeed = await ref.read(_headerViewControllerProvider).signIn(TwitterAuthProvider());
+                  if (succeed) {
+                    Navigator.pop(context);
+                  }
+                },
+              ),
+              const SizedBox(height: 10),
+              SocialLoginButton(
+                buttonType: SocialLoginButtonType.github,
+                onPressed: () async {
+                  final succeed = await ref.read(_headerViewControllerProvider).signIn(GithubAuthProvider());
+                  if (succeed) {
+                    Navigator.pop(context);
+                  }
+                },
+              ),
+              // if (kDebugMode) ...[
+              ...[
                 const SizedBox(height: 10),
-                SocialLoginButton(
-                  buttonType: SocialLoginButtonType.github,
+                ElevatedButton.icon(
                   onPressed: () async {
-                    final succeed = await ref.read(_headerViewControllerProvider).signIn(GithubAuthProvider());
-                    if (succeed) {
-                      Navigator.pop(context);
-                    }
+                    await FirebaseAuth.instance.signInWithEmailAndPassword(email: "do@not.ask", password: "do@not.ask");
+                    Navigator.pop(context);
                   },
+                  icon: Icon(Icons.android),
+                  label: Text('デバッグ用の匿名ログイン'),
                 ),
-                // if (kDebugMode) ...[
-                ...[
-                  const SizedBox(height: 10),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      await FirebaseAuth.instance
-                          .signInWithEmailAndPassword(email: "do@not.ask", password: "do@not.ask");
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(Icons.android),
-                    label: Text('デバッグ用の匿名ログイン'),
-                  ),
-                ]
-              ],
-            ),
+              ]
+            ],
           ),
         ),
+      ),
     );
   }
 }

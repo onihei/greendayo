@@ -304,32 +304,39 @@ class BbsPage extends HookConsumerWidget {
   }
 
   Widget _buildBoard(BuildContext context, WidgetRef ref, QuerySnapshot<Article> snapshot) {
-    final offset = ref.watch(_screenOffsetProvider);
-    final scale = ref.watch(_screenScaleProvider);
-
     final papers = snapshot.docs.map((articleDoc) {
       final article = articleDoc.data();
-      return Positioned(
-        left: offset.dx + article.left.toDouble(),
-        top: offset.dy + article.top.toDouble(),
-        child: _articleCard(context, ref, articleDoc),
-      );
+      return Consumer(builder: (context, ref, child) {
+        final offset = ref.watch(_screenOffsetProvider);
+        return Positioned(
+          left: offset.dx + article.left.toDouble(),
+          top: offset.dy + article.top.toDouble(),
+          child: _articleCard(context, ref, articleDoc),
+        );
+      });
     }).toList();
-    return GestureDetector(
+    final gestureDetector = GestureDetector(
       onScaleStart: ref.read(_bbsViewController).onScaleStart,
       onScaleEnd: ref.read(_bbsViewController).onScaleEnd,
       onScaleUpdate: ref.read(_bbsViewController).onScaleUpdate,
-      child: Container(
-        color: Theme.of(context).colorScheme.background,
-        child: Transform.scale(
-          scale: scale,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: papers,
+      child: Consumer(builder: (context, ref, child) {
+        final scale = ref.watch(_screenScaleProvider);
+        return Container(
+          color: Theme.of(context).colorScheme.background,
+          child: Transform.scale(
+            scale: scale,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: papers,
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     );
+    // 正しい pointerCountが返されなくなる問題の回避
+    // https://github.com/flutter/flutter/issues/111468
+    gestureDetector.onScaleEnd!(ScaleEndDetails());
+    return gestureDetector;
   }
 
   Widget _articleCard(BuildContext context, WidgetRef ref, QueryDocumentSnapshot<Article> snapShot) {
