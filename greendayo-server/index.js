@@ -4,11 +4,10 @@ import {Server} from 'socket.io';
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone.js";
 import utc from "dayjs/plugin/utc.js";
-import { Configuration, OpenAIApi } from "openai";
-const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
+import OpenAI from "openai";
+const openAi = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
 dayjs.extend(timezone);
 dayjs.extend(utc);
@@ -42,15 +41,19 @@ io.on('connection', async (socket) => {
             '目標': param.goal,
             '人生の宝物': param.treasure,
         };
-        const response = await openai.createCompletion({
-            model: "text-davinci-003",
-            prompt: `次の情報を使って他人に興味を持ってもらえる自己紹介文を作成してください。nullは特にないか教えたくないとこを意味しますので無視して良いです。最後に幸せ自慢を加えてください。${JSON.stringify(input)}`,
+        const chatCompletion = await openai.chat.completions.create({
+            messages: [
+              {
+                role: "user",
+                content: `次の情報を使って他人に興味を持ってもらえる自己紹介文を作成してください。nullは特にないか教えたくないとこを意味しますので無視して良いです。最後に幸せ自慢を加えてください。${JSON.stringify(input)}`
+               }
+            ],
+            model: "gpt-3.5-turbo",
             max_tokens: 2048,
             temperature: 0.9,
             stream: false,
-            logprobs: null,
         });
-        ack(response.data.choices[0].text.trim());
+        ack(chatCompletion.data.choices[0].text.trim());
     });
 
     socket.on('disconnecting', () => {
