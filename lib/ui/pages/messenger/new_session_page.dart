@@ -11,11 +11,11 @@ class NewSessionPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("新しい会話"),
+        title: const Text("新しい会話"),
       ),
       body: Container(
         color: Theme.of(context).colorScheme.background,
-        child: TalkSession.createNew(userId!),
+        child: TalkSession.createNew(userId),
       ),
     );
   }

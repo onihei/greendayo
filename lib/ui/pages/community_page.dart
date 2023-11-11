@@ -19,9 +19,11 @@ class CommunityTabConfig implements TabConfig {
 }
 
 class CommunityPage extends StatelessWidget {
+  const CommunityPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text('チーム'),
     );
   }

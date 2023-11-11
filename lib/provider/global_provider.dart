@@ -1,14 +1,12 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:greendayo/entity/profile.dart';
 import 'package:greendayo/repository/profile_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:rxdart/rxdart.dart';
 
-final textEditingControllerProvider = Provider.autoDispose.family<TextEditingController, String>((ref, key) {
+final textEditingControllerProvider =
+    Provider.autoDispose.family<TextEditingController, String>((ref, key) {
   final controller = TextEditingController();
   ref.onDispose(() {
     controller.dispose();
@@ -23,46 +21,38 @@ final snackBarController = Provider.autoDispose<ScaffoldMessengerState?>((ref) {
   }
 });
 
-final globalKeyProvider = Provider.autoDispose.family<GlobalKey, String>((ref, key) {
+final globalKeyProvider =
+    Provider.autoDispose.family<GlobalKey, String>((ref, key) {
   return GlobalKey();
 });
 
-final userProvider = StreamProvider<User?>((ref) {
-  final controller = StreamController<User?>();
-  controller.sink.add(FirebaseAuth.instance.currentUser);
-  FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-    ref.invalidate(myProfileSubjectProvider);
-    controller.sink.add(user);
-  });
-  return controller.stream;
-});
-
-final myProfileSubjectProvider = Provider<BehaviorSubject<Profile>>((ref) {
-  final subject = BehaviorSubject.seeded(Profile.anonymous());
-  final uid = FirebaseAuth.instance.currentUser?.uid;
-  if (uid != null) {
-    ref.read(profileRepository).observe(uid).map((event) => event.data() ?? Profile.anonymous()).listen((event) {
-      subject.sink.add(event);
-    });
+final userProvider = StreamProvider<User?>((ref) async* {
+  yield FirebaseAuth.instance.currentUser;
+  await for (User? user in FirebaseAuth.instance.authStateChanges()) {
+    yield user;
   }
-  ref.onDispose(() async {
-    await subject.drain();
-    await subject.close();
-  });
-  return subject;
 });
 
-final myProfileProvider = Provider.autoDispose<Profile>((ref) {
-  final behaviorSubject = ref.watch(myProfileSubjectProvider);
-  final current = behaviorSubject.value;
-  behaviorSubject.listen((newProfileState) {
-    if (current.userId != newProfileState.userId) {
-      ref.invalidateSelf();
+final myProfileProvider = StreamProvider<Profile>((ref) async* {
+  final current = FirebaseAuth.instance.currentUser;
+  if (current != null) {
+    yield await ref.read(profileRepository).get(current.uid);
+  }
+  await for (User? user in FirebaseAuth.instance.authStateChanges()) {
+    if (user != null) {
+      yield await ref.read(profileRepository).get(user.uid);
     }
-  });
-  return current;
+  }
 });
+
+final targetUserIdProvider = StateProvider<String?>((ref) => null);
+final editProfileProvider = StateProvider<bool>((ref) => false);
+final newSessionProvider = StateProvider<bool>((ref) => false);
+final targetSessionIdProvider = StateProvider<String?>((ref) => null);
 
 final avatarProvider = FutureProvider.family<String, String>((ref, userId) {
-  return FirebaseStorage.instance.ref().child('users/$userId/photo').getDownloadURL();
+  return FirebaseStorage.instance
+      .ref()
+      .child('users/$userId/photo')
+      .getDownloadURL();
 });

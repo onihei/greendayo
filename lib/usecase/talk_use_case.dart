@@ -5,15 +5,17 @@ import 'package:greendayo/repository/session_repository.dart';
 import 'package:greendayo/repository/talk_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-final talkUseCase = Provider.autoDispose<TalkUseCase>((ref) => TalkUseCase(ref));
+final talkUseCase =
+    Provider.autoDispose<TalkUseCase>((ref) => TalkUseCase(ref));
 
 class TalkUseCase {
   final Ref ref;
 
   TalkUseCase(this.ref);
 
-  Future<void> createTalk({required String sessionId, required String text}) async {
-    final myProfile = ref.read(myProfileProvider);
+  Future<void> createTalk(
+      {required String sessionId, required String text}) async {
+    final myProfile = await ref.read(myProfileProvider.future);
     final newTalk = Talk(
       content: text,
       sender: myProfile.userId,
@@ -23,8 +25,9 @@ class TalkUseCase {
     await ref.read(sessionRepository).updateTimestamp(sessionId);
   }
 
-  Future<String> createSession({required String userId, required String text}) async {
-    final myProfile = ref.read(myProfileProvider);
+  Future<String> createSession(
+      {required String userId, required String text}) async {
+    final myProfile = await ref.read(myProfileProvider.future);
     assert(myProfile.userId != userId);
 
     final now = DateTime.now();

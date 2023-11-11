@@ -1,4 +1,5 @@
-export 'my_url_strategy_stub.dart' if (dart.library.html) 'my_url_strategy_web.dart';
+export 'my_url_strategy_stub.dart'
+    if (dart.library.html) 'my_url_strategy_web.dart';
 
 ///
 /// Flutter Web で作成した画面にブラウザでアクセスするとURLが /#/ となります。(https://susipero.com/#/)

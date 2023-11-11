@@ -8,12 +8,14 @@ import 'package:greendayo/provider/global_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 
-final profilesRef = FirebaseFirestore.instance.collection('profiles').withConverter<Profile>(
-      fromFirestore: (snapshot, _) => Profile.fromSnapShot(snapshot),
-      toFirestore: (profile, _) => profile.toJson(),
-    );
+final profilesRef =
+    FirebaseFirestore.instance.collection('profiles').withConverter<Profile>(
+          fromFirestore: (snapshot, _) => Profile.fromSnapShot(snapshot),
+          toFirestore: (profile, _) => profile.toJson(),
+        );
 
-final profileRepository = Provider.autoDispose<ProfileRepository>((ref) => _ProfileRepositoryImpl(ref));
+final profileRepository = Provider.autoDispose<ProfileRepository>(
+    (ref) => _ProfileRepositoryImpl(ref));
 
 abstract class ProfileRepository {
   Future<Profile> get(String userId);
@@ -42,7 +44,8 @@ class _ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Stream<DocumentSnapshot<Profile>> observe(String userId) => profilesRef.doc(userId).snapshots();
+  Stream<DocumentSnapshot<Profile>> observe(String userId) =>
+      profilesRef.doc(userId).snapshots();
 
   @override
   Future<Profile> createOrGet(User user) async {
@@ -71,8 +74,9 @@ class _ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<void> uploadMyProfilePhoto(String contentType, Uint8List bytes) async {
-    final myProfile = ref.read(myProfileProvider);
-    final storageRef = FirebaseStorage.instance.ref().child('users/${myProfile.userId}/photo');
+    final myProfile = await ref.read(myProfileProvider.future);
+    final storageRef =
+        FirebaseStorage.instance.ref().child('users/${myProfile.userId}/photo');
     final uploadTask = storageRef.putData(
       bytes,
       SettableMetadata(
@@ -92,10 +96,14 @@ class _ProfileRepositoryImpl implements ProfileRepository {
         throw StateError("load photo error:${data.statusCode}");
       }
     } catch (e) {
-      final url = await FirebaseStorage.instance.ref().child('default_avatar.png').getDownloadURL();
+      final url = await FirebaseStorage.instance
+          .ref()
+          .child('default_avatar.png')
+          .getDownloadURL();
       data = await http.get(Uri.parse(url));
     }
-    final storageRef = FirebaseStorage.instance.ref().child('users/${userId}/photo');
+    final storageRef =
+        FirebaseStorage.instance.ref().child('users/${userId}/photo');
     final uploadTask = storageRef.putData(
       data.bodyBytes,
       SettableMetadata(

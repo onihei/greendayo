@@ -11,14 +11,16 @@ import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-final _pageControllerProvider = Provider.autoDispose<PageController>((ref) => PageController());
+final _pageControllerProvider =
+    Provider.autoDispose<PageController>((ref) => PageController());
 
-final _viewControllerProvider = Provider.autoDispose<_ViewController>((ref) => _ViewController(ref));
+final _viewControllerProvider =
+    Provider.autoDispose<_ViewController>((ref) => _ViewController(ref));
 
 final _loadingProvider = StateProvider<bool>((ref) => false);
 
 class _FormNotifier extends StateNotifier<ProfileForm> {
-  _FormNotifier(ProfileForm initial) : super(initial);
+  _FormNotifier(super.initial);
 
   void changeNickname(String text) {
     state = state.copyWith(nickname: text);
@@ -57,8 +59,9 @@ class _FormNotifier extends StateNotifier<ProfileForm> {
   }
 }
 
-final _formProvider = StateNotifierProvider.autoDispose<_FormNotifier, ProfileForm>((ref) {
-  final myProfile = ref.watch(myProfileProvider);
+final _formProvider =
+    StateNotifierProvider.autoDispose<_FormNotifier, ProfileForm>((ref) {
+  final myProfile = ref.watch(myProfileProvider).requireValue;
   final initialForm = ProfileForm();
   initialForm.nickname = myProfile.nickname;
   initialForm.age = myProfile.age;
@@ -120,7 +123,7 @@ class _ViewController {
     final text = await generateProfileText();
 
     final form = ref.read(_formProvider);
-    final myProfile = ref.read(myProfileProvider);
+    final myProfile = await ref.read(myProfileProvider.future);
     final entity = myProfile.copyWith(
       nickname: form.nickname,
       age: form.age,
@@ -202,7 +205,7 @@ class ProfileEditPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(socketProvider);
 
-    final myProfile = ref.watch(myProfileProvider);
+    final myProfile = ref.watch(myProfileProvider).requireValue;
     final pageController = ref.watch(_pageControllerProvider);
     ref.watch(avatarProvider(myProfile.userId).future).then((_) {
       ref.read(_loadingProvider.notifier).state = false;
@@ -240,7 +243,7 @@ class ProfileEditPage extends ConsumerWidget {
               ],
             ),
             Padding(
-              padding: EdgeInsets.all(32.0),
+              padding: const EdgeInsets.all(32.0),
               child: Stack(
                 children: [
                   myProfile.photoLarge,
@@ -267,7 +270,7 @@ class ProfileEditPage extends ConsumerWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text("プロフィールの設定"),
+        title: const Text("プロフィールの設定"),
       ),
       body: Stack(
         children: [
@@ -279,7 +282,8 @@ class ProfileEditPage extends ConsumerWidget {
                 return const SizedBox.shrink();
               }
               return Container(
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                color:
+                    Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
                 child: const Center(
                   child: CircularProgressIndicator(),
                 ),
@@ -295,8 +299,9 @@ class ProfileEditPage extends ConsumerWidget {
     final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("nickname"));
     controller.value = controller.value.copyWith(text: form.nickname);
-    final text = "名前またはニックネーム";
-    return _form(context, ref, text, controller, isFirst: true, autofocus: false, onChanged: (input) {
+    const text = "名前またはニックネーム";
+    return _form(context, ref, text, controller,
+        isFirst: true, autofocus: false, onChanged: (input) {
       ref.read(_formProvider.notifier).changeNickname(input);
     });
   }
@@ -305,7 +310,7 @@ class ProfileEditPage extends ConsumerWidget {
     final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("age"));
     controller.value = controller.value.copyWith(text: form.age);
-    final text = "年齢を教えて";
+    const text = "年齢を教えて";
     return _form(context, ref, text, controller, onChanged: (input) {
       ref.read(_formProvider.notifier).changeAge(input);
     });
@@ -315,7 +320,7 @@ class ProfileEditPage extends ConsumerWidget {
     final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("born"));
     controller.value = controller.value.copyWith(text: form.born);
-    final text = "出身地はどこ？";
+    const text = "出身地はどこ？";
     return _form(context, ref, text, controller, onChanged: (input) {
       ref.read(_formProvider.notifier).changeBorn(input);
     });
@@ -325,8 +330,9 @@ class ProfileEditPage extends ConsumerWidget {
     final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("job"));
     controller.value = controller.value.copyWith(text: form.job);
-    final text = "どんな仕事？";
-    return _form(context, ref, text, controller, maxLength: 20, onChanged: (input) {
+    const text = "どんな仕事？";
+    return _form(context, ref, text, controller, maxLength: 20,
+        onChanged: (input) {
       ref.read(_formProvider.notifier).changeJob(input);
     });
   }
@@ -335,8 +341,9 @@ class ProfileEditPage extends ConsumerWidget {
     final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("interesting"));
     controller.value = controller.value.copyWith(text: form.interesting);
-    final text = "興味のあることは？";
-    return _form(context, ref, text, controller, maxLength: 20, onChanged: (input) {
+    const text = "興味のあることは？";
+    return _form(context, ref, text, controller, maxLength: 20,
+        onChanged: (input) {
       ref.read(_formProvider.notifier).changeInteresting(input);
     });
   }
@@ -345,8 +352,9 @@ class ProfileEditPage extends ConsumerWidget {
     final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("book"));
     controller.value = controller.value.copyWith(text: form.book);
-    final text = "好きな本は";
-    return _form(context, ref, text, controller, maxLength: 20, onChanged: (input) {
+    const text = "好きな本は";
+    return _form(context, ref, text, controller, maxLength: 20,
+        onChanged: (input) {
       ref.read(_formProvider.notifier).changeBook(input);
     });
   }
@@ -355,8 +363,9 @@ class ProfileEditPage extends ConsumerWidget {
     final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("movie"));
     controller.value = controller.value.copyWith(text: form.movie);
-    final text = "好きな映画は";
-    return _form(context, ref, text, controller, maxLength: 20, onChanged: (input) {
+    const text = "好きな映画は";
+    return _form(context, ref, text, controller, maxLength: 20,
+        onChanged: (input) {
       ref.read(_formProvider.notifier).changeMovie(input);
     });
   }
@@ -365,8 +374,9 @@ class ProfileEditPage extends ConsumerWidget {
     final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("goal"));
     controller.value = controller.value.copyWith(text: form.goal);
-    final text = "目標は？";
-    return _form(context, ref, text, controller, maxLength: 20, onChanged: (input) {
+    const text = "目標は？";
+    return _form(context, ref, text, controller, maxLength: 20,
+        onChanged: (input) {
       ref.read(_formProvider.notifier).changeGoal(input);
     });
   }
@@ -375,13 +385,15 @@ class ProfileEditPage extends ConsumerWidget {
     final form = ref.watch(_formProvider);
     final controller = ref.watch(textEditingControllerProvider("treasure"));
     controller.value = controller.value.copyWith(text: form.treasure);
-    final text = "人生の宝物は？";
-    return _form(context, ref, text, controller, maxLength: 20, isLast: true, onChanged: (input) {
+    const text = "人生の宝物は？";
+    return _form(context, ref, text, controller, maxLength: 20, isLast: true,
+        onChanged: (input) {
       ref.read(_formProvider.notifier).changeTreasure(input);
     });
   }
 
-  Widget _form(BuildContext context, WidgetRef ref, String text, TextEditingController controller,
+  Widget _form(BuildContext context, WidgetRef ref, String text,
+      TextEditingController controller,
       {bool isFirst = false,
       bool isLast = false,
       int maxLength = 10,
@@ -391,7 +403,7 @@ class ProfileEditPage extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
         child: ConstrainedBox(
-          constraints: BoxConstraints.tightFor(width: 400, height: 200),
+          constraints: const BoxConstraints.tightFor(width: 400, height: 200),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -404,18 +416,22 @@ class ProfileEditPage extends ConsumerWidget {
                 maxLength: maxLength,
                 onChanged: onChanged,
                 onSubmitted: (input) async {
-                  await ref
-                      .read(_pageControllerProvider)
-                      .nextPage(duration: Duration(milliseconds: 300), curve: Curves.linear);
+                  await ref.read(_pageControllerProvider).nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.linear);
                 },
                 textInputAction: TextInputAction.done,
-                buildCounter: (_, {required currentLength, maxLength, required isFocused}) => Row(
+                buildCounter: (_,
+                        {required currentLength,
+                        maxLength,
+                        required isFocused}) =>
+                    Row(
                   children: [
                     Text('$currentLength / $maxLength'),
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 24,
               ),
               Row(
@@ -424,23 +440,23 @@ class ProfileEditPage extends ConsumerWidget {
                   if (!isFirst) ...[
                     ElevatedButton(
                         onPressed: () async {
-                          await ref
-                              .read(_pageControllerProvider)
-                              .previousPage(duration: Duration(milliseconds: 300), curve: Curves.linear);
+                          await ref.read(_pageControllerProvider).previousPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.linear);
                         },
-                        child: Text("前へ")),
-                    SizedBox(
+                        child: const Text("前へ")),
+                    const SizedBox(
                       width: 16,
                     ),
                   ],
                   if (!isLast)
                     ElevatedButton(
                         onPressed: () async {
-                          await ref
-                              .read(_pageControllerProvider)
-                              .nextPage(duration: Duration(milliseconds: 300), curve: Curves.linear);
+                          await ref.read(_pageControllerProvider).nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.linear);
                         },
-                        child: Text("次へ")),
+                        child: const Text("次へ")),
                   if (isLast)
                     ElevatedButton(
                         onPressed: () async {
@@ -449,7 +465,7 @@ class ProfileEditPage extends ConsumerWidget {
                             Navigator.pop(context);
                           }
                         },
-                        child: Text("完了")),
+                        child: const Text("完了")),
                 ],
               ),
             ],
@@ -464,7 +480,7 @@ class ProfileEditPage extends ConsumerWidget {
     return SmoothPageIndicator(
       controller: pageController, // PageController
       count: items.length,
-      effect: WormEffect(), // your preferred effect
+      effect: const WormEffect(), // your preferred effect
     );
   }
 }

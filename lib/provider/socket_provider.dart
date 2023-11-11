@@ -6,7 +6,7 @@ final socketProvider = Provider.autoDispose<Socket>((ref) {
   // final uri = Platform.isAndroid ? "http://10.0.2.2:10005": "http://localhost:10005";
   final uri = "https://susipero.com";
 //  final uri = "http://localhost:10005";
-  final userId = ref.watch(myProfileProvider.select((value) => value.userId));
+  final userId = ref.watch(myProfileProvider).requireValue.userId;
   final socket = io(
       uri,
       OptionBuilder()

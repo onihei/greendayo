@@ -7,7 +7,7 @@ class Footer extends ConsumerWidget {
   @override
   Widget build(context, ref) {
     return Container(
-      padding: EdgeInsets.all(30),
+      padding: const EdgeInsets.all(30),
       color: Theme.of(context).primaryColor,
       child: Column(
         children: [
@@ -37,15 +37,15 @@ class Footer extends ConsumerWidget {
                       _social(),
                     ],
                   ),
-                  Divider(),
+                  const Divider(),
                   _address(),
                 ],
               );
             }
           }),
-          Divider(),
-          SizedBox(height: 20),
-          Text(
+          const Divider(),
+          const SizedBox(height: 20),
+          const Text(
             'Copyright © 2023 SUSIPERO.com',
           ),
         ],
@@ -54,7 +54,7 @@ class Footer extends ConsumerWidget {
   }
 
   Widget _help() {
-    return Padding(
+    return const Padding(
       padding: EdgeInsets.only(bottom: 20.0),
       child: Column(
         children: [
@@ -77,7 +77,7 @@ class Footer extends ConsumerWidget {
   }
 
   Widget _social() {
-    return Padding(
+    return const Padding(
       padding: EdgeInsets.only(bottom: 20.0),
       child: Column(
         children: [
@@ -108,12 +108,12 @@ class Footer extends ConsumerWidget {
             type: 'Eメール',
             text: 'onihei_99@yahoo.co.jp',
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           _addressItem(
             type: '電話番号',
             text: '+819058029448',
           ),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           _addressItem(
             type: '住所',
             text: '〒2110053\n神奈川県川崎市中原区上小田中２−２４−４４',
@@ -132,7 +132,7 @@ class Footer extends ConsumerWidget {
           width: 100,
           child: Text(
             '$type',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
             ),
           ),
@@ -140,7 +140,7 @@ class Footer extends ConsumerWidget {
         Flexible(
           child: Text(
             text,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
             ),
           ),

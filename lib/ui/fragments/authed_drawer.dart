@@ -5,48 +5,61 @@ import 'package:greendayo/entity/profile.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+final _viewControllerProvider =
+    Provider.autoDispose<_ViewController>((ref) => _ViewController(ref));
+
+class _ViewController {
+  final Ref ref;
+
+  _ViewController(this.ref);
+
+  void showProfile(BuildContext context, Profile profile) {
+    Navigator.pop(context);
+    ref.read(targetUserIdProvider.notifier).state = profile.userId;
+  }
+}
+
 class AuthedDrawer extends ConsumerWidget {
   const AuthedDrawer({super.key});
 
   @override
   Widget build(context, ref) {
-    final myProfile = ref.watch(myProfileProvider);
+    final myProfile = ref.watch(myProfileProvider).requireValue;
     return _drawer(context, ref, myProfile);
   }
 
-  Widget _drawer(context, ref, Profile myProfile) {
+  Widget _drawer(context, ref, Profile profile) {
     return SafeArea(
       child: Drawer(
         child: Column(
           children: [
             InkWell(
               onTap: () async {
-                Navigator.popAndPushNamed(context, "/profile", arguments: myProfile.userId);
+                ref.read(_viewControllerProvider).showProfile(context, profile);
               },
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   children: [
-                    myProfile.photoSmall,
-                    SizedBox(
+                    profile.photoSmall,
+                    const SizedBox(
                       width: 8,
                     ),
-                    Text(myProfile.nickname),
+                    Text(profile.nickname),
                   ],
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
               child: Divider(),
             ),
             InkWell(
               onTap: () async {
                 await FirebaseAuth.instance.signOut();
-                Navigator.pop(context);
               },
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
+              child: const Padding(
+                padding: EdgeInsets.all(16.0),
                 child: Row(
                   children: [
                     Icon(Icons.logout),
@@ -71,7 +84,7 @@ class AuthedDrawer extends ConsumerWidget {
         child: Image.network(photoUrl),
       );
     } else {
-      return FaIcon(FontAwesomeIcons.circleUser, color: Colors.grey);
+      return const FaIcon(FontAwesomeIcons.circleUser, color: Colors.grey);
     }
   }
 }

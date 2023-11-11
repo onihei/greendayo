@@ -1,4 +1,5 @@
-export 'my_image_utils_others.dart' if (dart.library.html) 'my_image_utils_web.dart';
+export 'my_image_utils_others.dart'
+    if (dart.library.html) 'my_image_utils_web.dart';
 
 ///
 /// img.decodeImage(bytes) はwebで実行するとすごく遅い。

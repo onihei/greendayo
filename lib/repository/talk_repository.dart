@@ -3,7 +3,8 @@ import 'package:greendayo/entity/talk.dart';
 import 'package:greendayo/repository/session_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-final talkRepository = Provider.autoDispose.family<TalkRepository, String?>((ref, sessionId) {
+final talkRepository =
+    Provider.autoDispose.family<TalkRepository, String?>((ref, sessionId) {
   return _TalkRepositoryImpl(ref, sessionId: sessionId);
 });
 

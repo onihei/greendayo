@@ -6,7 +6,9 @@ import 'package:greendayo/provider/top_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:social_login_buttons/social_login_buttons.dart';
 
-final _headerViewControllerProvider = Provider.autoDispose<_HeaderViewController>((ref) => _HeaderViewController(ref));
+final _headerViewControllerProvider =
+    Provider.autoDispose<_HeaderViewController>(
+        (ref) => _HeaderViewController(ref));
 
 class _HeaderViewController {
   final Ref ref;
@@ -18,14 +20,26 @@ class _HeaderViewController {
     final appBarKey = ref.read(globalKeyProvider("AppBar"));
     final containerKey = ref.read(globalKeyProvider("TopPage"));
     final targetKey = ref.read(globalKeyProvider(key));
-    final appBarRenderObject = appBarKey.currentContext?.findRenderObject() as RenderBox?;
-    final containerRenderObject = containerKey.currentContext?.findRenderObject() as RenderBox?;
-    final targetRenderObject = targetKey.currentContext?.findRenderObject() as RenderBox?;
+    final appBarRenderObject =
+        appBarKey.currentContext?.findRenderObject() as RenderBox?;
+    final containerRenderObject =
+        containerKey.currentContext?.findRenderObject() as RenderBox?;
+    final targetRenderObject =
+        targetKey.currentContext?.findRenderObject() as RenderBox?;
 
-    if (appBarRenderObject != null && containerRenderObject != null && targetRenderObject != null) {
+    if (appBarRenderObject != null &&
+        containerRenderObject != null &&
+        targetRenderObject != null) {
       final appBarHeight = appBarRenderObject.size.height;
-      final position = targetRenderObject.localToGlobal(Offset.zero, ancestor: containerRenderObject).dy - appBarHeight;
-      scrollController.animateTo(position, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+      final position = targetRenderObject
+              .localToGlobal(Offset.zero, ancestor: containerRenderObject)
+              .dy -
+          appBarHeight;
+      scrollController.animateTo(
+        position,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
     }
   }
 
@@ -57,7 +71,9 @@ class Header extends HookConsumerWidget {
     final screenSize = MediaQuery.of(context).size;
     final globalKey = ref.watch(globalKeyProvider("AppBar"));
     final scrollPosition = ref.watch(scrollPositionProvider) + 200;
-    double opacity = scrollPosition < screenSize.height * 0.95 ? scrollPosition / (screenSize.height * 0.95) : 1;
+    double opacity = scrollPosition < screenSize.height * 0.95
+        ? scrollPosition / (screenSize.height * 0.95)
+        : 1;
 
     return Container(
       key: globalKey,
@@ -74,7 +90,7 @@ class Header extends HookConsumerWidget {
                     onPressed: () {
                       ref.read(_headerViewControllerProvider).scrollTo("About");
                     },
-                    child: Text(
+                    child: const Text(
                       'すしぺろについて',
                     ),
                   ),
@@ -83,7 +99,7 @@ class Header extends HookConsumerWidget {
                     onPressed: () {
                       ref.read(_headerViewControllerProvider).scrollTo("Game");
                     },
-                    child: Text(
+                    child: const Text(
                       'ゲーム',
                     ),
                   ),
@@ -92,7 +108,7 @@ class Header extends HookConsumerWidget {
                     onPressed: () {
                       ref.read(_headerViewControllerProvider).scrollTo("Job");
                     },
-                    child: Text(
+                    child: const Text(
                       '仕事の依頼',
                     ),
                   ),
@@ -101,9 +117,11 @@ class Header extends HookConsumerWidget {
             ),
             TextButton(
               onPressed: () async {
-                await showDialog(context: context, builder: (context) => _loginDialog(context, ref));
+                await showDialog(
+                    context: context,
+                    builder: (context) => _loginDialog(context, ref));
               },
-              child: Text(
+              child: const Text(
                 'ログイン',
               ),
             ),
@@ -115,20 +133,23 @@ class Header extends HookConsumerWidget {
 
   Dialog _loginDialog(context, ref) {
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
+      insetPadding:
+          const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
       child: Container(
         padding: const EdgeInsets.all(24.0),
         child: ConstrainedBox(
-          constraints: BoxConstraints.tightFor(width: 400),
+          constraints: const BoxConstraints.tightFor(width: 400),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("他サービスIDでログイン"),
+              const Text("他サービスIDでログイン"),
               const SizedBox(height: 16),
               SocialLoginButton(
                 buttonType: SocialLoginButtonType.twitter,
                 onPressed: () async {
-                  final succeed = await ref.read(_headerViewControllerProvider).signIn(TwitterAuthProvider());
+                  final succeed = await ref
+                      .read(_headerViewControllerProvider)
+                      .signIn(TwitterAuthProvider());
                   if (succeed) {
                     Navigator.pop(context);
                   }
@@ -138,7 +159,9 @@ class Header extends HookConsumerWidget {
               SocialLoginButton(
                 buttonType: SocialLoginButtonType.github,
                 onPressed: () async {
-                  final succeed = await ref.read(_headerViewControllerProvider).signIn(GithubAuthProvider());
+                  final succeed = await ref
+                      .read(_headerViewControllerProvider)
+                      .signIn(GithubAuthProvider());
                   if (succeed) {
                     Navigator.pop(context);
                   }
@@ -149,11 +172,12 @@ class Header extends HookConsumerWidget {
                 const SizedBox(height: 10),
                 ElevatedButton.icon(
                   onPressed: () async {
-                    await FirebaseAuth.instance.signInWithEmailAndPassword(email: "do@not.ask", password: "do@not.ask");
+                    await FirebaseAuth.instance.signInWithEmailAndPassword(
+                        email: "do@not.ask", password: "do@not.ask");
                     Navigator.pop(context);
                   },
-                  icon: Icon(Icons.android),
-                  label: Text('デバッグ用の匿名ログイン'),
+                  icon: const Icon(Icons.android),
+                  label: const Text('テリーマンとしてログイン'),
                 ),
               ]
             ],

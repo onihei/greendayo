@@ -17,10 +17,10 @@ class MessengerTabConfig implements TabConfig {
   String get label => 'メッセージ';
 
   @override
-  Widget get icon => Icon(Icons.email_outlined);
+  Widget get icon => const Icon(Icons.email_outlined);
 
   @override
-  Widget get activeIcon => Icon(Icons.email);
+  Widget get activeIcon => const Icon(Icons.email);
 
   @override
   Function get factoryMethod => MessengerPage.new;
@@ -29,16 +29,21 @@ class MessengerTabConfig implements TabConfig {
   Widget? get floatingActionButton => null;
 }
 
-final _messengerViewControllerProvider =
-    Provider.autoDispose<_MessengerViewController>((ref) => _MessengerViewController(ref));
+final _viewControllerProvider =
+    Provider.autoDispose<_ViewController>((ref) => _ViewController(ref));
 
-class _MessengerViewController {
+class _ViewController {
   final Ref ref;
 
-  _MessengerViewController(this.ref);
+  _ViewController(this.ref);
 
   Future<void> deleteSession(sessionId) async {
     await ref.read(talkUseCase).deleteSession(sessionId: sessionId);
+  }
+
+  void showSession({required String sessionId, required bool needPush}) {
+    ref.read(_selectedSessionIdProvider.notifier).state = sessionId;
+    ref.read(targetSessionIdProvider.notifier).state = sessionId;
   }
 }
 
@@ -60,7 +65,9 @@ class MessengerPage extends ConsumerWidget {
               ),
               const VerticalDivider(),
               Flexible(
-                child: sessionId == null ? Container() : TalkSession.loaded(sessionId),
+                child: sessionId == null
+                    ? Container()
+                    : TalkSession.loaded(sessionId),
               ),
             ],
           );
@@ -76,39 +83,39 @@ class MessengerPage extends ConsumerWidget {
   Widget _sessionList(BuildContext context, WidgetRef ref) {
     final result = ref.watch(sessionsStreamProvider);
     return result.maybeWhen(
-        data: (value) => ListView.builder(
-              itemCount: value.size,
-              itemBuilder: (BuildContext context, int index) {
-                final doc = value.docs[index];
-                return _sessionTile(context, ref, doc);
-              },
-            ),
-        orElse: () => Container(),
-        error: (error, stackTrace) => Center(
-              child: SelectableText('error ${error}'),
-            ));
+      data: (value) => ListView.builder(
+        itemCount: value.size,
+        itemBuilder: (BuildContext context, int index) {
+          final doc = value.docs[index];
+          return _sessionTile(context, ref, doc);
+        },
+      ),
+      orElse: () => Container(),
+      error: (error, stackTrace) => Center(
+        child: SelectableText('error $error'),
+      ),
+    );
   }
 
-  Widget _sessionTile(BuildContext context, WidgetRef ref, QueryDocumentSnapshot<Session> snapshot) {
+  Widget _sessionTile(BuildContext context, WidgetRef ref,
+      QueryDocumentSnapshot<Session> snapshot) {
     final session = snapshot.data();
-    final myProfile = ref.watch(myProfileProvider);
+    final myProfile = ref.watch(myProfileProvider).requireValue;
     final displayMemberId = session.membersExclude(myProfile.userId).single;
     return Consumer(
       builder: (context, ref, child) {
-        final profileFuture = ref.watch(profileProvider(displayMemberId));
-        return profileFuture.maybeWhen(
+        final profileAsync = ref.watch(profileStreamProvider(displayMemberId));
+        return profileAsync.maybeWhen(
           data: (profile) => Builder(
             builder: (context) {
-              if (MediaQuery.of(context).size.width > 600) {
-                return _sessionTileContent(context, ref, snapshot: snapshot, profile: profile, onTap: () {
-                  ref.read(_selectedSessionIdProvider.notifier).state = snapshot.id;
-                });
-              } else {
-                return _sessionTileContent(context, ref, snapshot: snapshot, profile: profile, onTap: () {
-                  ref.read(_selectedSessionIdProvider.notifier).state = snapshot.id;
-                  Navigator.of(context).pushNamed("/session", arguments: snapshot.id);
-                });
-              }
+              final needPush = MediaQuery.of(context).size.width <= 600;
+              return _sessionTileContent(context, ref,
+                  snapshot: snapshot, profile: profile, onTap: () {
+                ref.read(_viewControllerProvider).showSession(
+                      sessionId: snapshot.id,
+                      needPush: needPush,
+                    );
+              });
             },
           ),
           orElse: () => const ListTile(),
@@ -118,11 +125,14 @@ class MessengerPage extends ConsumerWidget {
   }
 
   Widget _sessionTileContent(BuildContext context, WidgetRef ref,
-      {required QueryDocumentSnapshot<Session> snapshot, required Profile profile, required GestureTapCallback onTap}) {
+      {required QueryDocumentSnapshot<Session> snapshot,
+      required Profile profile,
+      required GestureTapCallback onTap}) {
     final selectedId = ref.watch(_selectedSessionIdProvider);
 
     return ListTile(
-      selectedTileColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+      selectedTileColor:
+          Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
       selected: snapshot.id == selectedId,
       contentPadding: const EdgeInsets.all(8),
       onTap: onTap,
@@ -131,13 +141,13 @@ class MessengerPage extends ConsumerWidget {
       trailing: PopupMenuButton<String>(
         onSelected: (String s) async {
           if (s == "profile") {
-            await Navigator.pushNamed(context, "/profile", arguments: profile.userId);
+            ref.read(targetUserIdProvider.notifier).state = profile.userId;
           }
           if (s == "delete") {
             if (selectedId == snapshot.id) {
               ref.read(_selectedSessionIdProvider.notifier).state = null;
             }
-            await ref.read(_messengerViewControllerProvider).deleteSession(snapshot.id);
+            await ref.read(_viewControllerProvider).deleteSession(snapshot.id);
           }
         },
         itemBuilder: (BuildContext context) {

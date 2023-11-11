@@ -12,21 +12,23 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 /// メッセージ -> プロフィール -> 新規セッションの順で表示すると同じプロバイダを参照することになるので
 /// userId毎に状態を持てるようにしている。
 /// メッセージ画面では userId は null, 新規セッションでは 送信先のuserIdとなる
-final _currentSessionIdProvider = StateProvider.autoDispose.family<String?, String?>((ref, userId) => null);
+final _currentSessionIdProvider =
+    StateProvider.autoDispose.family<String?, String?>((ref, userId) => null);
 
 class _FormNotifier extends StateNotifier<TalkForm> {
-  _FormNotifier() : super(TalkForm(text: ""));
+  _FormNotifier() : super(const TalkForm(text: ""));
 
   void changeText(String text) {
     state = state.copyWith(text: text);
   }
 
   void clear() {
-    state = TalkForm(text: "");
+    state = const TalkForm(text: "");
   }
 }
 
-final _formProvider = StateNotifierProvider.autoDispose<_FormNotifier, TalkForm>((ref) {
+final _formProvider =
+    StateNotifierProvider.autoDispose<_FormNotifier, TalkForm>((ref) {
   return _FormNotifier();
 });
 
@@ -42,31 +44,37 @@ class TalkForm {
   }
 }
 
-final _talkSessionViewControllerProvider =
-    Provider.autoDispose<_TalkSessionViewController>((ref) => _TalkSessionViewController(ref));
+final _viewControllerProvider =
+    Provider.autoDispose<_ViewController>((ref) => _ViewController(ref));
 
-class _TalkSessionViewController {
+class _ViewController {
   final Ref ref;
 
-  _TalkSessionViewController(this.ref);
+  _ViewController(this.ref);
 
   Future<void> post({String? destinationUserId}) async {
     final text = ref.read(_formProvider).text;
     if (text.trim().isEmpty) {
       ref.read(snackBarController)?.showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('空です'),
-              duration: const Duration(seconds: 3),
+              duration: Duration(seconds: 3),
             ),
           );
       return;
     }
-    final currentSessionId = ref.read(_currentSessionIdProvider(destinationUserId));
+    final currentSessionId =
+        ref.read(_currentSessionIdProvider(destinationUserId));
     if (currentSessionId != null) {
-      await ref.read(talkUseCase).createTalk(sessionId: currentSessionId, text: text);
+      await ref
+          .read(talkUseCase)
+          .createTalk(sessionId: currentSessionId, text: text);
     } else if (destinationUserId != null) {
-      final newSessionId = await ref.read(talkUseCase).createSession(userId: destinationUserId, text: text);
-      ref.read(_currentSessionIdProvider(destinationUserId).notifier).state = newSessionId;
+      final newSessionId = await ref
+          .read(talkUseCase)
+          .createSession(userId: destinationUserId, text: text);
+      ref.read(_currentSessionIdProvider(destinationUserId).notifier).state =
+          newSessionId;
     }
     ref.read(_formProvider.notifier).clear();
   }
@@ -120,35 +128,40 @@ class TalkSession extends ConsumerWidget {
     }
     final talks = ref.watch(talksStreamProvider(currentSessionId));
     return talks.maybeWhen(
-        data: (value) => _talkListContent(context, ref, value),
-        orElse: () => Container(),
-        error: (error, stackTrace) => Center(
-              child: SelectableText('error ${error}'),
-            ));
+      data: (value) => _talkListContent(context, ref, value),
+      orElse: () => Container(),
+      error: (error, stackTrace) => Center(
+        child: SelectableText('error $error'),
+      ),
+    );
   }
 
-  Widget _talkListContent(BuildContext context, WidgetRef ref, QuerySnapshot<Talk> snapshot) {
+  Widget _talkListContent(
+      BuildContext context, WidgetRef ref, QuerySnapshot<Talk> snapshot) {
     final animatedStateKey = GlobalKey<AnimatedListState>();
 
     final scrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(Duration(milliseconds: 200), () {
+      Future.delayed(const Duration(milliseconds: 200), () {
         if (scrollController.hasClients) {
           scrollController.animateTo(scrollController.position.maxScrollExtent,
-              duration: Duration(milliseconds: 200), curve: Curves.ease);
+              duration: const Duration(milliseconds: 200), curve: Curves.ease);
         }
       });
     });
     return Consumer(builder: (context, ref, _) {
       final currentSessionId = ref.watch(_currentSessionIdProvider(userId));
-      ref.listen(talksStreamProvider(currentSessionId!), (previous, next) async {
+      ref.listen(talksStreamProvider(currentSessionId!),
+          (previous, next) async {
         final nextList = next.requireValue;
         for (final change in nextList.docChanges) {
           if (change.oldIndex == -1) {
-            animatedStateKey.currentState?.insertItem(change.newIndex, duration: Duration(milliseconds: 200));
+            animatedStateKey.currentState?.insertItem(change.newIndex,
+                duration: const Duration(milliseconds: 200));
           }
           if (change.newIndex == -1) {
-            animatedStateKey.currentState?.removeItem(change.oldIndex, (context, animation) => SizedBox.shrink());
+            animatedStateKey.currentState?.removeItem(change.oldIndex,
+                (context, animation) => const SizedBox.shrink());
           }
         }
       });
@@ -157,7 +170,8 @@ class TalkSession extends ConsumerWidget {
         key: animatedStateKey,
         controller: scrollController,
         initialItemCount: snapshot.size,
-        itemBuilder: (BuildContext context, int index, Animation<double> animation) {
+        itemBuilder:
+            (BuildContext context, int index, Animation<double> animation) {
           final talk = snapshot.docs[index];
           return SizeTransition(
             sizeFactor: animation,
@@ -168,12 +182,14 @@ class TalkSession extends ConsumerWidget {
     });
   }
 
-  Widget _talkTile(BuildContext context, WidgetRef ref, QueryDocumentSnapshot<Talk> snapshot) {
+  Widget _talkTile(BuildContext context, WidgetRef ref,
+      QueryDocumentSnapshot<Talk> snapshot) {
     final talk = snapshot.data();
-    final myProfile = ref.watch(myProfileProvider);
+    final myProfile = ref.watch(myProfileProvider).requireValue;
     final isMine = talk.sender == myProfile.userId;
     final myContainerColor = Theme.of(context).colorScheme.primaryContainer;
-    final otherContainerColor = Theme.of(context).colorScheme.secondaryContainer;
+    final otherContainerColor =
+        Theme.of(context).colorScheme.secondaryContainer;
     const myContainerBorderRadius = BorderRadius.only(
       topLeft: Radius.circular(30.0),
       bottomLeft: Radius.circular(30.0),
@@ -186,14 +202,15 @@ class TalkSession extends ConsumerWidget {
     );
 
     final Widget messageContainer = Container(
-      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       decoration: BoxDecoration(
         color: isMine ? myContainerColor : otherContainerColor,
-        borderRadius: isMine ? myContainerBorderRadius : otherContainerBorderRadius,
+        borderRadius:
+            isMine ? myContainerBorderRadius : otherContainerBorderRadius,
       ),
       child: Text(
         talk.content,
-        style: TextStyle(fontSize: 16.0),
+        style: const TextStyle(fontSize: 16.0),
       ),
     );
 
@@ -202,15 +219,16 @@ class TalkSession extends ConsumerWidget {
     ];
 
     if (isMine) {
-      messageDetails.insert(0, Spacer());
+      messageDetails.insert(0, const Spacer());
     } else {
-      messageDetails.add(Spacer());
+      messageDetails.add(const Spacer());
     }
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Row(
-        mainAxisAlignment: isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: messageDetails,
       ),
@@ -244,9 +262,11 @@ class TalkSession extends ConsumerWidget {
             ),
             IconButton(
                 onPressed: () {
-                  ref.read(_talkSessionViewControllerProvider).post(destinationUserId: userId);
+                  ref
+                      .read(_viewControllerProvider)
+                      .post(destinationUserId: userId);
                 },
-                icon: Icon(Icons.send)),
+                icon: const Icon(Icons.send)),
           ],
         ),
       ),

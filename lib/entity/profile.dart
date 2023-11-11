@@ -82,7 +82,8 @@ class Profile {
     );
   }
 
-  factory Profile.fromSnapShot(DocumentSnapshot<Map<String, dynamic>> snapshot) {
+  factory Profile.fromSnapShot(
+      DocumentSnapshot<Map<String, dynamic>> snapshot) {
     return Profile(
       userId: snapshot.id,
       nickname: snapshot.get('nickname'),

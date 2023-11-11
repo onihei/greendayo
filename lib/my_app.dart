@@ -1,6 +1,9 @@
+import 'dart:html' as html;
+
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/ui/fragments/authed_drawer.dart';
@@ -11,7 +14,6 @@ import 'package:greendayo/ui/pages/games_page.dart';
 import 'package:greendayo/ui/pages/messenger/messenger_page.dart';
 import 'package:greendayo/ui/pages/messenger/new_session_page.dart';
 import 'package:greendayo/ui/pages/messenger/session_page.dart';
-import 'package:greendayo/ui/pages/profile_edit_page.dart';
 import 'package:greendayo/ui/pages/profile_page.dart';
 import 'package:greendayo/ui/pages/top_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -28,16 +30,18 @@ final _tabBodiesProvider = Provider<Map<int, Widget?>>((ref) => {});
 final _tabProvider = Provider<Widget>((ref) {
   final tabIndex = ref.watch(_tabIndexProvider);
   final tabBodies = ref.watch(_tabBodiesProvider);
-  final tab = tabBodies[tabIndex] = tabBodies[tabIndex] ?? Function.apply(_tabConfigs[tabIndex].factoryMethod, null);
+  final tab = tabBodies[tabIndex] = tabBodies[tabIndex] ??
+      Function.apply(_tabConfigs[tabIndex].factoryMethod, null);
   return tab;
 });
 
-final _myAppViewController = Provider.autoDispose<_MyAppViewController>((ref) => _MyAppViewController(ref));
+final _viewControllerProvider =
+    Provider.autoDispose<_ViewController>((ref) => _ViewController(ref));
 
-class _MyAppViewController {
+class _ViewController {
   final Ref ref;
 
-  _MyAppViewController(this.ref);
+  _ViewController(this.ref);
 
   void changeTab(index) {
     ref.read(_tabIndexProvider.notifier).state = index;
@@ -46,138 +50,162 @@ class _MyAppViewController {
 
 class MyApp extends HookConsumerWidget {
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  static FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
+  static FirebaseAnalyticsObserver observer =
+      FirebaseAnalyticsObserver(analytics: analytics);
+
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(
+    return MaterialApp.router(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ja'),
+      ],
       title: 'すしぺろ',
       themeMode: ThemeMode.dark,
-      theme: ThemeData(
-        brightness: Brightness.light,
-        useMaterial3: true,
-        colorSchemeSeed: Colors.blueGrey,
-      ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        useMaterial3: true,
         colorSchemeSeed: Colors.blueGrey,
+        useMaterial3: true,
+        textTheme: const TextTheme(
+          titleSmall: TextStyle(fontWeight: FontWeight.w700),
+          titleMedium: TextStyle(fontWeight: FontWeight.w700),
+          headlineSmall: TextStyle(fontWeight: FontWeight.w700),
+          headlineMedium: TextStyle(fontWeight: FontWeight.w700),
+          labelSmall: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        inputDecorationTheme: const InputDecorationTheme(
+          isDense: true,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
       ),
-      navigatorObservers: <NavigatorObserver>[observer],
-      onGenerateRoute: (settings) => generateRoute(context, settings),
-      routes: <String, WidgetBuilder>{
-        "/": (_) => _home(),
-        "/profileEdit": (_) => const ProfileEditPage(),
-      },
+      routeInformationParser: MyRouteInformationParser(),
+      routerDelegate: MyRouterDelegate(ref),
     );
   }
+}
 
-  Route<dynamic>? generateRoute(context, RouteSettings settings) {
-    Route<dynamic>? route;
-    route = _handleProfileRoute(context, settings);
-    route ??= _handleSessionRoute(context, settings);
-    return route;
+class MyRouteInformationParser extends RouteInformationParser<String> {
+  @override
+  Future<String> parseRouteInformation(
+      RouteInformation routeInformation) async {
+    return routeInformation.uri.toString();
   }
 
-  Route<dynamic>? _handleProfileRoute(context, RouteSettings settings) {
-    final path = settings.name ?? "";
-    final pattern = RegExp("/profile(?:/(?=\\w+))?(\\w+)?(/newSession)?\$");
-    final matches = pattern.allMatches(path);
-    if (matches.isNotEmpty) {
-      final userId = matches.first.group(1);
-      final newSession = matches.first.group(2) == "/newSession";
-      final arguments = settings.arguments;
-      if (userId == null && arguments is String) {
-        // /profile に引数ありで来た
-        return MaterialPageRoute(
-          builder: (_) {
-            return ProfilePage(userId: arguments);
-          },
-          // 引数オブジェクトが渡された場合は、リロードできるようにパスパラメータにして移動
-          settings: RouteSettings(name: "/profile/$arguments"),
-        );
-      }
-      if (userId != null) {
-        if (newSession) {
-          if (FirebaseAuth.instance.currentUser == null) {
-            // fixme: トップにリダイレクトさせる
-            return null;
+  @override
+  RouteInformation? restoreRouteInformation(String configuration) {
+    return RouteInformation(uri: Uri.parse(configuration));
+  }
+}
+
+class MyRouterDelegate extends RouterDelegate<String>
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<String> {
+  final WidgetRef ref;
+
+  MyRouterDelegate(this.ref) : navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(builder: (context, ref, child) {
+      final user = ref.watch(userProvider);
+      final myProfile = ref.watch(myProfileProvider);
+      final targetUserId = ref.watch(targetUserIdProvider);
+      final newSession = ref.watch(newSessionProvider);
+      final targetSessionId = ref.watch(targetSessionIdProvider);
+      return Navigator(
+        pages: [
+          MaterialPage(
+            child: user.maybeWhen(
+              orElse: () => const SizedBox.shrink(),
+              data: (user) {
+                if (user == null) {
+                  FlutterNativeSplash.remove();
+                  return _top();
+                }
+                return myProfile.maybeWhen(
+                  loading: () => const SizedBox.shrink(),
+                  orElse: () {
+                    return _top();
+                  },
+                  data: (_) {
+                    FlutterNativeSplash.remove();
+                    return _home();
+                  },
+                );
+              },
+            ),
+          ),
+          if (targetUserId != null)
+            MaterialPage(
+              name: "profile",
+              child: ProfilePage(
+                userId: targetUserId,
+              ),
+            ),
+          if (newSession && targetUserId != null)
+            MaterialPage(
+              name: "newSession",
+              child: NewSessionPage(
+                userId: targetUserId,
+              ),
+            ),
+          if (targetSessionId != null)
+            MaterialPage(
+              name: "session",
+              child: SessionPage(
+                sessionId: targetSessionId,
+              ),
+            ),
+        ],
+        onPopPage: (route, result) {
+          if (route.settings.name == "profile") {
+            if (kIsWeb) {
+              html.window.history.back();
+            }
+            ref.read(targetUserIdProvider.notifier).state = null;
           }
-          return MaterialPageRoute(
-            builder: (_) {
-              return NewSessionPage(userId: userId);
-            },
-            settings: settings,
-          );
-        }
-        return MaterialPageRoute(
-          builder: (_) {
-            return ProfilePage(userId: userId);
-          },
-          settings: settings,
-        );
-      }
-    }
-    return null;
+          if (route.settings.name == "newSession") {
+            if (kIsWeb) {
+              html.window.history.back();
+            }
+            ref.read(newSessionProvider.notifier).state = false;
+          }
+          if (route.settings.name == "session") {
+            if (kIsWeb) {
+//              html.window.history.back();
+            }
+            ref.read(targetSessionIdProvider.notifier).state = null;
+          }
+          return route.didPop(result);
+        },
+      );
+    });
   }
 
-  Route<dynamic>? _handleSessionRoute(context, RouteSettings settings) {
-    final path = settings.name ?? "";
-    final pattern = RegExp("/session(?:/(?=\\w+))?(\\w+)?\$");
-    final matches = pattern.allMatches(path);
-    if (matches.isNotEmpty) {
-      final sessionId = matches.first.group(1);
-      final arguments = settings.arguments;
-      if (sessionId == null && arguments is String) {
-        return MaterialPageRoute(
-          builder: (_) {
-            return SessionPage(sessionId: arguments);
-          },
-          settings: RouteSettings(name: "/session/$arguments"),
-        );
-      }
-      if (sessionId != null) {
-        if (FirebaseAuth.instance.currentUser == null) {
-          // fixme: トップにリダイレクトさせる
-          return null;
-        }
-        return MaterialPageRoute(
-          builder: (_) {
-            return SessionPage(sessionId: sessionId);
-          },
-          settings: settings,
-        );
-      }
-    }
-    return null;
+  Widget _top() {
+    return const Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: Size(1000, 200),
+        child: Header(),
+      ),
+      body: TopPage(),
+    );
   }
 
   Widget _home() {
     return Consumer(builder: (context, ref, child) {
-      final user = ref.watch(userProvider);
-      final myProfile = ref.watch(myProfileProvider);
-
       final tabIndex = ref.watch(_tabIndexProvider);
       final tab = ref.watch(_tabProvider);
       final scaffoldKey = ref.watch(globalKeyProvider("Scaffold"));
-      final authed = myProfile.userId != "anonymous";
-      final loaded = user.value == null || authed;
-      if (!loaded) {
-        return Container(
-          color: Theme.of(context).colorScheme.background,
-        );
-      }
-      if (authed) {
-        FlutterNativeSplash.remove();
-      }
-      final appBar = authed
-          ? AppBar(
-              title: Text(_tabConfigs[tabIndex].label),
-            )
-          : PreferredSize(
-              preferredSize: Size(1000, 200),
-              child: Header(),
-            );
 
       final navigationItems = _tabConfigs
           .map((param) => BottomNavigationBarItem(
@@ -187,36 +215,72 @@ class MyApp extends HookConsumerWidget {
               ))
           .toList();
 
-      final bottomNavigationBar = authed
-          ? BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              selectedIconTheme: IconThemeData(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              unselectedIconTheme: IconThemeData(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              currentIndex: tabIndex,
-              items: navigationItems,
-              onTap: (index) => ref.read(_myAppViewController).changeTab(index),
-            )
-          : null;
-
-      final floatingActionButton = authed ? _tabConfigs[tabIndex].floatingActionButton : null;
-      final drawer = authed ? AuthedDrawer() : null;
-
       return Scaffold(
-        extendBodyBehindAppBar: authed ? false : true,
+        extendBodyBehindAppBar: false,
         key: scaffoldKey,
-        appBar: appBar,
-        body: AnimatedSwitcher(
-          duration: Duration(milliseconds: 300),
-          child: authed ? tab : TopPage(),
+        appBar: AppBar(
+          title: Text(_tabConfigs[tabIndex].label),
         ),
-        bottomNavigationBar: bottomNavigationBar,
-        floatingActionButton: floatingActionButton,
-        drawer: drawer,
+        body: tab,
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          selectedIconTheme: IconThemeData(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          unselectedIconTheme: IconThemeData(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          currentIndex: tabIndex,
+          items: navigationItems,
+          onTap: (index) => ref.read(_viewControllerProvider).changeTab(index),
+        ),
+        floatingActionButton: _tabConfigs[tabIndex].floatingActionButton,
+        drawer: const AuthedDrawer(),
       );
     });
+  }
+
+  @override
+  Future<void> setNewRoutePath(String configuration) async {
+    final pattern =
+        RegExp("/profile(?:/(?=\\w+))?(\\w+)?(/new-session|/edit)?\$");
+    final matches = pattern.allMatches(configuration);
+    if (matches.isNotEmpty) {
+      final userId = matches.first.group(1);
+      ref.read(targetUserIdProvider.notifier).state = userId;
+      final group2 = matches.first.group(2);
+      final newSession = group2 == "/new-session";
+      final edit = group2 == "/edit";
+      final myUser = await ref.read(userProvider.future);
+      if (edit && myUser?.uid == userId) {
+        ref.read(editProfileProvider.notifier).state = true;
+      } else {
+        ref.read(editProfileProvider.notifier).state = false;
+      }
+      ref.read(newSessionProvider.notifier).state = false;
+      if (newSession && myUser?.uid != userId) {
+        ref.read(newSessionProvider.notifier).state = true;
+      }
+    } else {
+      ref.read(targetUserIdProvider.notifier).state = null;
+    }
+  }
+
+  @override
+  String? get currentConfiguration {
+    final targetUserId = ref.watch(targetUserIdProvider);
+    final editProfile = ref.watch(editProfileProvider);
+    final newSession = ref.watch(newSessionProvider);
+    if (targetUserId != null) {
+      var func = "";
+      if (editProfile) {
+        func = "/edit";
+      }
+      if (newSession) {
+        func = "/new-session";
+      }
+      return "/profile/$targetUserId$func";
+    }
+    return "/";
   }
 }

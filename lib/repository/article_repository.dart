@@ -6,7 +6,8 @@ import 'package:greendayo/entity/article.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ulid/ulid.dart';
 
-final articleRepository = Provider.autoDispose<ArticleRepository>((ref) => _ArticleRepositoryImpl(ref));
+final articleRepository = Provider.autoDispose<ArticleRepository>(
+    (ref) => _ArticleRepositoryImpl(ref));
 
 abstract class ArticleRepository {
   Stream<QuerySnapshot<Article>> observe();
@@ -18,10 +19,11 @@ abstract class ArticleRepository {
   Future<String> uploadJpeg(Uint8List bytes);
 }
 
-final articlesRef = FirebaseFirestore.instance.collection('articles').withConverter<Article>(
-      fromFirestore: (snapshot, _) => Article.fromSnapShot(snapshot),
-      toFirestore: (article, _) => article.toJson(),
-    );
+final articlesRef =
+    FirebaseFirestore.instance.collection('articles').withConverter<Article>(
+          fromFirestore: (snapshot, _) => Article.fromSnapShot(snapshot),
+          toFirestore: (article, _) => article.toJson(),
+        );
 
 class _ArticleRepositoryImpl implements ArticleRepository {
   final Ref ref;
@@ -29,7 +31,8 @@ class _ArticleRepositoryImpl implements ArticleRepository {
   _ArticleRepositoryImpl(this.ref);
 
   @override
-  Stream<QuerySnapshot<Article>> observe() => articlesRef.orderBy('createdAt').limit(100).snapshots();
+  Stream<QuerySnapshot<Article>> observe() =>
+      articlesRef.orderBy('createdAt').limit(100).snapshots();
 
   @override
   Future<String> save(Article entity) async {
@@ -46,7 +49,8 @@ class _ArticleRepositoryImpl implements ArticleRepository {
 
   @override
   Future<String> uploadJpeg(Uint8List bytes) async {
-    final storageRef = FirebaseStorage.instance.ref().child('bbs/photo/${Ulid()}');
+    final storageRef =
+        FirebaseStorage.instance.ref().child('bbs/photo/${Ulid()}');
     final uploadTask = storageRef.putData(
       bytes,
       SettableMetadata(

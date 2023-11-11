@@ -62,12 +62,14 @@ class _FormNotifier extends StateNotifier<BbsForm> {
   }
 }
 
-final _formProvider = StateNotifierProvider.autoDispose<_FormNotifier, BbsForm>((ref) {
+final _formProvider =
+    StateNotifierProvider.autoDispose<_FormNotifier, BbsForm>((ref) {
   return _FormNotifier();
 });
 
 class BbsForm {
-  const BbsForm({this.text, this.photoJpgBytes, this.rotation = 0, this.width = 270});
+  const BbsForm(
+      {this.text, this.photoJpgBytes, this.rotation = 0, this.width = 270});
 
   final String? text;
   final double width;
@@ -86,7 +88,11 @@ class BbsForm {
     return photoJpgBytes != null;
   }
 
-  BbsForm copyWith({String? text, Uint8List? photoJpgBytes, double? rotation, double? width}) {
+  BbsForm copyWith(
+      {String? text,
+      Uint8List? photoJpgBytes,
+      double? rotation,
+      double? width}) {
     return BbsForm(
       text: text ?? this.text,
       photoJpgBytes: photoJpgBytes ?? this.photoJpgBytes,
@@ -118,7 +124,7 @@ class BbsTabConfig implements TabConfig {
               Icons.add,
             ),
             onPressed: () {
-              ref.read(_bbsViewController).startCreate();
+              ref.read(_viewControllerProvider).startCreate();
             },
           );
           return Visibility(
@@ -129,14 +135,15 @@ class BbsTabConfig implements TabConfig {
       );
 }
 
-final _bbsViewController = Provider<_BbsViewController>((ref) => _BbsViewController(ref));
+final _viewControllerProvider =
+    Provider<_ViewController>((ref) => _ViewController(ref));
 
-class _BbsViewController {
+class _ViewController {
   final Ref ref;
   double scaleStarted = 1.0;
   Offset offsetStarted = Offset.zero;
 
-  _BbsViewController(this.ref);
+  _ViewController(this.ref);
 
   void onScaleStart(ScaleStartDetails details) {
     scaleStarted = ref.read(_screenScaleProvider);
@@ -150,8 +157,9 @@ class _BbsViewController {
   void onScaleUpdate(ScaleUpdateDetails details) {
     if (details.pointerCount == 1) {
       final offset = ref.read(_screenOffsetProvider.notifier).state;
-      ref.read(_screenOffsetProvider.notifier).state =
-          offset.translate(details.focalPointDelta.dx / scaleStarted, details.focalPointDelta.dy / scaleStarted);
+      ref.read(_screenOffsetProvider.notifier).state = offset.translate(
+          details.focalPointDelta.dx / scaleStarted,
+          details.focalPointDelta.dy / scaleStarted);
     } else {
       final newScale = scaleStarted * details.scale;
       ref.read(_screenOffsetProvider.notifier).state = offsetStarted;
@@ -165,22 +173,25 @@ class _BbsViewController {
   }
 
   Future<void> post() async {
-    final myProfile = ref.read(myProfileProvider);
+    final myProfile = ref.read(myProfileProvider).requireValue;
 
     final keyFormContainer = ref.read(globalKeyProvider("formContainer"));
     final keyForm = ref.read(globalKeyProvider("form"));
-    final stackBox = keyFormContainer.currentContext?.findRenderObject() as RenderBox;
+    final stackBox =
+        keyFormContainer.currentContext?.findRenderObject() as RenderBox;
     final formBox = keyForm.currentContext?.findRenderObject() as RenderBox;
     final positionStack = stackBox.localToGlobal(Offset.zero);
     final positionForm = formBox.localToGlobal(Offset.zero);
-    final formOffset = Offset(positionForm.dx - positionStack.dx, positionForm.dy - positionStack.dy);
+    final formOffset = Offset(
+        positionForm.dx - positionStack.dx, positionForm.dy - positionStack.dy);
 
     String text;
     final form = ref.read(_formProvider);
     final screenOffset = ref.read(_screenOffsetProvider);
 
     if (form.isPhotoMode) {
-      final url = await ref.read(articleRepository).uploadJpeg(form.photoJpgBytes!);
+      final url =
+          await ref.read(articleRepository).uploadJpeg(form.photoJpgBytes!);
       text = '<img src="$url" data-rotation="${form.rotation}" />';
     } else {
       text = form.text ?? "";
@@ -270,6 +281,10 @@ class _BbsViewController {
     ref.read(_formProvider.notifier).changePhotoJpgBytes(bytes);
     ref.read(_loadingProvider.notifier).state = false;
   }
+
+  void showProfile(String userId) {
+    ref.read(targetUserIdProvider.notifier).state = userId;
+  }
 }
 
 class BbsPage extends HookConsumerWidget {
@@ -284,7 +299,8 @@ class BbsPage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildScreen(BuildContext context, WidgetRef ref, QuerySnapshot<Article> snapshot) {
+  Widget _buildScreen(
+      BuildContext context, WidgetRef ref, QuerySnapshot<Article> snapshot) {
     final edit = ref.watch(_editProvider);
     final keyFormContainer = ref.watch(globalKeyProvider("formContainer"));
 
@@ -303,7 +319,8 @@ class BbsPage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildBoard(BuildContext context, WidgetRef ref, QuerySnapshot<Article> snapshot) {
+  Widget _buildBoard(
+      BuildContext context, WidgetRef ref, QuerySnapshot<Article> snapshot) {
     final papers = snapshot.docs.map((articleDoc) {
       final article = articleDoc.data();
       return Consumer(builder: (context, ref, child) {
@@ -316,9 +333,9 @@ class BbsPage extends HookConsumerWidget {
       });
     }).toList();
     final gestureDetector = GestureDetector(
-      onScaleStart: ref.read(_bbsViewController).onScaleStart,
-      onScaleEnd: ref.read(_bbsViewController).onScaleEnd,
-      onScaleUpdate: ref.read(_bbsViewController).onScaleUpdate,
+      onScaleStart: ref.read(_viewControllerProvider).onScaleStart,
+      onScaleEnd: ref.read(_viewControllerProvider).onScaleEnd,
+      onScaleUpdate: ref.read(_viewControllerProvider).onScaleUpdate,
       child: Consumer(builder: (context, ref, child) {
         final scale = ref.watch(_screenScaleProvider);
         return Container(
@@ -333,22 +350,22 @@ class BbsPage extends HookConsumerWidget {
         );
       }),
     );
-    // 正しい pointerCountが返されなくなる問題の回避
-    // https://github.com/flutter/flutter/issues/111468
-    gestureDetector.onScaleEnd!(ScaleEndDetails());
     return gestureDetector;
   }
 
-  Widget _articleCard(BuildContext context, WidgetRef ref, QueryDocumentSnapshot<Article> snapShot) {
+  Widget _articleCard(BuildContext context, WidgetRef ref,
+      QueryDocumentSnapshot<Article> snapShot) {
     final article = snapShot.data();
     return PopupMenuButton<String>(
       position: PopupMenuPosition.under,
       onSelected: (s) async {
         if (s == "profile") {
-          await Navigator.pushNamed(context, "/profile", arguments: article.createdBy);
+          ref.read(_viewControllerProvider).showProfile(article.createdBy);
         }
         if (s == "delete") {
-          await ref.read(_bbsViewController).deleteArticle(docId: snapShot.id);
+          await ref
+              .read(_viewControllerProvider)
+              .deleteArticle(docId: snapShot.id);
         }
       },
       itemBuilder: (BuildContext context) {
@@ -363,7 +380,9 @@ class BbsPage extends HookConsumerWidget {
           ),
         ];
       },
-      child: article.isPhoto ? _photoContent(context, ref, article) : _textContent(context, ref, article),
+      child: article.isPhoto
+          ? _photoContent(context, ref, article)
+          : _textContent(context, ref, article),
     );
   }
 
@@ -376,11 +395,9 @@ class BbsPage extends HookConsumerWidget {
       child: article.photoImage,
     );
     final rotation = article.rotation ?? 0;
-    return Container(
-      child: Transform.rotate(
-        angle: rotation,
-        child: content,
-      ),
+    return Transform.rotate(
+      angle: rotation,
+      child: content,
     );
   }
 
@@ -388,7 +405,8 @@ class BbsPage extends HookConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       width: article.width.toDouble(),
-      decoration: _textBoxDecoration(context, color: Theme.of(context).colorScheme.primaryContainer),
+      decoration: _textBoxDecoration(context,
+          color: Theme.of(context).colorScheme.primaryContainer),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -442,13 +460,14 @@ class BbsPage extends HookConsumerWidget {
     final controller = ref.watch(textEditingControllerProvider("BbsForm"));
     controller.value = controller.value.copyWith(text: form.text);
     final keyForm = ref.watch(globalKeyProvider("form"));
-    final myProfile = ref.watch(myProfileProvider);
+    final myProfile = ref.watch(myProfileProvider).requireValue;
 
     return Container(
       key: keyForm,
       padding: const EdgeInsets.all(4),
       width: form.width,
-      decoration: _textBoxDecoration(context, color: Theme.of(context).colorScheme.secondaryContainer),
+      decoration: _textBoxDecoration(context,
+          color: Theme.of(context).colorScheme.secondaryContainer),
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.multiline,
@@ -458,7 +477,8 @@ class BbsPage extends HookConsumerWidget {
           ref.read(_formProvider.notifier).changeText(input);
         },
         textInputAction: TextInputAction.newline,
-        buildCounter: (_, {required currentLength, maxLength, required isFocused}) => Row(
+        buildCounter:
+            (_, {required currentLength, maxLength, required isFocused}) => Row(
           children: [
             Text('$currentLength / $maxLength'),
             const Spacer(),
@@ -498,7 +518,7 @@ class BbsPage extends HookConsumerWidget {
             const Spacer(),
             IconButton(
               onPressed: () async {
-                await ref.read(_bbsViewController).preparePhoto();
+                await ref.read(_viewControllerProvider).preparePhoto();
               },
               icon: const Icon(Icons.photo),
             ),
@@ -507,7 +527,7 @@ class BbsPage extends HookConsumerWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                await ref.read(_bbsViewController).post();
+                await ref.read(_viewControllerProvider).post();
               },
               child: const Text('投稿する'),
             ),

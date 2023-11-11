@@ -14,12 +14,13 @@ class DotImage extends ConsumerWidget {
     final screenSize = MediaQuery.of(context).size;
     final dotPattern = ref.watch(dotPatternProvider);
     return dotPattern.when(
-        data: (data) => CustomPaint(
-              child: child,
-              painter: _DotPainter(data, screenSize),
-            ),
-        error: (error, stackTrace) => Text(error.toString()),
-        loading: () => SizedBox.shrink());
+      data: (data) => CustomPaint(
+        painter: _DotPainter(data, screenSize),
+        child: child,
+      ),
+      error: (error, stackTrace) => Text(error.toString()),
+      loading: () => const SizedBox.shrink(),
+    );
   }
 }
 
@@ -32,7 +33,11 @@ class _DotPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Rect.fromLTRB(0, 0, size.width, size.height);
-    paintImage(canvas: canvas, rect: rect, image: dotPattern, repeat: ImageRepeat.repeat);
+    paintImage(
+        canvas: canvas,
+        rect: rect,
+        image: dotPattern,
+        repeat: ImageRepeat.repeat);
   }
 
   @override
@@ -42,7 +47,7 @@ class _DotPainter extends CustomPainter {
 }
 
 final dotPatternProvider = FutureProvider((ref) async {
-  final paint = Paint()..color = ui.Color.fromARGB(100, 0, 0, 0);
+  final paint = Paint()..color = const ui.Color.fromARGB(100, 0, 0, 0);
 
   final pictureRecorder = ui.PictureRecorder();
   Canvas patternCanvas = Canvas(pictureRecorder);
@@ -50,7 +55,8 @@ final dotPatternProvider = FutureProvider((ref) async {
   for (var y = 0; y < 32; y++) {
     for (var x = 0; x < 32; x++) {
       patternCanvas.drawOval(
-        Rect.fromCenter(center: Offset(x * 6 + 3, y * 6 + 3), width: 4.5, height: 4.5),
+        Rect.fromCenter(
+            center: Offset(x * 6 + 3, y * 6 + 3), width: 4.5, height: 4.5),
         paint,
       );
     }
