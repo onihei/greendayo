@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone.js";
 import utc from "dayjs/plugin/utc.js";
 import OpenAI from "openai";
-const openAi = new OpenAI({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
@@ -53,7 +53,7 @@ io.on('connection', async (socket) => {
             temperature: 0.9,
             stream: false,
         });
-        ack(chatCompletion.data.choices[0].text.trim());
+        ack(chatCompletion.choices[0].message.content);
     });
 
     socket.on('disconnecting', () => {
