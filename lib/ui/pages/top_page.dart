@@ -77,7 +77,7 @@ class TopPage extends ConsumerWidget {
               SizedBox(
                 height: screenSize.height * 0.8,
                 child: Image.asset(
-                  'assets/images/susi.png',
+                  'assets/images/waku2.webp',
                 ),
               ),
             ],
