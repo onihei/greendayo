@@ -37,7 +37,7 @@ flutter pub run flutter_launcher_icons:main
 
 ビルド
 ```shell
-dart build web
+flutter build web
 ```
 
 他のデバイスからアクセスさせる
