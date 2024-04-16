@@ -44,9 +44,7 @@ class _ViewController {
   void showSession({required String sessionId, required bool needPush}) {
     ref.read(_selectedSessionIdProvider.notifier).state = sessionId;
     if (needPush) {
-      ref
-          .read(targetSessionIdProvider.notifier)
-          .state = sessionId;
+      ref.read(targetSessionIdProvider.notifier).state = sessionId;
     }
   }
 }
