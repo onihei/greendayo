@@ -1,7 +1,7 @@
-import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_shaders/flutter_shaders.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class DotImage extends ConsumerWidget {
@@ -11,33 +11,26 @@ class DotImage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final screenSize = MediaQuery.of(context).size;
-    final dotPattern = ref.watch(dotPatternProvider);
-    return dotPattern.when(
-      data: (data) => CustomPaint(
-        painter: _DotPainter(data, screenSize),
-        child: child,
+    return ShaderBuilder(
+      assetKey: 'shaders/dots.frag',
+      (BuildContext context, FragmentShader shader, _) => CustomPaint(
+        size: MediaQuery.of(context).size,
+        painter: _DotPainter(shader),
       ),
-      error: (error, stackTrace) => Text(error.toString()),
-      loading: () => const SizedBox.shrink(),
     );
   }
 }
 
 class _DotPainter extends CustomPainter {
-  _DotPainter(this.dotPattern, this.screenSize);
-
-  final ui.Image dotPattern;
-  final ui.Size screenSize;
+  final FragmentShader shader;
+  _DotPainter(this.shader);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTRB(0, 0, size.width, size.height);
-    paintImage(
-        canvas: canvas,
-        rect: rect,
-        image: dotPattern,
-        repeat: ImageRepeat.repeat);
+    shader.setFloat(0, 3.0); // dot radius
+    shader.setFloat(1, 8.0); // dot spacing
+    final Paint paint = Paint()..shader = shader;
+    canvas.drawRect(Offset.zero & size, paint);
   }
 
   @override
@@ -45,22 +38,3 @@ class _DotPainter extends CustomPainter {
     return true;
   }
 }
-
-final dotPatternProvider = FutureProvider((ref) async {
-  final paint = Paint()..color = const ui.Color.fromARGB(100, 0, 0, 0);
-
-  final pictureRecorder = ui.PictureRecorder();
-  Canvas patternCanvas = Canvas(pictureRecorder);
-
-  for (var y = 0; y < 32; y++) {
-    for (var x = 0; x < 32; x++) {
-      patternCanvas.drawOval(
-        Rect.fromCenter(
-            center: Offset(x * 6 + 3, y * 6 + 3), width: 4.5, height: 4.5),
-        paint,
-      );
-    }
-  }
-  ui.Picture p = pictureRecorder.endRecording();
-  return p.toImage(192, 192);
-});

@@ -3,7 +3,10 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/provider/top_provider.dart';
 import 'package:greendayo/ui/fragments/dot_image.dart';
+import 'package:greendayo/ui/fragments/flip_container.dart';
 import 'package:greendayo/ui/fragments/footer.dart';
+import 'package:greendayo/ui/fragments/login_dialog.dart';
+import 'package:greendayo/ui/fragments/showy_button.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -83,7 +86,9 @@ class TopPage extends ConsumerWidget {
             ],
           ),
           _about(ref, screenSize),
+          _start(context, ref, screenSize),
           _game(ref, screenSize),
+          _leadersBoard(context, ref, screenSize),
           _job(ref, screenSize),
           const Footer(),
         ],
@@ -108,6 +113,27 @@ class TopPage extends ConsumerWidget {
               child: Text("すしぺろはみんなのフレンドパーク"),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _start(BuildContext context, WidgetRef ref, screenSize) {
+    final globalKey = ref.watch(globalKeyProvider("Start"));
+    return Container(
+      key: globalKey,
+      width: double.infinity,
+      child: SizedBox(
+        height: screenSize.height * 1.4,
+        child: Align(
+          alignment: Alignment(0, -0.5),
+          child: ShowyButton(
+            child: Text("Get Started"),
+            onPressed: () async {
+              await showDialog(
+                  context: context, builder: (context) => LoginDialog());
+            },
+          ),
         ),
       ),
     );
@@ -152,6 +178,18 @@ class TopPage extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _leadersBoard(BuildContext context, WidgetRef ref, screenSize) {
+    final globalKey = ref.watch(globalKeyProvider("LeadersBoard"));
+    return Container(
+      key: globalKey,
+      width: double.infinity,
+      child: SizedBox(
+        height: screenSize.height * 1.4,
+        child: FlipContainer(),
       ),
     );
   }

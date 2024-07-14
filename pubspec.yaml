@@ -70,6 +70,7 @@ dependencies:
   cached_network_image: ^3.3.1
   html: ^0.15.4
   flutter_riverpod: ^2.5.1
+  flutter_shaders: ^0.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -130,6 +131,9 @@ flutter:
     - assets/images/
     - assets/videos/
 
+  shaders:
+    - shaders/flip.frag
+    - shaders/dots.frag
 flutter_native_splash:
   android: true
   ios: true
