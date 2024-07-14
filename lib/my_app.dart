@@ -1,4 +1,4 @@
-import 'dart:html' as html;
+import 'package:web/web.dart' as html;
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';

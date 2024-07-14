@@ -1,5 +1,4 @@
-import 'dart:html' as html;
-
+import 'package:web/web.dart' as html;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:greendayo/entity/profile.dart';
