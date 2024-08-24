@@ -37,7 +37,7 @@ flutter pub run flutter_launcher_icons:main
 
 ビルド
 ```shell
-flutter build web
+flutter build web --wasm
 ```
 
 他のデバイスからアクセスさせる

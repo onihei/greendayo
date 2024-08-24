@@ -11,25 +11,24 @@ import 'package:greendayo/web/my_url_strategy.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 Future<void> main() async {
-  usePathUrlStrategy();
-
-  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-
-  // 動画の準備が完了するまで表示
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  runZonedGuarded<Future<void>>(() async {
+    usePathUrlStrategy();
+    final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+    // 動画の準備が完了するまで表示
+    FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    runApp(
+      const ProviderScope(
+        child: MyApp(),
+      ),
+    );
+  }, (error, stackTrace) {
+    print("Error: $error");
+    print("StackTrace: $stackTrace");
+    // FirebaseCrashlytics.instance.recordError(error, stackTrace);
+  });
 
-  runApp(
-    const ProviderScope(
-      child: MyApp(),
-    ),
-  );
 }

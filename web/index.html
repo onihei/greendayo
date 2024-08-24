@@ -100,7 +100,6 @@
       document.body.style.background = "transparent";
     }
   </script>
-  <script type="module" src="./assets/packages/model_viewer_plus/assets/model-viewer.min.js" defer></script>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
 </head>
 <body>
@@ -113,7 +112,7 @@
   <script>
     window.addEventListener('load', function(ev) {
       // Download main.dart.js
-      _flutter.loader.loadEntrypoint({
+      _flutter.loader.load({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
         },
