@@ -7,6 +7,7 @@ import 'package:greendayo/ui/fragments/flip_container.dart';
 import 'package:greendayo/ui/fragments/footer.dart';
 import 'package:greendayo/ui/fragments/login_dialog.dart';
 import 'package:greendayo/ui/fragments/showy_button.dart';
+import 'package:greendayo/ui/fragments/spiral_container.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -89,6 +90,7 @@ class TopPage extends ConsumerWidget {
           _start(context, ref, screenSize),
           _game(ref, screenSize),
           _leadersBoard(context, ref, screenSize),
+          _histories(context, ref, screenSize),
           _job(ref, screenSize),
           const Footer(),
         ],
@@ -190,6 +192,18 @@ class TopPage extends ConsumerWidget {
       child: SizedBox(
         height: screenSize.height * 1.4,
         child: FlipContainer(),
+      ),
+    );
+  }
+
+  Widget _histories(BuildContext context, WidgetRef ref, screenSize) {
+    final globalKey = ref.watch(globalKeyProvider("Histories"));
+    return Container(
+      key: globalKey,
+      width: double.infinity,
+      child: SizedBox(
+        height: screenSize.height * 1.4,
+        child: SpiralContainer(),
       ),
     );
   }
