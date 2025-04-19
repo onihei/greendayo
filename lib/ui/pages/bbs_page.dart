@@ -39,9 +39,7 @@ class _FormNotifier extends StateNotifier<BbsForm> {
     if (!state.isPhotoMode) {
       return;
     }
-    state = state.copyWith(
-      rotation: _randomRotation(),
-    );
+    state = state.copyWith(rotation: _randomRotation());
   }
 
   void clear() {
@@ -62,14 +60,19 @@ class _FormNotifier extends StateNotifier<BbsForm> {
   }
 }
 
-final _formProvider =
-    StateNotifierProvider.autoDispose<_FormNotifier, BbsForm>((ref) {
-  return _FormNotifier();
-});
+final _formProvider = StateNotifierProvider.autoDispose<_FormNotifier, BbsForm>(
+  (ref) {
+    return _FormNotifier();
+  },
+);
 
 class BbsForm {
-  const BbsForm(
-      {this.text, this.photoJpgBytes, this.rotation = 0, this.width = 270});
+  const BbsForm({
+    this.text,
+    this.photoJpgBytes,
+    this.rotation = 0,
+    this.width = 270,
+  });
 
   final String? text;
   final double width;
@@ -88,11 +91,12 @@ class BbsForm {
     return photoJpgBytes != null;
   }
 
-  BbsForm copyWith(
-      {String? text,
-      Uint8List? photoJpgBytes,
-      double? rotation,
-      double? width}) {
+  BbsForm copyWith({
+    String? text,
+    Uint8List? photoJpgBytes,
+    double? rotation,
+    double? width,
+  }) {
     return BbsForm(
       text: text ?? this.text,
       photoJpgBytes: photoJpgBytes ?? this.photoJpgBytes,
@@ -117,26 +121,22 @@ class BbsTabConfig implements TabConfig {
 
   @override
   Widget get floatingActionButton => Consumer(
-        builder: (context, ref, child) {
-          final edit = ref.watch(_editProvider);
-          final button = FloatingActionButton(
-            child: const Icon(
-              Icons.add,
-            ),
-            onPressed: () {
-              ref.read(_viewControllerProvider).startCreate();
-            },
-          );
-          return Visibility(
-            visible: !edit,
-            child: button,
-          );
+    builder: (context, ref, child) {
+      final edit = ref.watch(_editProvider);
+      final button = FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          ref.read(_viewControllerProvider).startCreate();
         },
       );
+      return Visibility(visible: !edit, child: button);
+    },
+  );
 }
 
-final _viewControllerProvider =
-    Provider<_ViewController>((ref) => _ViewController(ref));
+final _viewControllerProvider = Provider<_ViewController>(
+  (ref) => _ViewController(ref),
+);
 
 class _ViewController {
   final Ref ref;
@@ -158,8 +158,9 @@ class _ViewController {
     if (details.pointerCount == 1) {
       final offset = ref.read(_screenOffsetProvider.notifier).state;
       ref.read(_screenOffsetProvider.notifier).state = offset.translate(
-          details.focalPointDelta.dx / scaleStarted,
-          details.focalPointDelta.dy / scaleStarted);
+        details.focalPointDelta.dx / scaleStarted,
+        details.focalPointDelta.dy / scaleStarted,
+      );
     } else {
       final newScale = scaleStarted * details.scale;
       ref.read(_screenOffsetProvider.notifier).state = offsetStarted;
@@ -183,20 +184,25 @@ class _ViewController {
     final positionStack = stackBox.localToGlobal(Offset.zero);
     final positionForm = formBox.localToGlobal(Offset.zero);
     final formOffset = Offset(
-        positionForm.dx - positionStack.dx, positionForm.dy - positionStack.dy);
+      positionForm.dx - positionStack.dx,
+      positionForm.dy - positionStack.dy,
+    );
 
     String text;
     final form = ref.read(_formProvider);
     final screenOffset = ref.read(_screenOffsetProvider);
 
     if (form.isPhotoMode) {
-      final url =
-          await ref.read(articleRepository).uploadJpeg(form.photoJpgBytes!);
+      final url = await ref
+          .read(articleRepository)
+          .uploadJpeg(form.photoJpgBytes!);
       text = '<img src="$url" data-rotation="${form.rotation}" />';
     } else {
       text = form.text ?? "";
       if (text.trim().isEmpty) {
-        ref.read(snackBarController)?.showSnackBar(
+        ref
+            .read(snackBarController)
+            ?.showSnackBar(
               const SnackBar(
                 content: Text('投稿内容を記入してください'),
                 duration: Duration(seconds: 3),
@@ -220,7 +226,9 @@ class _ViewController {
     final docId = await ref.read(articleRepository).save(newArticle);
     ref.read(_editProvider.notifier).state = false;
 
-    ref.read(snackBarController)?.showSnackBar(
+    ref
+        .read(snackBarController)
+        ?.showSnackBar(
           SnackBar(
             content: const Text('投稿しました'),
             duration: const Duration(seconds: 6),
@@ -236,7 +244,9 @@ class _ViewController {
 
   Future<void> undo(String docId) async {
     await ref.read(articleRepository).delete(docId);
-    ref.read(snackBarController)?.showSnackBar(
+    ref
+        .read(snackBarController)
+        ?.showSnackBar(
           const SnackBar(
             content: Text('投稿を取り消しました'),
             duration: Duration(seconds: 3),
@@ -258,9 +268,7 @@ class _ViewController {
     final mimeType = result.mimeType;
     if (mimeType == null) {
       snackBar?.showSnackBar(
-        const SnackBar(
-          content: Text('ファイルの読み込みに失敗しました。'),
-        ),
+        const SnackBar(content: Text('ファイルの読み込みに失敗しました。')),
       );
       return;
     }
@@ -270,9 +278,7 @@ class _ViewController {
     if (tempImage == null) {
       ref.read(_loadingProvider.notifier).state = false;
       snackBar?.showSnackBar(
-        const SnackBar(
-          content: Text('ファイルの読み込みに失敗しました。'),
-        ),
+        const SnackBar(content: Text('ファイルの読み込みに失敗しました。')),
       );
       return;
     }
@@ -300,7 +306,10 @@ class BbsPage extends HookConsumerWidget {
   }
 
   Widget _buildScreen(
-      BuildContext context, WidgetRef ref, QuerySnapshot<Article> snapshot) {
+    BuildContext context,
+    WidgetRef ref,
+    QuerySnapshot<Article> snapshot,
+  ) {
     final edit = ref.watch(_editProvider);
     final keyFormContainer = ref.watch(globalKeyProvider("formContainer"));
 
@@ -320,41 +329,49 @@ class BbsPage extends HookConsumerWidget {
   }
 
   Widget _buildBoard(
-      BuildContext context, WidgetRef ref, QuerySnapshot<Article> snapshot) {
-    final papers = snapshot.docs.map((articleDoc) {
-      final article = articleDoc.data();
-      return Consumer(builder: (context, ref, child) {
-        final offset = ref.watch(_screenOffsetProvider);
-        return Positioned(
-          left: offset.dx + article.left.toDouble(),
-          top: offset.dy + article.top.toDouble(),
-          child: _articleCard(context, ref, articleDoc),
-        );
-      });
-    }).toList();
+    BuildContext context,
+    WidgetRef ref,
+    QuerySnapshot<Article> snapshot,
+  ) {
+    final papers =
+        snapshot.docs.map((articleDoc) {
+          final article = articleDoc.data();
+          return Consumer(
+            builder: (context, ref, child) {
+              final offset = ref.watch(_screenOffsetProvider);
+              return Positioned(
+                left: offset.dx + article.left.toDouble(),
+                top: offset.dy + article.top.toDouble(),
+                child: _articleCard(context, ref, articleDoc),
+              );
+            },
+          );
+        }).toList();
     final gestureDetector = GestureDetector(
       onScaleStart: ref.read(_viewControllerProvider).onScaleStart,
       onScaleEnd: ref.read(_viewControllerProvider).onScaleEnd,
       onScaleUpdate: ref.read(_viewControllerProvider).onScaleUpdate,
-      child: Consumer(builder: (context, ref, child) {
-        final scale = ref.watch(_screenScaleProvider);
-        return Container(
-          color: Theme.of(context).colorScheme.background,
-          child: Transform.scale(
-            scale: scale,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: papers,
+      child: Consumer(
+        builder: (context, ref, child) {
+          final scale = ref.watch(_screenScaleProvider);
+          return Container(
+            color: Theme.of(context).colorScheme.background,
+            child: Transform.scale(
+              scale: scale,
+              child: Stack(clipBehavior: Clip.none, children: papers),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
     return gestureDetector;
   }
 
-  Widget _articleCard(BuildContext context, WidgetRef ref,
-      QueryDocumentSnapshot<Article> snapShot) {
+  Widget _articleCard(
+    BuildContext context,
+    WidgetRef ref,
+    QueryDocumentSnapshot<Article> snapShot,
+  ) {
     final article = snapShot.data();
     return PopupMenuButton<String>(
       position: PopupMenuPosition.under,
@@ -370,19 +387,14 @@ class BbsPage extends HookConsumerWidget {
       },
       itemBuilder: (BuildContext context) {
         return [
-          const PopupMenuItem(
-            value: "profile",
-            child: Text("プロフィールを見る"),
-          ),
-          const PopupMenuItem(
-            value: "delete",
-            child: Text("削除する"),
-          ),
+          const PopupMenuItem(value: "profile", child: Text("プロフィールを見る")),
+          const PopupMenuItem(value: "delete", child: Text("削除する")),
         ];
       },
-      child: article.isPhoto
-          ? _photoContent(context, ref, article)
-          : _textContent(context, ref, article),
+      child:
+          article.isPhoto
+              ? _photoContent(context, ref, article)
+              : _textContent(context, ref, article),
     );
   }
 
@@ -395,28 +407,22 @@ class BbsPage extends HookConsumerWidget {
       child: article.photoImage,
     );
     final rotation = article.rotation ?? 0;
-    return Transform.rotate(
-      angle: rotation,
-      child: content,
-    );
+    return Transform.rotate(angle: rotation, child: content);
   }
 
   Widget _textContent(BuildContext context, WidgetRef ref, Article article) {
     return Container(
       padding: const EdgeInsets.all(10),
       width: article.width.toDouble(),
-      decoration: _textBoxDecoration(context,
-          color: Theme.of(context).colorScheme.primaryContainer),
+      decoration: _textBoxDecoration(
+        context,
+        color: Theme.of(context).colorScheme.primaryContainer,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(article.content),
-          Row(
-            children: [
-              const Spacer(),
-              Text(article.signature),
-            ],
-          ),
+          Row(children: [const Spacer(), Text(article.signature)]),
         ],
       ),
     );
@@ -448,10 +454,7 @@ class BbsPage extends HookConsumerWidget {
     );
     return Container(
       key: keyForm,
-      child: Transform.rotate(
-        angle: form.rotation,
-        child: content,
-      ),
+      child: Transform.rotate(angle: form.rotation, child: content),
     );
   }
 
@@ -466,8 +469,10 @@ class BbsPage extends HookConsumerWidget {
       key: keyForm,
       padding: const EdgeInsets.all(4),
       width: form.width,
-      decoration: _textBoxDecoration(context,
-          color: Theme.of(context).colorScheme.secondaryContainer),
+      decoration: _textBoxDecoration(
+        context,
+        color: Theme.of(context).colorScheme.secondaryContainer,
+      ),
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.multiline,
@@ -479,26 +484,20 @@ class BbsPage extends HookConsumerWidget {
         textInputAction: TextInputAction.newline,
         buildCounter:
             (_, {required currentLength, maxLength, required isFocused}) => Row(
-          children: [
-            Text('$currentLength / $maxLength'),
-            const Spacer(),
-            Text(myProfile.nickname),
-          ],
-        ),
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
+              children: [
+                Text('$currentLength / $maxLength'),
+                const Spacer(),
+                Text(myProfile.nickname),
+              ],
+            ),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
         decoration: InputDecoration(
           isCollapsed: true,
           contentPadding: const EdgeInsets.all(10),
           fillColor: Theme.of(context).colorScheme.onSecondaryContainer,
           errorText: null,
           hintText: '投稿内容をここに書いてください。',
-          hintStyle: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-          ),
+          hintStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
         ),
       ),
     );
@@ -508,10 +507,7 @@ class BbsPage extends HookConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 32),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 4,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         color: Theme.of(context).colorScheme.primaryContainer,
         child: Row(
           children: [
@@ -522,18 +518,14 @@ class BbsPage extends HookConsumerWidget {
               },
               icon: const Icon(Icons.photo),
             ),
-            const SizedBox(
-              width: 20,
-            ),
+            const SizedBox(width: 20),
             ElevatedButton(
               onPressed: () async {
                 await ref.read(_viewControllerProvider).post();
               },
               child: const Text('投稿する'),
             ),
-            const SizedBox(
-              width: 20,
-            ),
+            const SizedBox(width: 20),
             ElevatedButton(
               onPressed: () async {
                 ref.read(_editProvider.notifier).state = false;
@@ -566,14 +558,8 @@ class BbsPage extends HookConsumerWidget {
       gradient: LinearGradient(
         begin: FractionalOffset.topCenter,
         end: FractionalOffset.bottomCenter,
-        colors: [
-          Colors.white,
-          Colors.grey[200]!,
-        ],
-        stops: const [
-          0.0,
-          1.0,
-        ],
+        colors: [Colors.white, Colors.grey[200]!],
+        stops: const [0.0, 1.0],
       ),
       borderRadius: const BorderRadius.all(Radius.circular(4)),
       boxShadow: [

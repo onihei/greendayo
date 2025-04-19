@@ -15,25 +15,25 @@ class SessionPage extends ConsumerWidget {
     final sessionFuture = ref.watch(sessionProvider(sessionId));
     return sessionFuture.maybeWhen(
       data: (session) {
-        return Consumer(builder: (context, ref, child) {
-          final myProfile = ref.watch(myProfileProvider).requireValue;
-          final someone = session.membersExclude(myProfile.userId).single;
-          final profileAsync = ref.watch(profileStreamProvider(someone));
-          return profileAsync.maybeWhen(
-            data: (profile) {
-              return Scaffold(
-                appBar: AppBar(
-                  title: Text(profile.nickname),
-                ),
-                body: Container(
-                  color: Theme.of(context).colorScheme.background,
-                  child: TalkSession.loaded(sessionId),
-                ),
-              );
-            },
-            orElse: () => const SizedBox.shrink(),
-          );
-        });
+        return Consumer(
+          builder: (context, ref, child) {
+            final myProfile = ref.watch(myProfileProvider).requireValue;
+            final someone = session.membersExclude(myProfile.userId).single;
+            final profileAsync = ref.watch(profileStreamProvider(someone));
+            return profileAsync.maybeWhen(
+              data: (profile) {
+                return Scaffold(
+                  appBar: AppBar(title: Text(profile.nickname)),
+                  body: Container(
+                    color: Theme.of(context).colorScheme.background,
+                    child: TalkSession.loaded(sessionId),
+                  ),
+                );
+              },
+              orElse: () => const SizedBox.shrink(),
+            );
+          },
+        );
       },
       orElse: () => const SizedBox.shrink(),
     );

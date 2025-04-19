@@ -4,10 +4,7 @@ class Session {
   List<String> members;
   DateTime updatedAt;
 
-  Session({
-    required this.members,
-    required this.updatedAt,
-  });
+  Session({required this.members, required this.updatedAt});
 
   List<String> membersExclude(String userId) {
     return members.where((id) => id != userId).toList();
@@ -21,9 +18,6 @@ class Session {
   }
 
   toJson() {
-    return {
-      "members": members,
-      "updatedAt": Timestamp.fromDate(updatedAt),
-    };
+    return {"members": members, "updatedAt": Timestamp.fromDate(updatedAt)};
   }
 }

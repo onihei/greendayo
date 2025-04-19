@@ -5,5 +5,5 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final talksStreamProvider = StreamProvider.autoDispose
     .family<QuerySnapshot<Talk>, String>((ref, sessionId) {
-  return ref.read(talkRepository(sessionId)).observe();
-});
+      return ref.read(talkRepository(sessionId)).observe();
+    });

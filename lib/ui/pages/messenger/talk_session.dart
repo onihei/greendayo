@@ -12,8 +12,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 /// メッセージ -> プロフィール -> 新規セッションの順で表示すると同じプロバイダを参照することになるので
 /// userId毎に状態を持てるようにしている。
 /// メッセージ画面では userId は null, 新規セッションでは 送信先のuserIdとなる
-final _currentSessionIdProvider =
-    StateProvider.autoDispose.family<String?, String?>((ref, userId) => null);
+final _currentSessionIdProvider = StateProvider.autoDispose
+    .family<String?, String?>((ref, userId) => null);
 
 class _FormNotifier extends StateNotifier<TalkForm> {
   _FormNotifier() : super(const TalkForm(text: ""));
@@ -29,8 +29,8 @@ class _FormNotifier extends StateNotifier<TalkForm> {
 
 final _formProvider =
     StateNotifierProvider.autoDispose<_FormNotifier, TalkForm>((ref) {
-  return _FormNotifier();
-});
+      return _FormNotifier();
+    });
 
 class TalkForm {
   const TalkForm({required this.text});
@@ -38,14 +38,13 @@ class TalkForm {
   final String text;
 
   TalkForm copyWith({String? text}) {
-    return TalkForm(
-      text: text ?? this.text,
-    );
+    return TalkForm(text: text ?? this.text);
   }
 }
 
-final _viewControllerProvider =
-    Provider.autoDispose<_ViewController>((ref) => _ViewController(ref));
+final _viewControllerProvider = Provider.autoDispose<_ViewController>(
+  (ref) => _ViewController(ref),
+);
 
 class _ViewController {
   final Ref ref;
@@ -55,7 +54,9 @@ class _ViewController {
   Future<void> post({String? destinationUserId}) async {
     final text = ref.read(_formProvider).text;
     if (text.trim().isEmpty) {
-      ref.read(snackBarController)?.showSnackBar(
+      ref
+          .read(snackBarController)
+          ?.showSnackBar(
             const SnackBar(
               content: Text('空です'),
               duration: Duration(seconds: 3),
@@ -63,8 +64,9 @@ class _ViewController {
           );
       return;
     }
-    final currentSessionId =
-        ref.read(_currentSessionIdProvider(destinationUserId));
+    final currentSessionId = ref.read(
+      _currentSessionIdProvider(destinationUserId),
+    );
     if (currentSessionId != null) {
       await ref
           .read(talkUseCase)
@@ -89,17 +91,11 @@ class TalkSession extends ConsumerWidget {
   bool formNeeded() => userId != null || sessionId != null;
 
   factory TalkSession.createNew(String userId, {key}) {
-    return TalkSession._(
-      key: key,
-      userId: userId,
-    );
+    return TalkSession._(key: key, userId: userId);
   }
 
   factory TalkSession.loaded(String sessionId, {key}) {
-    return TalkSession._(
-      key: key,
-      sessionId: sessionId,
-    );
+    return TalkSession._(key: key, sessionId: sessionId);
   }
 
   @override
@@ -108,16 +104,16 @@ class TalkSession extends ConsumerWidget {
       ref.read(_currentSessionIdProvider(userId).notifier).state = sessionId;
     });
     return ProviderScope(
-      child: Consumer(builder: (context, ref, child) {
-        return Column(
-          children: [
-            Expanded(
-              child: _talkList(context, ref),
-            ),
-            _form(context, ref),
-          ],
-        );
-      }),
+      child: Consumer(
+        builder: (context, ref, child) {
+          return Column(
+            children: [
+              Expanded(child: _talkList(context, ref)),
+              _form(context, ref),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -130,60 +126,79 @@ class TalkSession extends ConsumerWidget {
     return talks.maybeWhen(
       data: (value) => _talkListContent(context, ref, value),
       orElse: () => Container(),
-      error: (error, stackTrace) => Center(
-        child: SelectableText('error $error'),
-      ),
+      error:
+          (error, stackTrace) => Center(child: SelectableText('error $error')),
     );
   }
 
   Widget _talkListContent(
-      BuildContext context, WidgetRef ref, QuerySnapshot<Talk> snapshot) {
+    BuildContext context,
+    WidgetRef ref,
+    QuerySnapshot<Talk> snapshot,
+  ) {
     final animatedStateKey = GlobalKey<AnimatedListState>();
 
     final scrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(milliseconds: 200), () {
         if (scrollController.hasClients) {
-          scrollController.animateTo(scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 200), curve: Curves.ease);
-        }
-      });
-    });
-    return Consumer(builder: (context, ref, _) {
-      final currentSessionId = ref.watch(_currentSessionIdProvider(userId));
-      ref.listen(talksStreamProvider(currentSessionId!),
-          (previous, next) async {
-        final nextList = next.requireValue;
-        for (final change in nextList.docChanges) {
-          if (change.oldIndex == -1) {
-            animatedStateKey.currentState?.insertItem(change.newIndex,
-                duration: const Duration(milliseconds: 200));
-          }
-          if (change.newIndex == -1) {
-            animatedStateKey.currentState?.removeItem(change.oldIndex,
-                (context, animation) => const SizedBox.shrink());
-          }
-        }
-      });
-
-      return AnimatedList(
-        key: animatedStateKey,
-        controller: scrollController,
-        initialItemCount: snapshot.size,
-        itemBuilder:
-            (BuildContext context, int index, Animation<double> animation) {
-          final talk = snapshot.docs[index];
-          return SizeTransition(
-            sizeFactor: animation,
-            child: _talkTile(context, ref, talk),
+          scrollController.animateTo(
+            scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.ease,
           );
-        },
-      );
+        }
+      });
     });
+    return Consumer(
+      builder: (context, ref, _) {
+        final currentSessionId = ref.watch(_currentSessionIdProvider(userId));
+        ref.listen(talksStreamProvider(currentSessionId!), (
+          previous,
+          next,
+        ) async {
+          final nextList = next.requireValue;
+          for (final change in nextList.docChanges) {
+            if (change.oldIndex == -1) {
+              animatedStateKey.currentState?.insertItem(
+                change.newIndex,
+                duration: const Duration(milliseconds: 200),
+              );
+            }
+            if (change.newIndex == -1) {
+              animatedStateKey.currentState?.removeItem(
+                change.oldIndex,
+                (context, animation) => const SizedBox.shrink(),
+              );
+            }
+          }
+        });
+
+        return AnimatedList(
+          key: animatedStateKey,
+          controller: scrollController,
+          initialItemCount: snapshot.size,
+          itemBuilder: (
+            BuildContext context,
+            int index,
+            Animation<double> animation,
+          ) {
+            final talk = snapshot.docs[index];
+            return SizeTransition(
+              sizeFactor: animation,
+              child: _talkTile(context, ref, talk),
+            );
+          },
+        );
+      },
+    );
   }
 
-  Widget _talkTile(BuildContext context, WidgetRef ref,
-      QueryDocumentSnapshot<Talk> snapshot) {
+  Widget _talkTile(
+    BuildContext context,
+    WidgetRef ref,
+    QueryDocumentSnapshot<Talk> snapshot,
+  ) {
     final talk = snapshot.data();
     final myProfile = ref.watch(myProfileProvider).requireValue;
     final isMine = talk.sender == myProfile.userId;
@@ -208,10 +223,7 @@ class TalkSession extends ConsumerWidget {
         borderRadius:
             isMine ? myContainerBorderRadius : otherContainerBorderRadius,
       ),
-      child: Text(
-        talk.content,
-        style: const TextStyle(fontSize: 16.0),
-      ),
+      child: Text(talk.content, style: const TextStyle(fontSize: 16.0)),
     );
 
     final List<Widget> messageDetails = [
@@ -261,12 +273,13 @@ class TalkSession extends ConsumerWidget {
               ),
             ),
             IconButton(
-                onPressed: () {
-                  ref
-                      .read(_viewControllerProvider)
-                      .post(destinationUserId: userId);
-                },
-                icon: const Icon(Icons.send)),
+              onPressed: () {
+                ref
+                    .read(_viewControllerProvider)
+                    .post(destinationUserId: userId);
+              },
+              icon: const Icon(Icons.send),
+            ),
           ],
         ),
       ),

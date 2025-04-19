@@ -5,8 +5,9 @@ import 'package:greendayo/entity/profile.dart';
 import 'package:greendayo/provider/global_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-final _viewControllerProvider =
-    Provider.autoDispose<_ViewController>((ref) => _ViewController(ref));
+final _viewControllerProvider = Provider.autoDispose<_ViewController>(
+  (ref) => _ViewController(ref),
+);
 
 class _ViewController {
   final Ref ref;
@@ -42,9 +43,7 @@ class AuthedDrawer extends ConsumerWidget {
                 child: Row(
                   children: [
                     profile.photoSmall,
-                    const SizedBox(
-                      width: 8,
-                    ),
+                    const SizedBox(width: 8),
                     Text(profile.nickname),
                   ],
                 ),
@@ -63,9 +62,7 @@ class AuthedDrawer extends ConsumerWidget {
                 child: Row(
                   children: [
                     Icon(Icons.logout),
-                    SizedBox(
-                      width: 8,
-                    ),
+                    SizedBox(width: 8),
                     Text("ログアウト"),
                   ],
                 ),

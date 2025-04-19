@@ -50,40 +50,31 @@ class Profile {
       child: Container(
         width: size,
         height: size,
-        child: Consumer(builder: (context, ref, child) {
-          if (userId == "anonymous") {
-            return Icon(
-              Icons.account_circle,
-              size: size,
+        child: Consumer(
+          builder: (context, ref, child) {
+            if (userId == "anonymous") {
+              return Icon(Icons.account_circle, size: size);
+            }
+            final avatar = ref.watch(avatarProvider(userId));
+            return avatar.when(
+              data:
+                  (url) => CachedNetworkImage(imageUrl: url, fit: BoxFit.cover),
+              error: (error, _) => Icon(Icons.error, size: size),
+              loading: () => CircularProgressIndicator(),
             );
-          }
-          final avatar = ref.watch(avatarProvider(userId));
-          return avatar.when(
-            data: (url) => CachedNetworkImage(
-              imageUrl: url,
-              fit: BoxFit.cover,
-            ),
-            error: (error, _) => Icon(
-              Icons.error,
-              size: size,
-            ),
-            loading: () => CircularProgressIndicator(),
-          );
-        }),
+          },
+        ),
       ),
     );
   }
 
   factory Profile.anonymous() {
-    return Profile(
-      userId: "anonymous",
-      nickname: "no_name",
-      photoUrl: null,
-    );
+    return Profile(userId: "anonymous", nickname: "no_name", photoUrl: null);
   }
 
   factory Profile.fromSnapShot(
-      DocumentSnapshot<Map<String, dynamic>> snapshot) {
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+  ) {
     return Profile(
       userId: snapshot.id,
       nickname: snapshot.get('nickname'),

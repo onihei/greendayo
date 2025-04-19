@@ -11,43 +11,40 @@ class Footer extends ConsumerWidget {
       color: Theme.of(context).primaryColor,
       child: Column(
         children: [
-          LayoutBuilder(builder: (context, constraints) {
-            if (constraints.maxWidth > 600) {
-              return IntrinsicHeight(
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _help(),
-                    _social(),
-                    const VerticalDivider(),
-                    _address(),
-                  ],
-                ),
-              );
-            } else {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 600) {
+                return IntrinsicHeight(
+                  child: Row(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _help(),
                       _social(),
+                      const VerticalDivider(),
+                      _address(),
                     ],
                   ),
-                  const Divider(),
-                  _address(),
-                ],
-              );
-            }
-          }),
+                );
+              } else {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [_help(), _social()],
+                    ),
+                    const Divider(),
+                    _address(),
+                  ],
+                );
+              }
+            },
+          ),
           const Divider(),
           const SizedBox(height: 20),
-          const Text(
-            'Copyright © 2023 SUSIPERO.com',
-          ),
+          const Text('Copyright © 2023 SUSIPERO.com'),
         ],
       ),
     );
@@ -60,17 +57,10 @@ class Footer extends ConsumerWidget {
         children: [
           Text(
             "HELP",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            "寄付",
-          ),
+          SizedBox(height: 10),
+          Text("寄付"),
         ],
       ),
     );
@@ -83,17 +73,10 @@ class Footer extends ConsumerWidget {
         children: [
           Text(
             "SOCIAL",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            "ツイッター  ",
-          ),
+          SizedBox(height: 10),
+          Text("ツイッター  "),
         ],
       ),
     );
@@ -104,20 +87,11 @@ class Footer extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _addressItem(
-            type: 'Eメール',
-            text: 'onihei_99@yahoo.co.jp',
-          ),
+          _addressItem(type: 'Eメール', text: 'onihei_99@yahoo.co.jp'),
           const SizedBox(height: 5),
-          _addressItem(
-            type: '電話番号',
-            text: '+819058029448',
-          ),
+          _addressItem(type: '電話番号', text: '+819058029448'),
           const SizedBox(height: 5),
-          _addressItem(
-            type: '住所',
-            text: '〒2110053\n神奈川県川崎市中原区上小田中２−２４−４４',
-          )
+          _addressItem(type: '住所', text: '〒2110053\n神奈川県川崎市中原区上小田中２−２４−４４'),
         ],
       ),
     );
@@ -130,21 +104,9 @@ class Footer extends ConsumerWidget {
       children: [
         SizedBox(
           width: 100,
-          child: Text(
-            '$type',
-            style: const TextStyle(
-              fontSize: 16,
-            ),
-          ),
+          child: Text('$type', style: const TextStyle(fontSize: 16)),
         ),
-        Flexible(
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 16,
-            ),
-          ),
-        )
+        Flexible(child: Text(text, style: const TextStyle(fontSize: 16))),
       ],
     );
   }

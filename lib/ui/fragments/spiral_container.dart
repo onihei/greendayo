@@ -48,10 +48,7 @@ class FlipShaderPainter extends CustomPainter {
   final FragmentShader shader;
   final Duration currentTime;
 
-  FlipShaderPainter(
-    this.shader,
-    this.currentTime,
-  );
+  FlipShaderPainter(this.shader, this.currentTime);
 
   @override
   void paint(Canvas canvas, Size size) {

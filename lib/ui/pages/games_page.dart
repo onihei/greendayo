@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fx_widget/main.dart';
 import 'package:greendayo/tab_config.dart';
 
 class GamesTabConfig implements TabConfig {
@@ -27,9 +26,6 @@ class GamesPage extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints.tightFor(width: 400),
-        child: const FxGame(
-          userId: "xxx",
-        ),
       ),
     );
   }

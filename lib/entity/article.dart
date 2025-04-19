@@ -28,10 +28,7 @@ class Article {
     if (url == null) {
       return null;
     }
-    return CachedNetworkImage(
-      imageUrl: url,
-      fit: BoxFit.cover,
-    );
+    return CachedNetworkImage(imageUrl: url, fit: BoxFit.cover);
   }
 
   double? get rotation {

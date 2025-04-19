@@ -15,28 +15,28 @@ import 'package:video_player/video_player.dart';
 
 final videoPlayerControllerProvider =
     FutureProvider.autoDispose<VideoPlayerController>((ref) async {
-  final controller = VideoPlayerController.asset("assets/videos/cover.mp4");
-  await controller.initialize();
-  controller.setVolume(0);
-  controller.play();
-  controller.setLooping(true);
-  final streamSubject = BehaviorSubject<bool>.seeded(false);
-  controller.addListener(() {
-    streamSubject.sink.add(controller.value.isPlaying);
-  });
+      final controller = VideoPlayerController.asset("assets/videos/cover.mp4");
+      await controller.initialize();
+      controller.setVolume(0);
+      controller.play();
+      controller.setLooping(true);
+      final streamSubject = BehaviorSubject<bool>.seeded(false);
+      controller.addListener(() {
+        streamSubject.sink.add(controller.value.isPlaying);
+      });
 
-  streamSubject.stream.distinct().listen((event) {
-    Future.delayed(const Duration(milliseconds: 500), () {
-      FlutterNativeSplash.remove();
+      streamSubject.stream.distinct().listen((event) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          FlutterNativeSplash.remove();
+        });
+      });
+
+      ref.onDispose(() async {
+        await controller.dispose();
+        await streamSubject.close();
+      });
+      return controller;
     });
-  });
-
-  ref.onDispose(() async {
-    await controller.dispose();
-    await streamSubject.close();
-  });
-  return controller;
-});
 
 class TopPage extends ConsumerWidget {
   const TopPage({super.key});
@@ -68,21 +68,18 @@ class TopPage extends ConsumerWidget {
                     );
                   },
                   error: (error, trace) => Text(trace.toString()),
-                  loading: () => SizedBox(
-                    height: screenSize.height * 0.95,
-                  ),
+                  loading: () => SizedBox(height: screenSize.height * 0.95),
                 ),
               ),
               DotImage(
-                  child: SizedBox(
-                width: double.infinity,
-                height: screenSize.height * 0.95,
-              )),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: screenSize.height * 0.95,
+                ),
+              ),
               SizedBox(
                 height: screenSize.height * 0.8,
-                child: Image.asset(
-                  'assets/images/waku2.webp',
-                ),
+                child: Image.asset('assets/images/waku2.webp'),
               ),
             ],
           ),
@@ -107,9 +104,7 @@ class TopPage extends ConsumerWidget {
         height: screenSize.height * 1.4,
         child: Stack(
           children: [
-            CustomPaint(
-              painter: _DounutPainter(screenSize),
-            ),
+            CustomPaint(painter: _DounutPainter(screenSize)),
             const Align(
               alignment: Alignment(0, -0.5),
               child: Text("すしぺろはみんなのフレンドパーク"),
@@ -133,7 +128,9 @@ class TopPage extends ConsumerWidget {
             child: Text("Get Started"),
             onPressed: () async {
               await showDialog(
-                  context: context, builder: (context) => LoginDialog());
+                context: context,
+                builder: (context) => LoginDialog(),
+              );
             },
           ),
         ),
@@ -189,10 +186,7 @@ class TopPage extends ConsumerWidget {
     return Container(
       key: globalKey,
       width: double.infinity,
-      child: SizedBox(
-        height: screenSize.height * 1.4,
-        child: FlipContainer(),
-      ),
+      child: SizedBox(height: screenSize.height * 1.4, child: FlipContainer()),
     );
   }
 
@@ -248,25 +242,23 @@ class _DounutPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color.fromARGB(180, 0, 0, 0)
-      ..shader = RadialGradient(
-        colors: [
-          Colors.deepOrange[900]!,
-          Colors.brown[900]!,
-          Colors.brown[900]!,
-          Colors.transparent,
-        ],
-        stops: const [
-          0.6,
-          0.6,
-          0.8,
-          0.8,
-        ],
-      ).createShader(Rect.fromCircle(
-        center: Offset(screenSize.width * 0.7, screenSize.height * -0.2),
-        radius: screenSize.height * 1.8,
-      ));
+    final paint =
+        Paint()
+          ..color = const Color.fromARGB(180, 0, 0, 0)
+          ..shader = RadialGradient(
+            colors: [
+              Colors.deepOrange[900]!,
+              Colors.brown[900]!,
+              Colors.brown[900]!,
+              Colors.transparent,
+            ],
+            stops: const [0.6, 0.6, 0.8, 0.8],
+          ).createShader(
+            Rect.fromCircle(
+              center: Offset(screenSize.width * 0.7, screenSize.height * -0.2),
+              radius: screenSize.height * 1.8,
+            ),
+          );
 
     final rect = Rect.fromLTRB(0, 0, screenSize.width, screenSize.height * 2.8);
     canvas.drawRect(rect, paint);

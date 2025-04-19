@@ -5,11 +5,7 @@ class Talk {
   String sender;
   DateTime createdAt;
 
-  Talk({
-    required this.content,
-    required this.sender,
-    required this.createdAt,
-  });
+  Talk({required this.content, required this.sender, required this.createdAt});
 
   factory Talk.fromSnapShot(DocumentSnapshot snapshot) {
     return Talk(

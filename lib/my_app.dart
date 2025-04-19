@@ -1,5 +1,3 @@
-import 'package:web/web.dart' as html;
-
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +15,7 @@ import 'package:greendayo/ui/pages/messenger/session_page.dart';
 import 'package:greendayo/ui/pages/profile_page.dart';
 import 'package:greendayo/ui/pages/top_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:web/web.dart' as html;
 
 final _tabConfigs = [
   BbsTabConfig(),
@@ -30,13 +29,16 @@ final _tabBodiesProvider = Provider<Map<int, Widget?>>((ref) => {});
 final _tabProvider = Provider<Widget>((ref) {
   final tabIndex = ref.watch(_tabIndexProvider);
   final tabBodies = ref.watch(_tabBodiesProvider);
-  final tab = tabBodies[tabIndex] = tabBodies[tabIndex] ??
-      Function.apply(_tabConfigs[tabIndex].factoryMethod, null);
+  final tab =
+      tabBodies[tabIndex] =
+          tabBodies[tabIndex] ??
+          Function.apply(_tabConfigs[tabIndex].factoryMethod, null);
   return tab;
 });
 
-final _viewControllerProvider =
-    Provider.autoDispose<_ViewController>((ref) => _ViewController(ref));
+final _viewControllerProvider = Provider.autoDispose<_ViewController>(
+  (ref) => _ViewController(ref),
+);
 
 class _ViewController {
   final Ref ref;
@@ -50,8 +52,9 @@ class _ViewController {
 
 class MyApp extends HookConsumerWidget {
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  static FirebaseAnalyticsObserver observer =
-      FirebaseAnalyticsObserver(analytics: analytics);
+  static FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(
+    analytics: analytics,
+  );
 
   const MyApp({super.key});
 
@@ -63,9 +66,7 @@ class MyApp extends HookConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('ja'),
-      ],
+      supportedLocales: const [Locale('ja')],
       title: 'すしぺろ',
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData(
@@ -93,7 +94,8 @@ class MyApp extends HookConsumerWidget {
 class MyRouteInformationParser extends RouteInformationParser<String> {
   @override
   Future<String> parseRouteInformation(
-      RouteInformation routeInformation) async {
+    RouteInformation routeInformation,
+  ) async {
     return routeInformation.uri.toString();
   }
 
@@ -114,136 +116,134 @@ class MyRouterDelegate extends RouterDelegate<String>
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, ref, child) {
-      final user = ref.watch(userProvider);
-      final myProfile = ref.watch(myProfileProvider);
-      final targetUserId = ref.watch(targetUserIdProvider);
-      final newSession = ref.watch(newSessionProvider);
-      final targetSessionId = ref.watch(targetSessionIdProvider);
-      return Navigator(
-        pages: [
-          MaterialPage(
-            child: user.maybeWhen(
-              orElse: () => const SizedBox.shrink(),
-              data: (user) {
-                if (user == null) {
-                  FlutterNativeSplash.remove();
-                  return _top();
-                }
-                return myProfile.maybeWhen(
-                  loading: () => const SizedBox.shrink(),
-                  orElse: () {
-                    return _top();
-                  },
-                  data: (_) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final user = ref.watch(userProvider);
+        final myProfile = ref.watch(myProfileProvider);
+        final targetUserId = ref.watch(targetUserIdProvider);
+        final newSession = ref.watch(newSessionProvider);
+        final targetSessionId = ref.watch(targetSessionIdProvider);
+        return Navigator(
+          pages: [
+            MaterialPage(
+              child: user.maybeWhen(
+                orElse: () => const SizedBox.shrink(),
+                data: (user) {
+                  if (user == null) {
                     FlutterNativeSplash.remove();
-                    return _home();
-                  },
-                );
-              },
-            ),
-          ),
-          if (targetUserId != null)
-            MaterialPage(
-              name: "profile",
-              child: ProfilePage(
-                userId: targetUserId,
+                    return _top();
+                  }
+                  return myProfile.maybeWhen(
+                    loading: () => const SizedBox.shrink(),
+                    orElse: () {
+                      return _top();
+                    },
+                    data: (_) {
+                      FlutterNativeSplash.remove();
+                      return _home();
+                    },
+                  );
+                },
               ),
             ),
-          if (newSession && targetUserId != null)
-            MaterialPage(
-              name: "newSession",
-              child: NewSessionPage(
-                userId: targetUserId,
+            if (targetUserId != null)
+              MaterialPage(
+                name: "profile",
+                child: ProfilePage(userId: targetUserId),
               ),
-            ),
-          if (targetSessionId != null)
-            MaterialPage(
-              name: "session",
-              child: SessionPage(
-                sessionId: targetSessionId,
+            if (newSession && targetUserId != null)
+              MaterialPage(
+                name: "newSession",
+                child: NewSessionPage(userId: targetUserId),
               ),
-            ),
-        ],
-        onPopPage: (route, result) {
-          if (route.settings.name == "profile") {
-            if (kIsWeb) {
-              html.window.history.back();
+            if (targetSessionId != null)
+              MaterialPage(
+                name: "session",
+                child: SessionPage(sessionId: targetSessionId),
+              ),
+          ],
+          onPopPage: (route, result) {
+            if (route.settings.name == "profile") {
+              if (kIsWeb) {
+                html.window.history.back();
+              }
+              ref.read(targetUserIdProvider.notifier).state = null;
             }
-            ref.read(targetUserIdProvider.notifier).state = null;
-          }
-          if (route.settings.name == "newSession") {
-            if (kIsWeb) {
-              html.window.history.back();
+            if (route.settings.name == "newSession") {
+              if (kIsWeb) {
+                html.window.history.back();
+              }
+              ref.read(newSessionProvider.notifier).state = false;
             }
-            ref.read(newSessionProvider.notifier).state = false;
-          }
-          if (route.settings.name == "session") {
-            if (kIsWeb) {
-//              html.window.history.back();
+            if (route.settings.name == "session") {
+              if (kIsWeb) {
+                //              html.window.history.back();
+              }
+              ref.read(targetSessionIdProvider.notifier).state = null;
             }
-            ref.read(targetSessionIdProvider.notifier).state = null;
-          }
-          return route.didPop(result);
-        },
-      );
-    });
+            return route.didPop(result);
+          },
+        );
+      },
+    );
   }
 
   Widget _top() {
     return const Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: Size(1000, 200),
-        child: Header(),
-      ),
+      appBar: PreferredSize(preferredSize: Size(1000, 200), child: Header()),
       body: TopPage(),
     );
   }
 
   Widget _home() {
-    return Consumer(builder: (context, ref, child) {
-      final tabIndex = ref.watch(_tabIndexProvider);
-      final tab = ref.watch(_tabProvider);
-      final scaffoldKey = ref.watch(globalKeyProvider("Scaffold"));
+    return Consumer(
+      builder: (context, ref, child) {
+        final tabIndex = ref.watch(_tabIndexProvider);
+        final tab = ref.watch(_tabProvider);
+        final scaffoldKey = ref.watch(globalKeyProvider("Scaffold"));
 
-      final navigationItems = _tabConfigs
-          .map((param) => BottomNavigationBarItem(
-                icon: param.icon,
-                activeIcon: param.activeIcon,
-                label: param.label,
-              ))
-          .toList();
+        final navigationItems =
+            _tabConfigs
+                .map(
+                  (param) => BottomNavigationBarItem(
+                    icon: param.icon,
+                    activeIcon: param.activeIcon,
+                    label: param.label,
+                  ),
+                )
+                .toList();
 
-      return Scaffold(
-        extendBodyBehindAppBar: false,
-        key: scaffoldKey,
-        appBar: AppBar(
-          title: Text(_tabConfigs[tabIndex].label),
-        ),
-        body: tab,
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          selectedIconTheme: IconThemeData(
-            color: Theme.of(context).colorScheme.primary,
+        return Scaffold(
+          extendBodyBehindAppBar: false,
+          key: scaffoldKey,
+          appBar: AppBar(title: Text(_tabConfigs[tabIndex].label)),
+          body: tab,
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            selectedIconTheme: IconThemeData(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            unselectedIconTheme: IconThemeData(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            currentIndex: tabIndex,
+            items: navigationItems,
+            onTap:
+                (index) => ref.read(_viewControllerProvider).changeTab(index),
           ),
-          unselectedIconTheme: IconThemeData(
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          currentIndex: tabIndex,
-          items: navigationItems,
-          onTap: (index) => ref.read(_viewControllerProvider).changeTab(index),
-        ),
-        floatingActionButton: _tabConfigs[tabIndex].floatingActionButton,
-        drawer: const AuthedDrawer(),
-      );
-    });
+          floatingActionButton: _tabConfigs[tabIndex].floatingActionButton,
+          drawer: const AuthedDrawer(),
+        );
+      },
+    );
   }
 
   @override
   Future<void> setNewRoutePath(String configuration) async {
-    final pattern =
-        RegExp("/profile(?:/(?=\\w+))?(\\w+)?(/new-session|/edit)?\$");
+    final pattern = RegExp(
+      "/profile(?:/(?=\\w+))?(\\w+)?(/new-session|/edit)?\$",
+    );
     final matches = pattern.allMatches(configuration);
     if (matches.isNotEmpty) {
       final userId = matches.first.group(1);

@@ -29,8 +29,9 @@ class MessengerTabConfig implements TabConfig {
   Widget? get floatingActionButton => null;
 }
 
-final _viewControllerProvider =
-    Provider.autoDispose<_ViewController>((ref) => _ViewController(ref));
+final _viewControllerProvider = Provider.autoDispose<_ViewController>(
+  (ref) => _ViewController(ref),
+);
 
 class _ViewController {
   final Ref ref;
@@ -62,21 +63,18 @@ class MessengerPage extends ConsumerWidget {
           return Flex(
             direction: Axis.horizontal,
             children: [
-              Flexible(
-                child: _sessionList(context, ref),
-              ),
+              Flexible(child: _sessionList(context, ref)),
               const VerticalDivider(),
               Flexible(
-                child: sessionId == null
-                    ? Container()
-                    : TalkSession.loaded(sessionId),
+                child:
+                    sessionId == null
+                        ? Container()
+                        : TalkSession.loaded(sessionId),
               ),
             ],
           );
         } else {
-          return Container(
-            child: _sessionList(context, ref),
-          );
+          return Container(child: _sessionList(context, ref));
         }
       },
     );
@@ -85,22 +83,25 @@ class MessengerPage extends ConsumerWidget {
   Widget _sessionList(BuildContext context, WidgetRef ref) {
     final result = ref.watch(sessionsStreamProvider);
     return result.maybeWhen(
-      data: (value) => ListView.builder(
-        itemCount: value.size,
-        itemBuilder: (BuildContext context, int index) {
-          final doc = value.docs[index];
-          return _sessionTile(context, ref, doc);
-        },
-      ),
+      data:
+          (value) => ListView.builder(
+            itemCount: value.size,
+            itemBuilder: (BuildContext context, int index) {
+              final doc = value.docs[index];
+              return _sessionTile(context, ref, doc);
+            },
+          ),
       orElse: () => Container(),
-      error: (error, stackTrace) => Center(
-        child: SelectableText('error $error'),
-      ),
+      error:
+          (error, stackTrace) => Center(child: SelectableText('error $error')),
     );
   }
 
-  Widget _sessionTile(BuildContext context, WidgetRef ref,
-      QueryDocumentSnapshot<Session> snapshot) {
+  Widget _sessionTile(
+    BuildContext context,
+    WidgetRef ref,
+    QueryDocumentSnapshot<Session> snapshot,
+  ) {
     final session = snapshot.data();
     final myProfile = ref.watch(myProfileProvider).requireValue;
     final displayMemberId = session.membersExclude(myProfile.userId).single;
@@ -108,33 +109,45 @@ class MessengerPage extends ConsumerWidget {
       builder: (context, ref, child) {
         final profileAsync = ref.watch(profileStreamProvider(displayMemberId));
         return profileAsync.maybeWhen(
-          data: (profile) => Builder(
-            builder: (context) {
-              final needPush = MediaQuery.of(context).size.width <= 600;
-              return _sessionTileContent(context, ref,
-                  snapshot: snapshot, profile: profile, onTap: () {
-                ref.read(_viewControllerProvider).showSession(
-                      sessionId: snapshot.id,
-                      needPush: needPush,
-                    );
-              });
-            },
-          ),
+          data:
+              (profile) => Builder(
+                builder: (context) {
+                  final needPush = MediaQuery.of(context).size.width <= 600;
+                  return _sessionTileContent(
+                    context,
+                    ref,
+                    snapshot: snapshot,
+                    profile: profile,
+                    onTap: () {
+                      ref
+                          .read(_viewControllerProvider)
+                          .showSession(
+                            sessionId: snapshot.id,
+                            needPush: needPush,
+                          );
+                    },
+                  );
+                },
+              ),
           orElse: () => const ListTile(),
         );
       },
     );
   }
 
-  Widget _sessionTileContent(BuildContext context, WidgetRef ref,
-      {required QueryDocumentSnapshot<Session> snapshot,
-      required Profile profile,
-      required GestureTapCallback onTap}) {
+  Widget _sessionTileContent(
+    BuildContext context,
+    WidgetRef ref, {
+    required QueryDocumentSnapshot<Session> snapshot,
+    required Profile profile,
+    required GestureTapCallback onTap,
+  }) {
     final selectedId = ref.watch(_selectedSessionIdProvider);
 
     return ListTile(
-      selectedTileColor:
-          Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+      selectedTileColor: Theme.of(
+        context,
+      ).colorScheme.onBackground.withOpacity(0.1),
       selected: snapshot.id == selectedId,
       contentPadding: const EdgeInsets.all(8),
       onTap: onTap,
@@ -154,14 +167,8 @@ class MessengerPage extends ConsumerWidget {
         },
         itemBuilder: (BuildContext context) {
           return [
-            const PopupMenuItem(
-              value: "profile",
-              child: Text("プロフィールを見る"),
-            ),
-            const PopupMenuItem(
-              value: "delete",
-              child: Text("この会話を削除する"),
-            ),
+            const PopupMenuItem(value: "profile", child: Text("プロフィールを見る")),
+            const PopupMenuItem(value: "delete", child: Text("この会話を削除する")),
           ];
         },
       ),

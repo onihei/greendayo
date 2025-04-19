@@ -1,7 +1,7 @@
+import 'package:authentication_buttons/authentication_buttons.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:social_login_buttons/social_login_buttons.dart';
 
 class LoginDialog extends Dialog {
   const LoginDialog({super.key});
@@ -9,8 +9,10 @@ class LoginDialog extends Dialog {
   @override
   Widget build(context) {
     return Dialog(
-      insetPadding:
-          const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: 32.0,
+        vertical: 24.0,
+      ),
       child: Container(
         padding: const EdgeInsets.all(24.0),
         child: ConstrainedBox(
@@ -20,8 +22,8 @@ class LoginDialog extends Dialog {
             children: [
               const Text("他サービスIDでログイン"),
               const SizedBox(height: 16),
-              SocialLoginButton(
-                buttonType: SocialLoginButtonType.twitter,
+              AuthenticationButton(
+                authenticationMethod: AuthenticationMethod.twitter,
                 onPressed: () async {
                   final succeed = await signIn(TwitterAuthProvider());
                   if (succeed) {
@@ -30,8 +32,8 @@ class LoginDialog extends Dialog {
                 },
               ),
               const SizedBox(height: 10),
-              SocialLoginButton(
-                buttonType: SocialLoginButtonType.github,
+              AuthenticationButton(
+                authenticationMethod: AuthenticationMethod.github,
                 onPressed: () async {
                   final succeed = await signIn(GithubAuthProvider());
                   if (succeed) {
@@ -45,13 +47,15 @@ class LoginDialog extends Dialog {
                 ElevatedButton.icon(
                   onPressed: () async {
                     await FirebaseAuth.instance.signInWithEmailAndPassword(
-                        email: "do@not.ask", password: "do@not.ask");
+                      email: "do@not.ask",
+                      password: "do@not.ask",
+                    );
                     Navigator.pop(context);
                   },
                   icon: const Icon(Icons.android),
                   label: const Text('テリーマンとしてログイン'),
                 ),
-              ]
+              ],
             ],
           ),
         ),

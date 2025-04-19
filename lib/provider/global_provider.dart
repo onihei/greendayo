@@ -5,14 +5,14 @@ import 'package:greendayo/entity/profile.dart';
 import 'package:greendayo/repository/profile_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-final textEditingControllerProvider =
-    Provider.autoDispose.family<TextEditingController, String>((ref, key) {
-  final controller = TextEditingController();
-  ref.onDispose(() {
-    controller.dispose();
-  });
-  return controller;
-});
+final textEditingControllerProvider = Provider.autoDispose
+    .family<TextEditingController, String>((ref, key) {
+      final controller = TextEditingController();
+      ref.onDispose(() {
+        controller.dispose();
+      });
+      return controller;
+    });
 
 final snackBarController = Provider.autoDispose<ScaffoldMessengerState?>((ref) {
   final context = ref.watch(globalKeyProvider("Scaffold")).currentContext;
@@ -21,8 +21,10 @@ final snackBarController = Provider.autoDispose<ScaffoldMessengerState?>((ref) {
   }
 });
 
-final globalKeyProvider =
-    Provider.autoDispose.family<GlobalKey, String>((ref, key) {
+final globalKeyProvider = Provider.autoDispose.family<GlobalKey, String>((
+  ref,
+  key,
+) {
   return GlobalKey();
 });
 

@@ -6,7 +6,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final _headerViewControllerProvider =
     Provider.autoDispose<_HeaderViewController>(
-        (ref) => _HeaderViewController(ref));
+      (ref) => _HeaderViewController(ref),
+    );
 
 class _HeaderViewController {
   final Ref ref;
@@ -29,7 +30,8 @@ class _HeaderViewController {
         containerRenderObject != null &&
         targetRenderObject != null) {
       final appBarHeight = appBarRenderObject.size.height;
-      final position = targetRenderObject
+      final position =
+          targetRenderObject
               .localToGlobal(Offset.zero, ancestor: containerRenderObject)
               .dy -
           appBarHeight;
@@ -50,9 +52,10 @@ class Header extends HookConsumerWidget {
     final screenSize = MediaQuery.of(context).size;
     final globalKey = ref.watch(globalKeyProvider("AppBar"));
     final scrollPosition = ref.watch(scrollPositionProvider) + 200;
-    double opacity = scrollPosition < screenSize.height * 0.95
-        ? scrollPosition / (screenSize.height * 0.95)
-        : 1;
+    double opacity =
+        scrollPosition < screenSize.height * 0.95
+            ? scrollPosition / (screenSize.height * 0.95)
+            : 1;
 
     return Container(
       key: globalKey,
@@ -69,27 +72,21 @@ class Header extends HookConsumerWidget {
                     onPressed: () {
                       ref.read(_headerViewControllerProvider).scrollTo("About");
                     },
-                    child: const Text(
-                      'すしぺろについて',
-                    ),
+                    child: const Text('すしぺろについて'),
                   ),
                   SizedBox(width: screenSize.width / 50),
                   TextButton(
                     onPressed: () {
                       ref.read(_headerViewControllerProvider).scrollTo("Game");
                     },
-                    child: const Text(
-                      'ゲーム',
-                    ),
+                    child: const Text('ゲーム'),
                   ),
                   SizedBox(width: screenSize.width / 50),
                   TextButton(
                     onPressed: () {
                       ref.read(_headerViewControllerProvider).scrollTo("Job");
                     },
-                    child: const Text(
-                      '仕事の依頼',
-                    ),
+                    child: const Text('仕事の依頼'),
                   ),
                 ],
               ),
@@ -97,11 +94,11 @@ class Header extends HookConsumerWidget {
             TextButton(
               onPressed: () async {
                 await showDialog(
-                    context: context, builder: (context) => LoginDialog());
+                  context: context,
+                  builder: (context) => LoginDialog(),
+                );
               },
-              child: const Text(
-                'ログイン',
-              ),
+              child: const Text('ログイン'),
             ),
           ],
         ),

@@ -5,5 +5,5 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final articlesStreamProvider =
     StreamProvider.autoDispose<QuerySnapshot<Article>>((ref) {
-  return ref.read(articleRepository).observe();
-});
+      return ref.read(articleRepository).observe();
+    });
