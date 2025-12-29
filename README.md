@@ -18,6 +18,7 @@ dart run build_runner build --delete-conflicting-outputs
 
 dart format $(find lib -name "*.dart" -not \( -name "*.*freezed.dart" -o -name "*.pb*.dart" -o -name "*.*g.dart" \) )
 dart fix --apply --code=unused_import
+flutter gen-l10n
 ```
 
 ### 依存パッケージを自動的に最新版にアップグレードする

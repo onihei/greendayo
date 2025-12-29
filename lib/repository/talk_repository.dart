@@ -1,50 +1,43 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:greendayo/entity/session.dart';
 import 'package:greendayo/entity/talk.dart';
-import 'package:greendayo/repository/session_repository.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final talkRepository = Provider.autoDispose.family<TalkRepository, String?>((
-  ref,
-  sessionId,
-) {
-  return _TalkRepositoryImpl(ref, sessionId: sessionId);
-});
+part 'talk_repository.g.dart';
 
-abstract class TalkRepository {
-  Stream<QuerySnapshot<Talk>> observe();
-
-  Future<String> save(Talk entity);
-}
-
-CollectionReference<Talk> talksRef(String sessionId) {
-  return sessionsRef
-      .doc(sessionId)
-      .collection("talks")
-      .withConverter<Talk>(
-        fromFirestore: (snapshot, _) => Talk.fromSnapShot(snapshot),
-        toFirestore: (talk, _) => talk.toJson(),
-      );
-}
-
-class _TalkRepositoryImpl implements TalkRepository {
-  final Ref ref;
-  final String? sessionId;
-
-  _TalkRepositoryImpl(this.ref, {required this.sessionId});
-
+@riverpod
+class TalkRepository extends _$TalkRepository {
   @override
+  SessionTalkRepository build(String sessionId) {
+    return SessionTalkRepository(sessionId);
+  }
+}
+
+class SessionTalkRepository {
+  final String sessionId;
+
+  SessionTalkRepository(this.sessionId);
+
   Stream<QuerySnapshot<Talk>> observe() {
-    return talksRef(sessionId!).orderBy('createdAt').snapshots();
+    return _talksRef(sessionId).orderBy('createdAt').snapshots();
   }
 
-  @override
   Future<String> save(Talk entity) async {
-    if (sessionId == null) {
-      return "";
-    }
-
-    final newDoc = talksRef(sessionId!).doc();
+    final newDoc = _talksRef(sessionId).doc();
     await newDoc.set(entity);
     return newDoc.id;
   }
+}
+
+final _sessionsRef =
+    FirebaseFirestore.instance.collection('sessions').withConverter<Session>(
+          fromFirestore: (snapshot, _) => Session.fromSnapShot(snapshot),
+          toFirestore: (session, _) => session.toJson(),
+        );
+
+CollectionReference<Talk> _talksRef(String sessionId) {
+  return _sessionsRef.doc(sessionId).collection("talks").withConverter<Talk>(
+        fromFirestore: (snapshot, _) => Talk.fromSnapShot(snapshot),
+        toFirestore: (talk, _) => talk.toJson(),
+      );
 }

@@ -1,6 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 
 class Article {
   String content;
@@ -13,22 +11,6 @@ class Article {
 
   bool get isPhoto {
     return content.contains('<img');
-  }
-
-  Widget? get photoImage {
-    if (!isPhoto) {
-      return null;
-    }
-    final pattern = RegExp('<img src="(.+)" data-rotation="(.+)"');
-    final matches = pattern.allMatches(content);
-    if (matches.isEmpty) {
-      return null;
-    }
-    final url = matches.single.group(1);
-    if (url == null) {
-      return null;
-    }
-    return CachedNetworkImage(imageUrl: url, fit: BoxFit.cover);
   }
 
   double? get rotation {

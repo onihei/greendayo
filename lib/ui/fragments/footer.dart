@@ -6,25 +6,30 @@ class Footer extends ConsumerWidget {
 
   @override
   Widget build(context, ref) {
-    return Container(
-      padding: const EdgeInsets.all(30),
-      color: Theme.of(context).primaryColor,
+    return Padding(
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           LayoutBuilder(
             builder: (context, constraints) {
               if (constraints.maxWidth > 600) {
-                return IntrinsicHeight(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _help(),
-                      _social(),
-                      const VerticalDivider(),
-                      _address(),
-                    ],
-                  ),
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _help(),
+                    _social(),
+                    Container(
+                      width: 1,
+                      height: 130,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          left: Divider.createBorderSide(context),
+                        ),
+                      ),
+                    ),
+                    _address(),
+                  ],
                 );
               } else {
                 return Column(
@@ -44,7 +49,7 @@ class Footer extends ConsumerWidget {
           ),
           const Divider(),
           const SizedBox(height: 20),
-          const Text('Copyright © 2023 SUSIPERO.com'),
+          const Text('Copyright © 2026 SUSIPERO.com'),
         ],
       ),
     );
@@ -72,11 +77,11 @@ class Footer extends ConsumerWidget {
       child: Column(
         children: [
           Text(
-            "SOCIAL",
+            "公式",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
           SizedBox(height: 10),
-          Text("ツイッター  "),
+          Text("エックス"),
         ],
       ),
     );

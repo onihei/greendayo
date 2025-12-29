@@ -1,18 +1,18 @@
+import 'package:greendayo/domain/model/profile.dart';
 import 'package:greendayo/entity/session.dart';
 import 'package:greendayo/entity/talk.dart';
-import 'package:greendayo/provider/global_provider.dart';
 import 'package:greendayo/repository/session_repository.dart';
 import 'package:greendayo/repository/talk_repository.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final talkUseCase = Provider.autoDispose<TalkUseCase>(
-  (ref) => TalkUseCase(ref),
-);
+part 'talk_use_case.g.dart';
 
-class TalkUseCase {
-  final Ref ref;
-
-  TalkUseCase(this.ref);
+@riverpod
+class TalkUseCase extends _$TalkUseCase {
+  @override
+  TalkUseCase build() {
+    return this;
+  }
 
   Future<void> createTalk({
     required String sessionId,
@@ -24,8 +24,8 @@ class TalkUseCase {
       sender: myProfile.userId,
       createdAt: DateTime.now(),
     );
-    await ref.read(talkRepository(sessionId)).save(newTalk);
-    await ref.read(sessionRepository).updateTimestamp(sessionId);
+    await ref.read(talkRepositoryProvider(sessionId)).save(newTalk);
+    await ref.read(sessionRepositoryProvider).updateTimestamp(sessionId);
   }
 
   Future<String> createSession({
@@ -40,18 +40,19 @@ class TalkUseCase {
       members: [myProfile.userId, userId],
       updatedAt: now,
     );
-    final newSessionId = await ref.read(sessionRepository).save(newSession);
+    final newSessionId =
+        await ref.read(sessionRepositoryProvider).save(newSession);
 
     final newTalk = Talk(
       content: text,
       sender: myProfile.userId,
       createdAt: now,
     );
-    await ref.read(talkRepository(newSessionId)).save(newTalk);
+    await ref.read(talkRepositoryProvider(newSessionId)).save(newTalk);
     return newSessionId;
   }
 
   Future<void> deleteSession({required String sessionId}) async {
-    await ref.read(sessionRepository).delete(sessionId);
+    await ref.read(sessionRepositoryProvider).delete(sessionId);
   }
 }

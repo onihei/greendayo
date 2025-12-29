@@ -1,133 +1,91 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:greendayo/domain/model/profile.dart';
+import 'package:greendayo/domain/model/talk.dart';
+import 'package:greendayo/domain/usecase/talk_use_case.dart';
 import 'package:greendayo/entity/talk.dart';
-import 'package:greendayo/provider/global_provider.dart';
-import 'package:greendayo/provider/talk_provider.dart';
-import 'package:greendayo/usecase/talk_use_case.dart';
+import 'package:greendayo/ui/utils/snackbars.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-/// 現在のセッション
-/// メッセージ画面では引数のsessionIdを設定
-/// 新規セッション画面では最初はnull. 会話開始後に設定
-/// メッセージ -> プロフィール -> 新規セッションの順で表示すると同じプロバイダを参照することになるので
-/// userId毎に状態を持てるようにしている。
-/// メッセージ画面では userId は null, 新規セッションでは 送信先のuserIdとなる
-final _currentSessionIdProvider = StateProvider.autoDispose
-    .family<String?, String?>((ref, userId) => null);
+part 'talk_session.g.dart';
 
-class _FormNotifier extends StateNotifier<TalkForm> {
-  _FormNotifier() : super(const TalkForm(text: ""));
-
-  void changeText(String text) {
-    state = state.copyWith(text: text);
+@riverpod
+class _ViewController extends _$ViewController {
+  @override
+  _ViewController build() {
+    return this;
   }
 
-  void clear() {
-    state = const TalkForm(text: "");
-  }
-}
-
-final _formProvider =
-    StateNotifierProvider.autoDispose<_FormNotifier, TalkForm>((ref) {
-      return _FormNotifier();
-    });
-
-class TalkForm {
-  const TalkForm({required this.text});
-
-  final String text;
-
-  TalkForm copyWith({String? text}) {
-    return TalkForm(text: text ?? this.text);
-  }
-}
-
-final _viewControllerProvider = Provider.autoDispose<_ViewController>(
-  (ref) => _ViewController(ref),
-);
-
-class _ViewController {
-  final Ref ref;
-
-  _ViewController(this.ref);
-
-  Future<void> post({String? destinationUserId}) async {
-    final text = ref.read(_formProvider).text;
+  Future<void> post(
+    BuildContext context, {
+    String? destinationUserId,
+    required ValueNotifier<String?> currentSessionId,
+    required String text,
+  }) async {
+    final useCase = ref.watch(talkUseCaseProvider);
     if (text.trim().isEmpty) {
-      ref
-          .read(snackBarController)
-          ?.showSnackBar(
-            const SnackBar(
-              content: Text('空です'),
-              duration: Duration(seconds: 3),
-            ),
-          );
+      showSnackBar(
+        context,
+        ref,
+        content: Text('テキストを入力してください'),
+        duration: Duration(seconds: 1),
+      );
       return;
     }
-    final currentSessionId = ref.read(
-      _currentSessionIdProvider(destinationUserId),
-    );
-    if (currentSessionId != null) {
-      await ref
-          .read(talkUseCase)
-          .createTalk(sessionId: currentSessionId, text: text);
+    final sessionId = currentSessionId.value;
+    if (sessionId != null) {
+      await useCase.createTalk(
+        sessionId: sessionId,
+        text: text,
+      );
     } else if (destinationUserId != null) {
-      final newSessionId = await ref
-          .read(talkUseCase)
-          .createSession(userId: destinationUserId, text: text);
-      ref.read(_currentSessionIdProvider(destinationUserId).notifier).state =
-          newSessionId;
+      final newSessionId = await useCase.createSession(
+        userId: destinationUserId,
+        text: text,
+      );
+      currentSessionId.value = newSessionId;
     }
-    ref.read(_formProvider.notifier).clear();
   }
 }
 
-class TalkSession extends ConsumerWidget {
-  const TalkSession._({super.key, this.userId, this.sessionId});
+class TalkSession extends HookConsumerWidget {
+  const TalkSession({super.key, this.userId, this.sessionId});
 
   final String? userId;
   final String? sessionId;
 
   bool formNeeded() => userId != null || sessionId != null;
 
-  factory TalkSession.createNew(String userId, {key}) {
-    return TalkSession._(key: key, userId: userId);
-  }
-
-  factory TalkSession.loaded(String sessionId, {key}) {
-    return TalkSession._(key: key, sessionId: sessionId);
-  }
-
   @override
   Widget build(context, ref) {
-    Future.microtask(() {
-      ref.read(_currentSessionIdProvider(userId).notifier).state = sessionId;
-    });
-    return ProviderScope(
-      child: Consumer(
-        builder: (context, ref, child) {
-          return Column(
-            children: [
-              Expanded(child: _talkList(context, ref)),
-              _form(context, ref),
-            ],
-          );
-        },
-      ),
+    final currentSessionId = useState<String?>(sessionId);
+    useEffect(() {
+      currentSessionId.value = sessionId;
+      return null;
+    }, [sessionId]);
+    return Column(
+      children: [
+        Expanded(child: _talkList(context, ref, currentSessionId)),
+        _form(context, ref, currentSessionId),
+      ],
     );
   }
 
-  Widget _talkList(BuildContext context, WidgetRef ref) {
-    final currentSessionId = ref.watch(_currentSessionIdProvider(userId));
-    if (currentSessionId == null) {
+  Widget _talkList(BuildContext context, WidgetRef ref,
+      ValueNotifier<String?> currentSessionId) {
+    final sessionId = currentSessionId.value;
+    if (sessionId == null) {
       return Container();
     }
-    final talks = ref.watch(talksStreamProvider(currentSessionId));
+    final talks = ref.watch(talksStreamProvider(sessionId));
     return talks.maybeWhen(
-      data: (value) => _talkListContent(context, ref, value),
+      data: (value) => _talkListContent(context, ref, value, currentSessionId),
       orElse: () => Container(),
-      error:
-          (error, stackTrace) => Center(child: SelectableText('error $error')),
+      error: (error, stackTrace) => Center(
+        child: SelectableText('error $error'),
+      ),
     );
   }
 
@@ -135,7 +93,12 @@ class TalkSession extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     QuerySnapshot<Talk> snapshot,
+    ValueNotifier<String?> currentSessionId,
   ) {
+    final sessionId = currentSessionId.value;
+    if (sessionId == null) {
+      return Container();
+    }
     final animatedStateKey = GlobalKey<AnimatedListState>();
 
     final scrollController = ScrollController();
@@ -152,8 +115,7 @@ class TalkSession extends ConsumerWidget {
     });
     return Consumer(
       builder: (context, ref, _) {
-        final currentSessionId = ref.watch(_currentSessionIdProvider(userId));
-        ref.listen(talksStreamProvider(currentSessionId!), (
+        ref.listen(talksStreamProvider(sessionId), (
           previous,
           next,
         ) async {
@@ -247,12 +209,13 @@ class TalkSession extends ConsumerWidget {
     );
   }
 
-  Widget _form(BuildContext context, WidgetRef ref) {
-    final form = ref.watch(_formProvider);
-    final controller = ref.watch(textEditingControllerProvider("TalkForm"));
-    Future.microtask(() {
-      controller.value = controller.value.copyWith(text: form.text);
-    });
+  Widget _form(
+    BuildContext context,
+    WidgetRef ref,
+    ValueNotifier<String?> currentSessionId,
+  ) {
+    final vc = ref.watch(_viewControllerProvider);
+    final controller = useTextEditingController();
     return Container(
       color: Theme.of(context).colorScheme.primaryContainer,
       child: Padding(
@@ -266,17 +229,17 @@ class TalkSession extends ConsumerWidget {
                 keyboardType: TextInputType.multiline,
                 controller: controller,
                 maxLines: null,
-                onChanged: (input) {
-                  ref.read(_formProvider.notifier).changeText(input);
-                },
                 textInputAction: TextInputAction.send,
               ),
             ),
             IconButton(
-              onPressed: () {
-                ref
-                    .read(_viewControllerProvider)
-                    .post(destinationUserId: userId);
+              onPressed: () async {
+                await vc.post(
+                  context,
+                  destinationUserId: userId,
+                  currentSessionId: currentSessionId,
+                  text: controller.text,
+                );
               },
               icon: const Icon(Icons.send),
             ),

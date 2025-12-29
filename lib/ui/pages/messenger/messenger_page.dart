@@ -1,99 +1,159 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:greendayo/domain/model/profile.dart';
+import 'package:greendayo/domain/model/session.dart';
+import 'package:greendayo/domain/model/user.dart';
+import 'package:greendayo/domain/usecase/talk_use_case.dart';
 import 'package:greendayo/entity/profile.dart';
 import 'package:greendayo/entity/session.dart';
-import 'package:greendayo/provider/global_provider.dart';
-import 'package:greendayo/provider/profile_provider.dart';
-import 'package:greendayo/provider/session_provider.dart';
-import 'package:greendayo/tab_config.dart';
+import 'package:greendayo/navigation_item_widget.dart';
+import 'package:greendayo/ui/fragments/profile_photo.dart';
+import 'package:greendayo/ui/pages/home/home_page.dart';
 import 'package:greendayo/ui/pages/messenger/talk_session.dart';
-import 'package:greendayo/usecase/talk_use_case.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final _selectedSessionIdProvider = StateProvider<String?>((ref) => null);
+part 'messenger_page.g.dart';
 
-class MessengerTabConfig implements TabConfig {
+@riverpod
+class _SelectedSessionId extends _$SelectedSessionId {
   @override
-  String get label => 'メッセージ';
+  String? build() {
+    return null;
+  }
 
-  @override
-  Widget get icon => const Icon(Icons.email_outlined);
-
-  @override
-  Widget get activeIcon => const Icon(Icons.email);
-
-  @override
-  Function get factoryMethod => MessengerPage.new;
-
-  @override
-  Widget? get floatingActionButton => null;
+  void select(String? sessionId) {
+    state = sessionId;
+  }
 }
 
-final _viewControllerProvider = Provider.autoDispose<_ViewController>(
-  (ref) => _ViewController(ref),
-);
+@riverpod
+Future<String?> _selectedSessionTitle(Ref ref) async {
+  final selectedSessionId = ref.watch(_selectedSessionIdProvider);
+  if (selectedSessionId == null) {
+    return null;
+  }
+  final session = await ref.read(sessionProvider(selectedSessionId).future);
+  final title = await ref.read(_sessionTitleProvider(session).future);
+  return title;
+}
 
-class _ViewController {
-  final Ref ref;
+@riverpod
+Future<String?> _sessionTitle(Ref ref, Session session) async {
+  final myProfile = ref.read(myProfileProvider).requireValue;
+  final displayMemberId = session.membersExclude(myProfile.userId).first;
+  final member = await ref.read(profileProvider(displayMemberId).future);
+  return member.nickname;
+}
 
-  _ViewController(this.ref);
+@riverpod
+class _ViewController extends _$ViewController {
+  @override
+  _ViewController build() {
+    return this;
+  }
 
   Future<void> deleteSession(sessionId) async {
-    await ref.read(talkUseCase).deleteSession(sessionId: sessionId);
+    await ref.read(talkUseCaseProvider).deleteSession(sessionId: sessionId);
   }
 
-  void showSession({required String sessionId, required bool needPush}) {
-    ref.read(_selectedSessionIdProvider.notifier).state = sessionId;
-    if (needPush) {
-      ref.read(targetSessionIdProvider.notifier).state = sessionId;
-    }
+  void showSession(
+    BuildContext context, {
+    required String sessionId,
+  }) {
+    ref.read(_selectedSessionIdProvider.notifier).select(sessionId);
+  }
+
+  void showProfile(BuildContext context, {required String userId}) {
+    ref.read(selectedUserIdProvider.notifier).select(userId);
   }
 }
 
-class MessengerPage extends ConsumerWidget {
+class MessengerPage extends HookConsumerWidget implements NavigationItemWidget {
   const MessengerPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sessionId = ref.watch(_selectedSessionIdProvider);
-
-    return Builder(
-      builder: (context) {
-        if (MediaQuery.of(context).size.width > 600) {
-          return Flex(
-            direction: Axis.horizontal,
-            children: [
-              Flexible(child: _sessionList(context, ref)),
-              const VerticalDivider(),
-              Flexible(
-                child:
-                    sessionId == null
-                        ? Container()
-                        : TalkSession.loaded(sessionId),
-              ),
-            ],
-          );
-        } else {
-          return Container(child: _sessionList(context, ref));
+    final selectedSessionId = ref.watch(_selectedSessionIdProvider);
+    ref.watch(_selectedSessionTitleProvider);
+    final width = MediaQuery.of(context).size.width;
+    if (width < 600) {
+      Future.microtask(() async {
+        final title = await ref.read(_selectedSessionTitleProvider.future);
+        ref.read(appTitleProvider.notifier).setTitle(title);
+      });
+    } else {
+      Future.microtask(() async {
+        ref.read(appTitleProvider.notifier).setTitle(null);
+      });
+    }
+    return Navigator(
+      pages: [
+        MaterialPage(
+          child: _sessionPage(context, ref),
+          name: "sessions",
+        ),
+        if (selectedSessionId != null && width <= 600)
+          MaterialPage(
+            child: TalkSession(
+              sessionId: selectedSessionId,
+            ),
+            name: "session",
+          ),
+      ],
+      onDidRemovePage: (page) {
+        if (page.name == "session") {
+          ref.read(_selectedSessionIdProvider.notifier).select(null);
+          ref.read(appTitleProvider.notifier).setTitle(null);
         }
       },
     );
   }
 
-  Widget _sessionList(BuildContext context, WidgetRef ref) {
+  Widget _sessionPage(
+    BuildContext context,
+    WidgetRef ref,
+  ) {
+    final selectedSessionId = ref.watch(_selectedSessionIdProvider);
+    if (MediaQuery.of(context).size.width > 600) {
+      return Flex(
+        direction: Axis.horizontal,
+        children: [
+          Flexible(child: _sessionList(context, ref)),
+          const VerticalDivider(),
+          Flexible(
+            child: selectedSessionId == null
+                ? Container()
+                : TalkSession(sessionId: selectedSessionId),
+          ),
+        ],
+      );
+    } else {
+      return Container(child: _sessionList(context, ref));
+    }
+  }
+
+  Widget _sessionList(
+    BuildContext context,
+    WidgetRef ref,
+  ) {
     final result = ref.watch(sessionsStreamProvider);
     return result.maybeWhen(
-      data:
-          (value) => ListView.builder(
-            itemCount: value.size,
-            itemBuilder: (BuildContext context, int index) {
-              final doc = value.docs[index];
-              return _sessionTile(context, ref, doc);
-            },
-          ),
+      data: (value) => ListView.builder(
+        itemCount: value.size,
+        itemBuilder: (BuildContext context, int index) {
+          final doc = value.docs[index];
+          return _sessionTile(
+            context,
+            ref,
+            doc,
+          );
+        },
+      ),
       orElse: () => Container(),
-      error:
-          (error, stackTrace) => Center(child: SelectableText('error $error')),
+      error: (error, stackTrace) => Center(
+        child: SelectableText('error $error'),
+      ),
     );
   }
 
@@ -102,33 +162,30 @@ class MessengerPage extends ConsumerWidget {
     WidgetRef ref,
     QueryDocumentSnapshot<Session> snapshot,
   ) {
+    final vc = ref.watch(_viewControllerProvider);
     final session = snapshot.data();
     final myProfile = ref.watch(myProfileProvider).requireValue;
-    final displayMemberId = session.membersExclude(myProfile.userId).single;
+    final displayMemberId = session.membersExclude(myProfile.userId).first;
     return Consumer(
       builder: (context, ref, child) {
-        final profileAsync = ref.watch(profileStreamProvider(displayMemberId));
+        final profileAsync = ref.watch(profileProvider(displayMemberId));
         return profileAsync.maybeWhen(
-          data:
-              (profile) => Builder(
-                builder: (context) {
-                  final needPush = MediaQuery.of(context).size.width <= 600;
-                  return _sessionTileContent(
+          data: (profile) => Builder(
+            builder: (context) {
+              return _sessionTileContent(
+                context,
+                ref,
+                snapshot: snapshot,
+                profile: profile,
+                onTap: () {
+                  vc.showSession(
                     context,
-                    ref,
-                    snapshot: snapshot,
-                    profile: profile,
-                    onTap: () {
-                      ref
-                          .read(_viewControllerProvider)
-                          .showSession(
-                            sessionId: snapshot.id,
-                            needPush: needPush,
-                          );
-                    },
+                    sessionId: snapshot.id,
                   );
                 },
-              ),
+              );
+            },
+          ),
           orElse: () => const ListTile(),
         );
       },
@@ -142,27 +199,27 @@ class MessengerPage extends ConsumerWidget {
     required Profile profile,
     required GestureTapCallback onTap,
   }) {
-    final selectedId = ref.watch(_selectedSessionIdProvider);
-
+    final vc = ref.watch(_viewControllerProvider);
+    final selectedSessionId = ref.watch(_selectedSessionIdProvider);
     return ListTile(
       selectedTileColor: Theme.of(
         context,
-      ).colorScheme.onBackground.withOpacity(0.1),
-      selected: snapshot.id == selectedId,
+      ).colorScheme.surface.withValues(alpha: 0.1),
+      selected: snapshot.id == selectedSessionId,
       contentPadding: const EdgeInsets.all(8),
       onTap: onTap,
-      leading: profile.photoMiddle,
+      leading: ProfilePhoto(profile: profile),
       title: Text(profile.nickname),
       trailing: PopupMenuButton<String>(
         onSelected: (String s) async {
           if (s == "profile") {
-            ref.read(targetUserIdProvider.notifier).state = profile.userId;
+            vc.showProfile(context, userId: profile.userId);
           }
           if (s == "delete") {
-            if (selectedId == snapshot.id) {
-              ref.read(_selectedSessionIdProvider.notifier).state = null;
+            if (selectedSessionId == snapshot.id) {
+              ref.read(_selectedSessionIdProvider.notifier).select(null);
             }
-            await ref.read(_viewControllerProvider).deleteSession(snapshot.id);
+            await vc.deleteSession(snapshot.id);
           }
         },
         itemBuilder: (BuildContext context) {
@@ -174,4 +231,10 @@ class MessengerPage extends ConsumerWidget {
       ),
     );
   }
+
+  @override
+  String get title => 'メッセージ';
+
+  @override
+  Widget? get floatingActionButton => null;
 }

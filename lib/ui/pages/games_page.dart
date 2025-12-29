@@ -1,24 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:greendayo/tab_config.dart';
+import 'package:greendayo/navigation_item_widget.dart';
 
-class GamesTabConfig implements TabConfig {
-  @override
-  String get label => 'ゲーム';
-
-  @override
-  Widget get icon => const Icon(Icons.games_outlined);
-
-  @override
-  Widget get activeIcon => const Icon(Icons.games);
-
-  @override
-  Function get factoryMethod => GamesPage.new;
-
-  @override
-  Widget? get floatingActionButton => null;
-}
-
-class GamesPage extends StatelessWidget {
+class GamesPage extends StatelessWidget implements NavigationItemWidget {
   const GamesPage({super.key});
 
   @override
@@ -29,4 +12,10 @@ class GamesPage extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  String get title => 'ゲーム';
+
+  @override
+  Widget? get floatingActionButton => null;
 }

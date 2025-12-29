@@ -4,16 +4,13 @@ import 'package:flutter_shaders/flutter_shaders.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class DotImage extends ConsumerWidget {
-  const DotImage({super.key, required this.child});
-
-  final Widget child;
+  const DotImage({super.key});
 
   @override
   Widget build(BuildContext context, ref) {
     return ShaderBuilder(
       assetKey: 'shaders/dots.frag',
       (BuildContext context, FragmentShader shader, _) => CustomPaint(
-        size: MediaQuery.of(context).size,
         painter: _DotPainter(shader),
       ),
     );

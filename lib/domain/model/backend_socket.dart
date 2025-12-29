@@ -1,8 +1,11 @@
-import 'package:greendayo/provider/global_provider.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:greendayo/domain/model/profile.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 
-final socketProvider = Provider.autoDispose<Socket>((ref) {
+part 'backend_socket.g.dart';
+
+@riverpod
+Socket backendSocket(ref) {
   // final uri = Platform.isAndroid ? "http://10.0.2.2:10005": "http://localhost:10005";
   final uri = "https://susipero.com";
   //  final uri = "http://localhost:10005";
@@ -21,4 +24,4 @@ final socketProvider = Provider.autoDispose<Socket>((ref) {
     socket.dispose();
   });
   return socket;
-});
+}

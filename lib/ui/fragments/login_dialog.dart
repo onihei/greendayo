@@ -1,7 +1,7 @@
-import 'package:authentication_buttons/authentication_buttons.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:sign_in_button/sign_in_button.dart';
 
 class LoginDialog extends Dialog {
   const LoginDialog({super.key});
@@ -22,22 +22,22 @@ class LoginDialog extends Dialog {
             children: [
               const Text("他サービスIDでログイン"),
               const SizedBox(height: 16),
-              AuthenticationButton(
-                authenticationMethod: AuthenticationMethod.twitter,
+              SignInButton(
+                Buttons.twitter,
                 onPressed: () async {
                   final succeed = await signIn(TwitterAuthProvider());
                   if (succeed) {
-                    Navigator.pop(context);
+                    Navigator.pop(context, true);
                   }
                 },
               ),
               const SizedBox(height: 10),
-              AuthenticationButton(
-                authenticationMethod: AuthenticationMethod.github,
+              SignInButton(
+                Buttons.gitHub,
                 onPressed: () async {
                   final succeed = await signIn(GithubAuthProvider());
                   if (succeed) {
-                    Navigator.pop(context);
+                    Navigator.pop(context, true);
                   }
                 },
               ),
@@ -50,7 +50,7 @@ class LoginDialog extends Dialog {
                       email: "do@not.ask",
                       password: "do@not.ask",
                     );
-                    Navigator.pop(context);
+                    Navigator.pop(context, true);
                   },
                   icon: const Icon(Icons.android),
                   label: const Text('テリーマンとしてログイン'),

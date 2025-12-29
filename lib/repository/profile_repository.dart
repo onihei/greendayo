@@ -3,55 +3,33 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:greendayo/domain/model/profile.dart';
 import 'package:greendayo/entity/profile.dart';
-import 'package:greendayo/provider/global_provider.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final profilesRef = FirebaseFirestore.instance
-    .collection('profiles')
-    .withConverter<Profile>(
-      fromFirestore: (snapshot, _) => Profile.fromSnapShot(snapshot),
-      toFirestore: (profile, _) => profile.toJson(),
-    );
+part 'profile_repository.g.dart';
 
-final profileRepository = Provider.autoDispose<ProfileRepository>(
-  (ref) => _ProfileRepositoryImpl(ref),
-);
-
-abstract class ProfileRepository {
-  Future<Profile> get(String userId);
-
-  Stream<DocumentSnapshot<Profile>> observe(String userId);
-
-  Future<Profile> createOrGet(User user);
-
-  Future<String> save(Profile entity);
-
-  Future<void> uploadMyProfilePhoto(String contentType, Uint8List bytes);
-}
-
-class _ProfileRepositoryImpl implements ProfileRepository {
-  final Ref ref;
-
-  _ProfileRepositoryImpl(this.ref);
-
+@riverpod
+class ProfileRepository extends _$ProfileRepository {
   @override
+  ProfileRepository build() {
+    return this;
+  }
+
   Future<Profile> get(String userId) async {
-    final doc = await profilesRef.doc(userId).get();
+    final doc = await _profilesRef.doc(userId).get();
     if (!doc.exists) {
       throw StateError("profile not found");
     }
     return doc.data()!;
   }
 
-  @override
   Stream<DocumentSnapshot<Profile>> observe(String userId) =>
-      profilesRef.doc(userId).snapshots();
+      _profilesRef.doc(userId).snapshots();
 
-  @override
   Future<Profile> createOrGet(User user) async {
-    final doc = await profilesRef.doc(user.uid).get();
+    final doc = await _profilesRef.doc(user.uid).get();
     if (doc.exists) {
       return doc.data()!;
     }
@@ -62,24 +40,22 @@ class _ProfileRepositoryImpl implements ProfileRepository {
     );
 
     await _uploadPhoto(user.uid, user.photoURL);
-    save(profile);
+    await save(profile);
     return profile;
   }
 
-  @override
   Future<String> save(Profile entity) async {
     // documentIdをuserIdとする
-    final newDoc = profilesRef.doc(entity.userId);
+    final newDoc = _profilesRef.doc(entity.userId);
     await newDoc.set(entity);
     return newDoc.id;
   }
 
-  @override
   Future<void> uploadMyProfilePhoto(String contentType, Uint8List bytes) async {
     final myProfile = await ref.read(myProfileProvider.future);
     final storageRef = FirebaseStorage.instance.ref().child(
-      'users/${myProfile.userId}/photo',
-    );
+          'users/${myProfile.userId}/photo',
+        );
     final uploadTask = storageRef.putData(
       bytes,
       SettableMetadata(
@@ -88,7 +64,7 @@ class _ProfileRepositoryImpl implements ProfileRepository {
       ),
     );
     await uploadTask;
-    ref.invalidate(avatarProvider(myProfile.userId));
+    ref.invalidate(profilePhotoUrlProvider(myProfile.userId));
   }
 
   Future<void> _uploadPhoto(String userId, String? url) async {
@@ -99,16 +75,15 @@ class _ProfileRepositoryImpl implements ProfileRepository {
         throw StateError("load photo error:${data.statusCode}");
       }
     } catch (e) {
-      final url =
-          await FirebaseStorage.instance
-              .ref()
-              .child('default_avatar.png')
-              .getDownloadURL();
+      final url = await FirebaseStorage.instance
+          .ref()
+          .child('default_avatar.png')
+          .getDownloadURL();
       data = await http.get(Uri.parse(url));
     }
     final storageRef = FirebaseStorage.instance.ref().child(
-      'users/${userId}/photo',
-    );
+          'users/${userId}/photo',
+        );
     final uploadTask = storageRef.putData(
       data.bodyBytes,
       SettableMetadata(contentType: data.headers['content-type']),
@@ -116,3 +91,9 @@ class _ProfileRepositoryImpl implements ProfileRepository {
     await uploadTask;
   }
 }
+
+final _profilesRef =
+    FirebaseFirestore.instance.collection('profiles').withConverter<Profile>(
+          fromFirestore: (snapshot, _) => Profile.fromSnapShot(snapshot),
+          toFirestore: (profile, _) => profile.toJson(),
+        );

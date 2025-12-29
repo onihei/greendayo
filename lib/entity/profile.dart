@@ -1,9 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:greendayo/lang/firebase_ext.dart';
-import 'package:greendayo/provider/global_provider.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class Profile {
   final String userId;
@@ -36,37 +32,6 @@ class Profile {
     this.treasure,
     this.text,
   });
-
-  Widget get photoSmall => _photo(32);
-
-  Widget get photoMiddle => _photo(44);
-
-  Widget get photoLarge => _photo(160);
-
-  Widget _photo(double size) {
-    return ClipRRect(
-      key: ValueKey(size),
-      borderRadius: BorderRadius.circular(size),
-      child: Container(
-        width: size,
-        height: size,
-        child: Consumer(
-          builder: (context, ref, child) {
-            if (userId == "anonymous") {
-              return Icon(Icons.account_circle, size: size);
-            }
-            final avatar = ref.watch(avatarProvider(userId));
-            return avatar.when(
-              data:
-                  (url) => CachedNetworkImage(imageUrl: url, fit: BoxFit.cover),
-              error: (error, _) => Icon(Icons.error, size: size),
-              loading: () => CircularProgressIndicator(),
-            );
-          },
-        ),
-      ),
-    );
-  }
 
   factory Profile.anonymous() {
     return Profile(userId: "anonymous", nickname: "no_name", photoUrl: null);
