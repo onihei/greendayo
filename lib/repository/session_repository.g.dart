@@ -10,11 +10,11 @@ part of 'session_repository.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(SessionRepository)
-const sessionRepositoryProvider = SessionRepositoryProvider._();
+final sessionRepositoryProvider = SessionRepositoryProvider._();
 
 final class SessionRepositoryProvider
     extends $NotifierProvider<SessionRepository, SessionRepository> {
-  const SessionRepositoryProvider._()
+  SessionRepositoryProvider._()
       : super(
           from: null,
           argument: null,
@@ -48,13 +48,12 @@ abstract class _$SessionRepository extends $Notifier<SessionRepository> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<SessionRepository, SessionRepository>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<SessionRepository, SessionRepository>,
         SessionRepository,
         Object?,
         Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

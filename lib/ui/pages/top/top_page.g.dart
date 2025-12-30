@@ -10,7 +10,7 @@ part of 'top_page.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(_videoPlayerController)
-const _videoPlayerControllerProvider = _VideoPlayerControllerProvider._();
+final _videoPlayerControllerProvider = _VideoPlayerControllerProvider._();
 
 final class _VideoPlayerControllerProvider extends $FunctionalProvider<
         AsyncValue<VideoPlayerController>,
@@ -19,7 +19,7 @@ final class _VideoPlayerControllerProvider extends $FunctionalProvider<
     with
         $FutureModifier<VideoPlayerController>,
         $FutureProvider<VideoPlayerController> {
-  const _VideoPlayerControllerProvider._()
+  _VideoPlayerControllerProvider._()
       : super(
           from: null,
           argument: null,
@@ -49,11 +49,11 @@ String _$_videoPlayerControllerHash() =>
     r'68fda810cc2fccf7f035c56af725748d7051cb00';
 
 @ProviderFor(_ViewController)
-const _viewControllerProvider = _ViewControllerProvider._();
+final _viewControllerProvider = _ViewControllerProvider._();
 
 final class _ViewControllerProvider
     extends $NotifierProvider<_ViewController, _ViewController> {
-  const _ViewControllerProvider._()
+  _ViewControllerProvider._()
       : super(
           from: null,
           argument: null,
@@ -87,13 +87,12 @@ abstract class _$ViewController extends $Notifier<_ViewController> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<_ViewController, _ViewController>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<_ViewController, _ViewController>,
         _ViewController,
         Object?,
         Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

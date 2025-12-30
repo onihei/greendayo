@@ -10,10 +10,10 @@ part of 'blocking_overlay.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(Blocking)
-const blockingProvider = BlockingProvider._();
+final blockingProvider = BlockingProvider._();
 
 final class BlockingProvider extends $NotifierProvider<Blocking, bool> {
-  const BlockingProvider._()
+  BlockingProvider._()
       : super(
           from: null,
           argument: null,
@@ -47,10 +47,9 @@ abstract class _$Blocking extends $Notifier<bool> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<bool, bool>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<bool, bool>, bool, Object?, Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

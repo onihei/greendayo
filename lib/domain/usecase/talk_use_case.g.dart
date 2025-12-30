@@ -10,11 +10,11 @@ part of 'talk_use_case.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(TalkUseCase)
-const talkUseCaseProvider = TalkUseCaseProvider._();
+final talkUseCaseProvider = TalkUseCaseProvider._();
 
 final class TalkUseCaseProvider
     extends $NotifierProvider<TalkUseCase, TalkUseCase> {
-  const TalkUseCaseProvider._()
+  TalkUseCaseProvider._()
       : super(
           from: null,
           argument: null,
@@ -48,10 +48,9 @@ abstract class _$TalkUseCase extends $Notifier<TalkUseCase> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<TalkUseCase, TalkUseCase>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<TalkUseCase, TalkUseCase>, TalkUseCase, Object?, Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

@@ -10,12 +10,12 @@ part of 'user.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(user)
-const userProvider = UserProvider._();
+final userProvider = UserProvider._();
 
 final class UserProvider
     extends $FunctionalProvider<AsyncValue<User?>, User?, Stream<User?>>
     with $FutureModifier<User?>, $StreamProvider<User?> {
-  const UserProvider._()
+  UserProvider._()
       : super(
           from: null,
           argument: null,
@@ -43,11 +43,11 @@ final class UserProvider
 String _$userHash() => r'36ae390da092331330d3b38398f397ecea7cc124';
 
 @ProviderFor(SelectedUserId)
-const selectedUserIdProvider = SelectedUserIdProvider._();
+final selectedUserIdProvider = SelectedUserIdProvider._();
 
 final class SelectedUserIdProvider
     extends $NotifierProvider<SelectedUserId, String?> {
-  const SelectedUserIdProvider._()
+  SelectedUserIdProvider._()
       : super(
           from: null,
           argument: null,
@@ -81,10 +81,9 @@ abstract class _$SelectedUserId extends $Notifier<String?> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<String?, String?>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<String?, String?>, String?, Object?, Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

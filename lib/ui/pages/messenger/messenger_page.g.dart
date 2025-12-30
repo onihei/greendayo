@@ -10,11 +10,11 @@ part of 'messenger_page.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(_SelectedSessionId)
-const _selectedSessionIdProvider = _SelectedSessionIdProvider._();
+final _selectedSessionIdProvider = _SelectedSessionIdProvider._();
 
 final class _SelectedSessionIdProvider
     extends $NotifierProvider<_SelectedSessionId, String?> {
-  const _SelectedSessionIdProvider._()
+  _SelectedSessionIdProvider._()
       : super(
           from: null,
           argument: null,
@@ -49,21 +49,20 @@ abstract class _$SelectedSessionId extends $Notifier<String?> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<String?, String?>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<String?, String?>, String?, Object?, Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(_selectedSessionTitle)
-const _selectedSessionTitleProvider = _SelectedSessionTitleProvider._();
+final _selectedSessionTitleProvider = _SelectedSessionTitleProvider._();
 
 final class _SelectedSessionTitleProvider
     extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
     with $FutureModifier<String?>, $FutureProvider<String?> {
-  const _SelectedSessionTitleProvider._()
+  _SelectedSessionTitleProvider._()
       : super(
           from: null,
           argument: null,
@@ -92,12 +91,12 @@ String _$_selectedSessionTitleHash() =>
     r'7f5923dcff832d5a75400062af8fa104f1f94ecd';
 
 @ProviderFor(_sessionTitle)
-const _sessionTitleProvider = _SessionTitleFamily._();
+final _sessionTitleProvider = _SessionTitleFamily._();
 
 final class _SessionTitleProvider
     extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
     with $FutureModifier<String?>, $FutureProvider<String?> {
-  const _SessionTitleProvider._(
+  _SessionTitleProvider._(
       {required _SessionTitleFamily super.from,
       required Session super.argument})
       : super(
@@ -147,7 +146,7 @@ String _$_sessionTitleHash() => r'b9080443efb67f922ab99cb30a16f45bacc8645e';
 
 final class _SessionTitleFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<String?>, Session> {
-  const _SessionTitleFamily._()
+  _SessionTitleFamily._()
       : super(
           retry: null,
           name: r'_sessionTitleProvider',
@@ -166,11 +165,11 @@ final class _SessionTitleFamily extends $Family
 }
 
 @ProviderFor(_ViewController)
-const _viewControllerProvider = _ViewControllerProvider._();
+final _viewControllerProvider = _ViewControllerProvider._();
 
 final class _ViewControllerProvider
     extends $NotifierProvider<_ViewController, _ViewController> {
-  const _ViewControllerProvider._()
+  _ViewControllerProvider._()
       : super(
           from: null,
           argument: null,
@@ -204,13 +203,12 @@ abstract class _$ViewController extends $Notifier<_ViewController> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<_ViewController, _ViewController>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<_ViewController, _ViewController>,
         _ViewController,
         Object?,
         Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

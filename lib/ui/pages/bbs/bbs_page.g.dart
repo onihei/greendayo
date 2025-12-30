@@ -10,11 +10,11 @@ part of 'bbs_page.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(_ScreenOffset)
-const _screenOffsetProvider = _ScreenOffsetProvider._();
+final _screenOffsetProvider = _ScreenOffsetProvider._();
 
 final class _ScreenOffsetProvider
     extends $NotifierProvider<_ScreenOffset, Offset> {
-  const _ScreenOffsetProvider._()
+  _ScreenOffsetProvider._()
       : super(
           from: null,
           argument: null,
@@ -48,20 +48,19 @@ abstract class _$ScreenOffset extends $Notifier<Offset> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<Offset, Offset>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<Offset, Offset>, Offset, Object?, Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(_ScreenScale)
-const _screenScaleProvider = _ScreenScaleProvider._();
+final _screenScaleProvider = _ScreenScaleProvider._();
 
 final class _ScreenScaleProvider
     extends $NotifierProvider<_ScreenScale, double> {
-  const _ScreenScaleProvider._()
+  _ScreenScaleProvider._()
       : super(
           from: null,
           argument: null,
@@ -95,19 +94,18 @@ abstract class _$ScreenScale extends $Notifier<double> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<double, double>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<double, double>, double, Object?, Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(_FormEnabled)
-const _formEnabledProvider = _FormEnabledProvider._();
+final _formEnabledProvider = _FormEnabledProvider._();
 
 final class _FormEnabledProvider extends $NotifierProvider<_FormEnabled, bool> {
-  const _FormEnabledProvider._()
+  _FormEnabledProvider._()
       : super(
           from: null,
           argument: null,
@@ -141,20 +139,19 @@ abstract class _$FormEnabled extends $Notifier<bool> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<bool, bool>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<bool, bool>, bool, Object?, Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(_BbsForm)
-const _bbsFormProvider = _BbsFormProvider._();
+final _bbsFormProvider = _BbsFormProvider._();
 
 final class _BbsFormProvider
     extends $NotifierProvider<_BbsForm, _BbsFormState> {
-  const _BbsFormProvider._()
+  _BbsFormProvider._()
       : super(
           from: null,
           argument: null,
@@ -188,23 +185,22 @@ abstract class _$BbsForm extends $Notifier<_BbsFormState> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<_BbsFormState, _BbsFormState>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<_BbsFormState, _BbsFormState>,
         _BbsFormState,
         Object?,
         Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(_ViewController)
-const _viewControllerProvider = _ViewControllerProvider._();
+final _viewControllerProvider = _ViewControllerProvider._();
 
 final class _ViewControllerProvider
     extends $NotifierProvider<_ViewController, _ViewController> {
-  const _ViewControllerProvider._()
+  _ViewControllerProvider._()
       : super(
           from: null,
           argument: null,
@@ -238,13 +234,12 @@ abstract class _$ViewController extends $Notifier<_ViewController> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<_ViewController, _ViewController>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<_ViewController, _ViewController>,
         _ViewController,
         Object?,
         Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

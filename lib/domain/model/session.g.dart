@@ -10,7 +10,7 @@ part of 'session.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(sessionsStream)
-const sessionsStreamProvider = SessionsStreamProvider._();
+final sessionsStreamProvider = SessionsStreamProvider._();
 
 final class SessionsStreamProvider extends $FunctionalProvider<
         AsyncValue<QuerySnapshot<Session>>,
@@ -19,7 +19,7 @@ final class SessionsStreamProvider extends $FunctionalProvider<
     with
         $FutureModifier<QuerySnapshot<Session>>,
         $StreamProvider<QuerySnapshot<Session>> {
-  const SessionsStreamProvider._()
+  SessionsStreamProvider._()
       : super(
           from: null,
           argument: null,
@@ -48,12 +48,12 @@ final class SessionsStreamProvider extends $FunctionalProvider<
 String _$sessionsStreamHash() => r'224542a948e000c536e123d4128843a9a02c5289';
 
 @ProviderFor(session)
-const sessionProvider = SessionFamily._();
+final sessionProvider = SessionFamily._();
 
 final class SessionProvider
     extends $FunctionalProvider<AsyncValue<Session>, Session, FutureOr<Session>>
     with $FutureModifier<Session>, $FutureProvider<Session> {
-  const SessionProvider._(
+  SessionProvider._(
       {required SessionFamily super.from, required String super.argument})
       : super(
           retry: null,
@@ -102,7 +102,7 @@ String _$sessionHash() => r'0f56aa3af41e246b9808407c35c425059178f3ed';
 
 final class SessionFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<Session>, String> {
-  const SessionFamily._()
+  SessionFamily._()
       : super(
           retry: null,
           name: r'sessionProvider',

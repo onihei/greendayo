@@ -10,10 +10,10 @@ part of 'home_page.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(AppTitle)
-const appTitleProvider = AppTitleProvider._();
+final appTitleProvider = AppTitleProvider._();
 
 final class AppTitleProvider extends $NotifierProvider<AppTitle, String?> {
-  const AppTitleProvider._()
+  AppTitleProvider._()
       : super(
           from: null,
           argument: null,
@@ -47,10 +47,9 @@ abstract class _$AppTitle extends $Notifier<String?> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<String?, String?>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<String?, String?>, String?, Object?, Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

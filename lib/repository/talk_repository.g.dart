@@ -10,11 +10,11 @@ part of 'talk_repository.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(TalkRepository)
-const talkRepositoryProvider = TalkRepositoryFamily._();
+final talkRepositoryProvider = TalkRepositoryFamily._();
 
 final class TalkRepositoryProvider
     extends $NotifierProvider<TalkRepository, SessionTalkRepository> {
-  const TalkRepositoryProvider._(
+  TalkRepositoryProvider._(
       {required TalkRepositoryFamily super.from,
       required String super.argument})
       : super(
@@ -64,7 +64,7 @@ final class TalkRepositoryFamily extends $Family
     with
         $ClassFamilyOverride<TalkRepository, SessionTalkRepository,
             SessionTalkRepository, SessionTalkRepository, String> {
-  const TalkRepositoryFamily._()
+  TalkRepositoryFamily._()
       : super(
           retry: null,
           name: r'talkRepositoryProvider',
@@ -92,15 +92,16 @@ abstract class _$TalkRepository extends $Notifier<SessionTalkRepository> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(
-      _$args,
-    );
     final ref = this.ref as $Ref<SessionTalkRepository, SessionTalkRepository>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<SessionTalkRepository, SessionTalkRepository>,
         SessionTalkRepository,
         Object?,
         Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(
+        ref,
+        () => build(
+              _$args,
+            ));
   }
 }

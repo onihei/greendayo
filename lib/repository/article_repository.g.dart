@@ -10,11 +10,11 @@ part of 'article_repository.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(ArticleRepository)
-const articleRepositoryProvider = ArticleRepositoryProvider._();
+final articleRepositoryProvider = ArticleRepositoryProvider._();
 
 final class ArticleRepositoryProvider
     extends $NotifierProvider<ArticleRepository, ArticleRepository> {
-  const ArticleRepositoryProvider._()
+  ArticleRepositoryProvider._()
       : super(
           from: null,
           argument: null,
@@ -48,13 +48,12 @@ abstract class _$ArticleRepository extends $Notifier<ArticleRepository> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<ArticleRepository, ArticleRepository>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<ArticleRepository, ArticleRepository>,
         ArticleRepository,
         Object?,
         Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

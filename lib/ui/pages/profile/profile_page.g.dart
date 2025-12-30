@@ -10,11 +10,11 @@ part of 'profile_page.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(_ViewController)
-const _viewControllerProvider = _ViewControllerProvider._();
+final _viewControllerProvider = _ViewControllerProvider._();
 
 final class _ViewControllerProvider
     extends $NotifierProvider<_ViewController, _ViewController> {
-  const _ViewControllerProvider._()
+  _ViewControllerProvider._()
       : super(
           from: null,
           argument: null,
@@ -48,13 +48,12 @@ abstract class _$ViewController extends $Notifier<_ViewController> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<_ViewController, _ViewController>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<_ViewController, _ViewController>,
         _ViewController,
         Object?,
         Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

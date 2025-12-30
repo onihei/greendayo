@@ -10,11 +10,11 @@ part of 'profile_repository.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(ProfileRepository)
-const profileRepositoryProvider = ProfileRepositoryProvider._();
+final profileRepositoryProvider = ProfileRepositoryProvider._();
 
 final class ProfileRepositoryProvider
     extends $NotifierProvider<ProfileRepository, ProfileRepository> {
-  const ProfileRepositoryProvider._()
+  ProfileRepositoryProvider._()
       : super(
           from: null,
           argument: null,
@@ -48,13 +48,12 @@ abstract class _$ProfileRepository extends $Notifier<ProfileRepository> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<ProfileRepository, ProfileRepository>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<ProfileRepository, ProfileRepository>,
         ProfileRepository,
         Object?,
         Object?>;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

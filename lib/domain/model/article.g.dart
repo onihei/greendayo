@@ -10,7 +10,7 @@ part of 'article.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(articlesStream)
-const articlesStreamProvider = ArticlesStreamProvider._();
+final articlesStreamProvider = ArticlesStreamProvider._();
 
 final class ArticlesStreamProvider extends $FunctionalProvider<
         AsyncValue<QuerySnapshot<Article>>,
@@ -19,7 +19,7 @@ final class ArticlesStreamProvider extends $FunctionalProvider<
     with
         $FutureModifier<QuerySnapshot<Article>>,
         $StreamProvider<QuerySnapshot<Article>> {
-  const ArticlesStreamProvider._()
+  ArticlesStreamProvider._()
       : super(
           from: null,
           argument: null,

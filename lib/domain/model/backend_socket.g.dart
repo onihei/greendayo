@@ -10,11 +10,11 @@ part of 'backend_socket.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(backendSocket)
-const backendSocketProvider = BackendSocketProvider._();
+final backendSocketProvider = BackendSocketProvider._();
 
 final class BackendSocketProvider
     extends $FunctionalProvider<Socket, Socket, Socket> with $Provider<Socket> {
-  const BackendSocketProvider._()
+  BackendSocketProvider._()
       : super(
           from: null,
           argument: null,

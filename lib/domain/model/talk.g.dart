@@ -10,7 +10,7 @@ part of 'talk.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(talksStream)
-const talksStreamProvider = TalksStreamFamily._();
+final talksStreamProvider = TalksStreamFamily._();
 
 final class TalksStreamProvider extends $FunctionalProvider<
         AsyncValue<QuerySnapshot<Talk>>,
@@ -19,7 +19,7 @@ final class TalksStreamProvider extends $FunctionalProvider<
     with
         $FutureModifier<QuerySnapshot<Talk>>,
         $StreamProvider<QuerySnapshot<Talk>> {
-  const TalksStreamProvider._(
+  TalksStreamProvider._(
       {required TalksStreamFamily super.from, required String super.argument})
       : super(
           retry: null,
@@ -69,7 +69,7 @@ String _$talksStreamHash() => r'7d65d801f40c7cd99efe0225e68360716381fe62';
 
 final class TalksStreamFamily extends $Family
     with $FunctionalFamilyOverride<Stream<QuerySnapshot<Talk>>, String> {
-  const TalksStreamFamily._()
+  TalksStreamFamily._()
       : super(
           retry: null,
           name: r'talksStreamProvider',

@@ -10,12 +10,12 @@ part of 'profile.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(profile)
-const profileProvider = ProfileFamily._();
+final profileProvider = ProfileFamily._();
 
 final class ProfileProvider
     extends $FunctionalProvider<AsyncValue<Profile>, Profile, FutureOr<Profile>>
     with $FutureModifier<Profile>, $FutureProvider<Profile> {
-  const ProfileProvider._(
+  ProfileProvider._(
       {required ProfileFamily super.from, required String super.argument})
       : super(
           retry: null,
@@ -64,7 +64,7 @@ String _$profileHash() => r'e86b70e1cb598ae014701eba86e3f3be2c90bc6a';
 
 final class ProfileFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<Profile>, String> {
-  const ProfileFamily._()
+  ProfileFamily._()
       : super(
           retry: null,
           name: r'profileProvider',
@@ -87,7 +87,7 @@ final class ProfileFamily extends $Family
 /// Home 画面で watch するので、以降の機能では requiredValue を使う
 
 @ProviderFor(myProfile)
-const myProfileProvider = MyProfileProvider._();
+final myProfileProvider = MyProfileProvider._();
 
 /// 自分のプロフィールを取得するProvider
 /// ユーザーが認証されていない場合は例外をスローする
@@ -99,7 +99,7 @@ final class MyProfileProvider
   /// 自分のプロフィールを取得するProvider
   /// ユーザーが認証されていない場合は例外をスローする
   /// Home 画面で watch するので、以降の機能では requiredValue を使う
-  const MyProfileProvider._()
+  MyProfileProvider._()
       : super(
           from: null,
           argument: null,
@@ -127,12 +127,12 @@ final class MyProfileProvider
 String _$myProfileHash() => r'01e76e6aa3e8301106c64d797f5faa417404aa09';
 
 @ProviderFor(profilePhotoUrl)
-const profilePhotoUrlProvider = ProfilePhotoUrlFamily._();
+final profilePhotoUrlProvider = ProfilePhotoUrlFamily._();
 
 final class ProfilePhotoUrlProvider
     extends $FunctionalProvider<AsyncValue<String>, String, FutureOr<String>>
     with $FutureModifier<String>, $FutureProvider<String> {
-  const ProfilePhotoUrlProvider._(
+  ProfilePhotoUrlProvider._(
       {required ProfilePhotoUrlFamily super.from,
       required String super.argument})
       : super(
@@ -182,7 +182,7 @@ String _$profilePhotoUrlHash() => r'4a0671201fd68e22897f5e582be00349e727e511';
 
 final class ProfilePhotoUrlFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<String>, String> {
-  const ProfilePhotoUrlFamily._()
+  ProfilePhotoUrlFamily._()
       : super(
           retry: null,
           name: r'profilePhotoUrlProvider',
