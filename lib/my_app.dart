@@ -1,3 +1,4 @@
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:greendayo/domain/model/user.dart';
@@ -101,6 +102,8 @@ class MyRouterDelegate extends RouterDelegate<String>
     if (matches.isNotEmpty) {
       final userId = matches.first.group(1);
       ref.read(selectedUserIdProvider.notifier).select(userId);
+    } else {
+      ref.read(selectedUserIdProvider.notifier).clear();
     }
   }
 

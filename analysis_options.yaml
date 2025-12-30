@@ -13,3 +13,6 @@ analyzer:
     invalid_annotation_target: ignore
   plugins:
     - custom_lint
+
+formatter:
+  trailing_commas: preserve

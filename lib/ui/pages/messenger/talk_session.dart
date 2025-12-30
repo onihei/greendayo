@@ -48,6 +48,12 @@ class _ViewController extends _$ViewController {
       currentSessionId.value = newSessionId;
     }
   }
+
+  Future<void> back(
+    BuildContext context,
+  ) async {
+    Navigator.of(context).pop();
+  }
 }
 
 class TalkSession extends HookConsumerWidget {
@@ -216,6 +222,18 @@ class TalkSession extends HookConsumerWidget {
   ) {
     final vc = ref.watch(_viewControllerProvider);
     final controller = useTextEditingController();
+    Widget? backButton;
+    final width = MediaQuery.of(context).size.width;
+    if (width < 600) {
+      backButton = IconButton(
+        onPressed: () async {
+          await vc.back(
+            context,
+          );
+        },
+        icon: const Icon(Icons.arrow_back),
+      );
+    }
     return Container(
       color: Theme.of(context).colorScheme.primaryContainer,
       child: Padding(
@@ -224,6 +242,7 @@ class TalkSession extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: [
+            if (backButton != null) backButton,
             Expanded(
               child: TextField(
                 keyboardType: TextInputType.multiline,

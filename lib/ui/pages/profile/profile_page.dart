@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:greendayo/domain/model/profile.dart';
-import 'package:greendayo/domain/model/user.dart';
 import 'package:greendayo/entity/profile.dart';
 import 'package:greendayo/ui/fragments/profile_photo.dart';
 import 'package:greendayo/ui/pages/profile/edit_my_profile_page.dart';
@@ -18,8 +17,8 @@ class _ViewController extends _$ViewController {
     return this;
   }
 
-  void back() {
-    ref.read(selectedUserIdProvider.notifier).clear();
+  void back(BuildContext context) {
+    Navigator.of(context).pop();
   }
 
   void doEdit(ValueNotifier<bool> editMyProfile) {
@@ -45,18 +44,24 @@ class ProfilePage extends HookConsumerWidget {
       data: (profile) => Navigator(
         pages: [
           MaterialPage(
-              child: _profilePage(
-            context,
-            ref,
-            profile,
-            editMyProfile,
-            startTalkSession,
-          )),
+            child: _profilePage(
+              context,
+              ref,
+              profile,
+              editMyProfile,
+              startTalkSession,
+            ),
+          ),
           if (editMyProfile.value)
-            const MaterialPage(child: EditMyProfilePage(), name: "edit"),
+            const MaterialPage(
+              child: EditMyProfilePage(),
+              name: "edit",
+            ),
           if (startTalkSession.value)
             MaterialPage(
-                child: TalkSessionPage(profile: profile), name: "talk"),
+              child: TalkSessionPage(profile: profile),
+              name: "talk",
+            ),
         ],
         onDidRemovePage: (page) {
           if (page.name == "edit") {
@@ -86,7 +91,7 @@ class ProfilePage extends HookConsumerWidget {
       appBar: AppBar(
         leading: BackButton(
           onPressed: () {
-            vc.back();
+            vc.back(context);
           },
         ),
         title: Text("プロフィール${isMe ? "(自分)" : ""}"),
