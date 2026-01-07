@@ -226,7 +226,7 @@ class _TopPageState extends ConsumerState<TopPage> {
               Positioned.fill(child: DotImage()),
               SizedBox(
                 height: screenSize.height * 0.8,
-                child: Image.asset('assets/images/susi.png'),
+                child: Image.asset('assets/images/susi2.png'),
               ),
             ],
           ),
