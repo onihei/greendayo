@@ -2,7 +2,7 @@ name: greendayo
 description: A new Flutter project.
 publish_to: 'none'
 
-version: 1.0.0+9
+version: 1.0.0+110
 
 environment:
   sdk: '>=3.0.0<4.0.0'
@@ -75,8 +75,8 @@ flutter:
     - shaders/spiral.frag
 
 flutter_native_splash:
-  android: true
-  ios: true
+  android: false
+  ios: false
   web: true
   color: '#3E2723'
-  image: 'assets/images/splash.png'
+  image: 'assets/images/splash2.png'
