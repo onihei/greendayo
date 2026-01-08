@@ -5,6 +5,7 @@
   "type": "module",
   "exports": "./index.js",
   "scripts": {
+    "dev": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "forever start --uid greendayo -a --killSignal=SIGTERM -c 'nodemon --exitcrash' index.js",
     "stop": "forever stop greendayo",
@@ -14,9 +15,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
     "dayjs": "^1.11.10",
     "express": "^4.18.2",
-    "openai": "^4.17.4",
     "socket.io": "^4.7.2",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.6"

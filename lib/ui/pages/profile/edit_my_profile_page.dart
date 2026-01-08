@@ -259,6 +259,7 @@ class EditMyProfilePage extends HookConsumerWidget {
             goal: goalController.text,
             treasure: treasureController.text,
           );
+          ref.invalidate(profileProvider(myProfile.userId));
           if (context.mounted) {
             Navigator.pop(context);
           }

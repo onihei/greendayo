@@ -4,9 +4,9 @@ import {Server} from 'socket.io';
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone.js";
 import utc from "dayjs/plugin/utc.js";
-import OpenAI from "openai";
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+import { Anthropic } from "@anthropic-ai/sdk";
+const anthropic = new Anthropic({
+    apiKey: process.env.CLAUDE_API_KEY,
 });
 
 dayjs.extend(timezone);
@@ -41,19 +41,20 @@ io.on('connection', async (socket) => {
             '目標': param.goal,
             '人生の宝物': param.treasure,
         };
-        const chatCompletion = await openai.chat.completions.create({
+        // console.log(input);
+        const chatCompletion = await anthropic.messages.create({
+            model: "claude-haiku-4-5-20251001", // Claudeのモデル名
+            max_tokens: 2048,
+            temperature: 0.9,
             messages: [
               {
                 role: "user",
-                content: `次の情報を使って他人に興味を持ってもらえる自己紹介文を作成してください。nullは特にないか教えたくないとこを意味しますので無視して良いです。最後に幸せ自慢を加えてください。${JSON.stringify(input)}`
+                content: `次の情報を使って他人に興味を持ってもらえる自己紹介文を作成してください。結果のテキストだけを出力してください。nullは特にないか教えたくないとこを意味しますので無視して良いです。最後に幸せ自慢を加えてください。${JSON.stringify(input)}`
                }
             ],
-            model: "gpt-3.5-turbo",
-            max_tokens: 2048,
-            temperature: 0.9,
-            stream: false,
         });
-        ack(chatCompletion.choices[0].message.content);
+        // console.log(chatCompletion.content);
+        ack(chatCompletion.content[0].text);
     });
 
     socket.on('disconnecting', () => {
