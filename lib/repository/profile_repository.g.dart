@@ -41,7 +41,7 @@ final class ProfileRepositoryProvider
   }
 }
 
-String _$profileRepositoryHash() => r'16724535075f887810f55a9d059fb15e921be4bd';
+String _$profileRepositoryHash() => r'e09761aebca2052f04b65a98496a04c55bb3cf52';
 
 abstract class _$ProfileRepository extends $Notifier<ProfileRepository> {
   ProfileRepository build();

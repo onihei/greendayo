@@ -5,6 +5,9 @@ import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone.js";
 import utc from "dayjs/plugin/utc.js";
 import { Anthropic } from "@anthropic-ai/sdk";
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 const anthropic = new Anthropic({
     apiKey: process.env.CLAUDE_API_KEY,
 });
@@ -16,6 +19,51 @@ dayjs.tz.setDefault("Asia/Tokyo");
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {path: "/greendayo.io/"});
+
+const UPLOADS_DIR = path.resolve('uploads');
+
+// multer: アップロード先をリクエストパスに基づいて決定
+const storage = multer.diskStorage({
+    destination: (req, _file, cb) => {
+        const dest = path.join(UPLOADS_DIR, path.dirname(req.params[0]));
+        fs.mkdirSync(dest, {recursive: true});
+        cb(null, dest);
+    },
+    filename: (_req, file, cb) => {
+        cb(null, path.basename(_req.params[0]));
+    },
+});
+const upload = multer({storage, limits: {fileSize: 10 * 1024 * 1024}}); // 10MB上限
+
+// POST /storage/upload/* — ファイルアップロード
+app.post('/storage/upload/*', upload.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({error: 'No file uploaded'});
+    }
+    const filePath = req.params[0];
+    const url = `/storage/${filePath}`;
+    res.json({url});
+});
+
+// GET /storage/* — ファイル配信
+app.get('/storage/*', (req, res) => {
+    const filePath = path.join(UPLOADS_DIR, req.params[0]);
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({error: 'Not found'});
+    }
+    res.set('Cache-Control', 'public, max-age=315360000');
+    res.sendFile(filePath);
+});
+
+// DELETE /storage/* — ファイル削除
+app.delete('/storage/*', (req, res) => {
+    const filePath = path.join(UPLOADS_DIR, req.params[0]);
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({error: 'Not found'});
+    }
+    fs.unlinkSync(filePath);
+    res.json({deleted: req.params[0]});
+});
 
 httpServer.listen(10005, () => {
     console.log('Server started on port 10005');

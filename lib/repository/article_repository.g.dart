@@ -41,7 +41,7 @@ final class ArticleRepositoryProvider
   }
 }
 
-String _$articleRepositoryHash() => r'510402d2f57f2c557ae332422e67020822563558';
+String _$articleRepositoryHash() => r'c5ed2dba37c0b7b168ef98239958ac5900a03bce';
 
 abstract class _$ArticleRepository extends $Notifier<ArticleRepository> {
   ArticleRepository build();

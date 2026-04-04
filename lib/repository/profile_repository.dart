@@ -2,10 +2,10 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:greendayo/domain/model/profile.dart';
 import 'package:greendayo/entity/profile.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'profile_repository.g.dart';
@@ -53,17 +53,20 @@ class ProfileRepository extends _$ProfileRepository {
 
   Future<void> uploadMyProfilePhoto(String contentType, Uint8List bytes) async {
     final myProfile = await ref.read(myProfileProvider.future);
-    final storageRef = FirebaseStorage.instance.ref().child(
-          'users/${myProfile.userId}/photo',
-        );
-    final uploadTask = storageRef.putData(
-      bytes,
-      SettableMetadata(
-        contentType: contentType,
-        cacheControl: 'public, max-age=315360000',
-      ),
-    );
-    await uploadTask;
+    final storagePath = 'users/${myProfile.userId}/photo';
+    final uri =
+        Uri.parse('$_storageBaseUrl/storage/upload/$storagePath');
+    final request = http.MultipartRequest('POST', uri)
+      ..files.add(http.MultipartFile.fromBytes(
+        'file',
+        bytes,
+        filename: 'photo',
+        contentType: MediaType.parse(contentType),
+      ));
+    final response = await request.send();
+    if (response.statusCode != 200) {
+      throw StateError('Upload failed: ${response.statusCode}');
+    }
     ref.invalidate(profilePhotoUrlProvider(myProfile.userId));
   }
 
@@ -75,22 +78,29 @@ class ProfileRepository extends _$ProfileRepository {
         throw StateError("load photo error:${data.statusCode}");
       }
     } catch (e) {
-      final url = await FirebaseStorage.instance
-          .ref()
-          .child('default_avatar.png')
-          .getDownloadURL();
-      data = await http.get(Uri.parse(url));
+      // OAuth写真が取得できない場合はスキップ（UIでフォールバックアイコン表示）
+      return;
     }
-    final storageRef = FirebaseStorage.instance.ref().child(
-          'users/${userId}/photo',
-        );
-    final uploadTask = storageRef.putData(
-      data.bodyBytes,
-      SettableMetadata(contentType: data.headers['content-type']),
-    );
-    await uploadTask;
+    final storagePath = 'users/$userId/photo';
+    final uri =
+        Uri.parse('$_storageBaseUrl/storage/upload/$storagePath');
+    final request = http.MultipartRequest('POST', uri)
+      ..files.add(http.MultipartFile.fromBytes(
+        'file',
+        data.bodyBytes,
+        filename: 'photo',
+        contentType: MediaType.parse(
+            data.headers['content-type'] ?? 'image/png'),
+      ));
+    final response = await request.send();
+    if (response.statusCode != 200) {
+      throw StateError('Upload failed: ${response.statusCode}');
+    }
   }
 }
+
+// const _storageBaseUrl = 'http://localhost:10005';
+const _storageBaseUrl = 'https://susipero.com';
 
 final _profilesRef =
     FirebaseFirestore.instance.collection('profiles').withConverter<Profile>(

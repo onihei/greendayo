@@ -178,7 +178,7 @@ final class ProfilePhotoUrlProvider
   }
 }
 
-String _$profilePhotoUrlHash() => r'4a0671201fd68e22897f5e582be00349e727e511';
+String _$profilePhotoUrlHash() => r'e6c51ad5436ac4403f97429d384bebef96f32e5a';
 
 final class ProfilePhotoUrlFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<String>, String> {

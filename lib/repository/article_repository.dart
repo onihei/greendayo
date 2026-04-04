@@ -1,8 +1,9 @@
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:greendayo/entity/article.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:ulid/ulid.dart';
 
@@ -30,21 +31,26 @@ class ArticleRepository extends _$ArticleRepository {
   }
 
   Future<String> uploadJpeg(Uint8List bytes) async {
-    final storageRef = FirebaseStorage.instance.ref().child(
-          'bbs/photo/${Ulid()}',
-        );
-    final uploadTask = storageRef.putData(
-      bytes,
-      SettableMetadata(
-        contentType: "image/jpeg",
-        cacheControl: 'public, max-age=315360000',
-      ),
-    );
-    final result = await uploadTask;
-    final url = await result.ref.getDownloadURL();
-    return url;
+    final storagePath = 'bbs/photo/${Ulid()}';
+    final uri =
+        Uri.parse('$_storageBaseUrl/storage/upload/$storagePath');
+    final request = http.MultipartRequest('POST', uri)
+      ..files.add(http.MultipartFile.fromBytes(
+        'file',
+        bytes,
+        filename: 'photo.jpg',
+        contentType: MediaType('image', 'jpeg'),
+      ));
+    final response = await request.send();
+    if (response.statusCode != 200) {
+      throw StateError('Upload failed: ${response.statusCode}');
+    }
+    return '$_storageBaseUrl/storage/$storagePath';
   }
 }
+
+// const _storageBaseUrl = 'http://localhost:10005';
+const _storageBaseUrl = 'https://susipero.com';
 
 final _articlesRef =
     FirebaseFirestore.instance.collection('articles').withConverter<Article>(
