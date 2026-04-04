@@ -114,7 +114,6 @@ class _ViewController extends _$ViewController {
     if (mimeType == null) {
       showSnackBar(
         context,
-        ref,
         content: Text('ファイルの読み込みに失敗しました。'),
       );
       return;
@@ -127,7 +126,6 @@ class _ViewController extends _$ViewController {
     if (tempImage == null) {
       showSnackBar(
         context,
-        ref,
         content: Text('ファイルの読み込みに失敗しました。'),
       );
       return;

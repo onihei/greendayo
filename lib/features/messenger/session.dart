@@ -11,7 +11,7 @@ class Session {
   factory Session.fromJson(Map<String, dynamic> json) {
     return Session(
       members: [...json['members']],
-      updatedAt: (json['updatedAt'] as dynamic).toDate(),
+      updatedAt: json['updatedAt'] as DateTime,
     );
   }
 

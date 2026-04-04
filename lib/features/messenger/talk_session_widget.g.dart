@@ -41,7 +41,7 @@ final class _ViewControllerProvider
   }
 }
 
-String _$_viewControllerHash() => r'aa578c7d19a3818225690b35a4c71933af0e2a7b';
+String _$_viewControllerHash() => r'3762d73c76bba7edfb08581e40d762bd455d417b';
 
 abstract class _$ViewController extends $Notifier<_ViewController> {
   _ViewController build();

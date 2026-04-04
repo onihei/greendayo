@@ -41,7 +41,7 @@ final class BbsControllerProvider
   }
 }
 
-String _$bbsControllerHash() => r'1e3d08a799c7431d5caac8b3b49eb4c1a7f00f3a';
+String _$bbsControllerHash() => r'9e6d6fdff7bd151969c951df28064749df7fb21f';
 
 abstract class _$BbsController extends $Notifier<BbsController> {
   BbsController build();

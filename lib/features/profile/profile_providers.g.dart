@@ -130,8 +130,7 @@ String _$myProfileHash() => r'253a7a12774682bb442ca8299d10f9d4d566ce1c';
 final profilePhotoUrlProvider = ProfilePhotoUrlFamily._();
 
 final class ProfilePhotoUrlProvider
-    extends $FunctionalProvider<AsyncValue<String>, String, FutureOr<String>>
-    with $FutureModifier<String>, $FutureProvider<String> {
+    extends $FunctionalProvider<String, String, String> with $Provider<String> {
   ProfilePhotoUrlProvider._(
       {required ProfilePhotoUrlFamily super.from,
       required String super.argument})
@@ -155,15 +154,23 @@ final class ProfilePhotoUrlProvider
 
   @$internal
   @override
-  $FutureProviderElement<String> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+  $ProviderElement<String> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
 
   @override
-  FutureOr<String> create(Ref ref) {
+  String create(Ref ref) {
     final argument = this.argument as String;
     return profilePhotoUrl(
       ref,
       argument,
+    );
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String>(value),
     );
   }
 
@@ -178,10 +185,10 @@ final class ProfilePhotoUrlProvider
   }
 }
 
-String _$profilePhotoUrlHash() => r'f4d9e9eb443ffbeadc88c208cd3ec058b7c93973';
+String _$profilePhotoUrlHash() => r'52468b9213e8570305b73b418dcb1350c824c77f';
 
 final class ProfilePhotoUrlFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<String>, String> {
+    with $FunctionalFamilyOverride<String, String> {
   ProfilePhotoUrlFamily._()
       : super(
           retry: null,

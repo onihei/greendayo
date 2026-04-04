@@ -44,7 +44,7 @@ class Article {
       left: json['left'],
       top: json['top'],
       width: json['width'],
-      createdAt: (json['createdAt'] as dynamic).toDate(),
+      createdAt: json['createdAt'] as DateTime,
       createdBy: json['createdBy'],
     );
   }

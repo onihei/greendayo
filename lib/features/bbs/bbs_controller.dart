@@ -17,9 +17,6 @@ part 'bbs_controller.g.dart';
 
 @riverpod
 class BbsController extends _$BbsController {
-  final formContainerKey = GlobalKey();
-  final formKey = GlobalKey();
-
   @override
   BbsController build() {
     return this;
@@ -30,7 +27,11 @@ class BbsController extends _$BbsController {
     ref.read(bbsFormEnabledProvider.notifier).setEnabled(true);
   }
 
-  Future<void> post(BuildContext context) async {
+  Future<void> post(
+    BuildContext context, {
+    required GlobalKey formContainerKey,
+    required GlobalKey formKey,
+  }) async {
     final myProfile = ref.read(myProfileProvider).requireValue;
 
     final stackBox =
@@ -57,7 +58,6 @@ class BbsController extends _$BbsController {
       if (text.trim().isEmpty) {
         showSnackBar(
           context,
-          ref,
           content: Text('投稿内容を記入してください'),
         );
         return;
@@ -81,7 +81,6 @@ class BbsController extends _$BbsController {
 
     showSnackBar(
       context,
-      ref,
       content: const Text('投稿しました'),
       duration: const Duration(seconds: 6),
       action: SnackBarAction(
@@ -97,7 +96,6 @@ class BbsController extends _$BbsController {
     await ref.read(articleRepositoryProvider).delete(docId);
     showSnackBar(
       context,
-      ref,
       content: Text('投稿を取り消しました'),
       duration: Duration(seconds: 3),
     );
@@ -108,7 +106,6 @@ class BbsController extends _$BbsController {
     await ref.read(articleRepositoryProvider).delete(docId);
     showSnackBar(
       context,
-      ref,
       content: Text('削除しました'),
       duration: Duration(seconds: 3),
     );
@@ -124,7 +121,6 @@ class BbsController extends _$BbsController {
     if (mimeType == null) {
       showSnackBar(
         context,
-        ref,
         content: Text('ファイルの読み込みに失敗しました。'),
       );
       return;
@@ -134,7 +130,6 @@ class BbsController extends _$BbsController {
     if (tempImage == null) {
       showSnackBar(
         context,
-        ref,
         content: Text('ファイルの読み込みに失敗しました。'),
       );
       return;

@@ -26,8 +26,11 @@ class ArticleRepository {
 
   CollectionReference<Article> get _articlesRef =>
       _firestore.collection('articles').withConverter<Article>(
-            fromFirestore: (snapshot, _) => Article.fromJson(
-                {...snapshot.data()!, 'createdAt': snapshot.get('createdAt')}),
+            fromFirestore: (snapshot, _) => Article.fromJson({
+                  ...snapshot.data()!,
+                  'createdAt':
+                      (snapshot.get('createdAt') as Timestamp).toDate(),
+                }),
             toFirestore: (article, _) {
               final json = article.toJson();
               json['createdAt'] = Timestamp.fromDate(article.createdAt);

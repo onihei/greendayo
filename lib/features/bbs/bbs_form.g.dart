@@ -40,7 +40,7 @@ final class BbsFormProvider extends $NotifierProvider<BbsForm, BbsFormState> {
   }
 }
 
-String _$bbsFormHash() => r'56bb138c24213fe483ff4038c6e22273bd6d1d34';
+String _$bbsFormHash() => r'39f1a02006a6675256c1bae4c0bc12c3e7ea1619';
 
 abstract class _$BbsForm extends $Notifier<BbsFormState> {
   BbsFormState build();

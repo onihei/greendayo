@@ -12,6 +12,8 @@ part 'bbs_form.g.dart';
 
 // --- State ---
 
+const _sentinel = Object();
+
 class BbsFormState {
   final String text;
   final double width;
@@ -38,22 +40,16 @@ class BbsFormState {
   BbsFormState copyWith({
     String? text,
     double? width,
+    Object? photoJpgBytes = _sentinel,
     double? rotation,
   }) {
     return BbsFormState(
       text: text ?? this.text,
       width: width ?? this.width,
-      photoJpgBytes: photoJpgBytes,
+      photoJpgBytes: photoJpgBytes == _sentinel
+          ? this.photoJpgBytes
+          : photoJpgBytes as Uint8List?,
       rotation: rotation ?? this.rotation,
-    );
-  }
-
-  BbsFormState copyWithPhotoJpgBytes(Uint8List? bytes) {
-    return BbsFormState(
-      text: text,
-      width: width,
-      photoJpgBytes: bytes,
-      rotation: rotation,
     );
   }
 }
@@ -70,8 +66,10 @@ class BbsForm extends _$BbsForm {
   }
 
   void changePhotoJpgBytes(Uint8List? bytes) {
-    final newState = state.copyWithPhotoJpgBytes(bytes);
-    state = newState.copyWith(rotation: _randomRotation());
+    state = state.copyWith(
+      photoJpgBytes: bytes,
+      rotation: _randomRotation(),
+    );
   }
 
   void shake() {
@@ -130,7 +128,9 @@ class BbsOffset extends _$BbsOffset {
 // --- Widgets ---
 
 class BbsFormWidget extends HookConsumerWidget {
-  const BbsFormWidget({super.key});
+  const BbsFormWidget({super.key, required this.formKey});
+
+  final GlobalKey formKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -143,7 +143,6 @@ class BbsFormWidget extends HookConsumerWidget {
   }
 
   Widget _photoForm(BuildContext context, WidgetRef ref) {
-    final vc = ref.watch(bbsControllerProvider);
     final form = ref.watch(bbsFormProvider);
     final content = Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
@@ -153,18 +152,17 @@ class BbsFormWidget extends HookConsumerWidget {
       child: form.photo,
     );
     return Container(
-      key: vc.formKey,
+      key: formKey,
       child: Transform.rotate(angle: form.rotation, child: content),
     );
   }
 
   Widget _textForm(BuildContext context, WidgetRef ref) {
-    final vc = ref.watch(bbsControllerProvider);
     final form = ref.watch(bbsFormProvider);
     final controller = useTextEditingController();
     final myProfile = ref.watch(myProfileProvider).requireValue;
     return Container(
-      key: vc.formKey,
+      key: formKey,
       padding: const EdgeInsets.all(4),
       width: form.width,
       decoration: textBoxDecoration(
@@ -203,7 +201,14 @@ class BbsFormWidget extends HookConsumerWidget {
 }
 
 class BbsEditActions extends ConsumerWidget {
-  const BbsEditActions({super.key});
+  const BbsEditActions({
+    super.key,
+    required this.formContainerKey,
+    required this.formKey,
+  });
+
+  final GlobalKey formContainerKey;
+  final GlobalKey formKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -225,7 +230,11 @@ class BbsEditActions extends ConsumerWidget {
             const SizedBox(width: 20),
             ElevatedButton(
               onPressed: () async {
-                await vc.post(context);
+                await vc.post(
+                  context,
+                  formContainerKey: formContainerKey,
+                  formKey: formKey,
+                );
               },
               child: const Text('投稿する'),
             ),

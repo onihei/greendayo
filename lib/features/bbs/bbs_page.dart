@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:greendayo/app/navigation_item_widget.dart';
 import 'package:greendayo/features/bbs/article_providers.dart';
 import 'package:greendayo/features/bbs/bbs_board.dart';
@@ -6,7 +7,7 @@ import 'package:greendayo/features/bbs/bbs_controller.dart';
 import 'package:greendayo/features/bbs/bbs_form.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class BbsPage extends ConsumerWidget implements NavigationItemWidget {
+class BbsPage extends HookConsumerWidget implements NavigationItemWidget {
   const BbsPage({super.key});
 
   @override
@@ -29,27 +30,41 @@ class BbsPage extends ConsumerWidget implements NavigationItemWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(articlesStreamProvider);
+    final formContainerKey = useRef(GlobalKey());
+    final formKey = useRef(GlobalKey());
     return result.maybeWhen(
-      data: (value) => _buildScreen(context, ref),
+      data: (value) => _buildScreen(
+        context,
+        ref,
+        formContainerKey: formContainerKey.value,
+        formKey: formKey.value,
+      ),
       orElse: () => const SizedBox.shrink(),
     );
   }
 
-  Widget _buildScreen(BuildContext context, WidgetRef ref) {
-    final vc = ref.watch(bbsControllerProvider);
+  Widget _buildScreen(
+    BuildContext context,
+    WidgetRef ref, {
+    required GlobalKey formContainerKey,
+    required GlobalKey formKey,
+  }) {
     final formEnabled = ref.watch(bbsFormEnabledProvider);
     ref.watch(bbsFormProvider);
     return Stack(
-      key: vc.formContainerKey,
+      key: formContainerKey,
       alignment: Alignment.bottomCenter,
       children: <Widget>[
         const BbsBoard(),
         if (formEnabled) ...[
           Align(
             alignment: const Alignment(0, -0.2),
-            child: const BbsFormWidget(),
+            child: BbsFormWidget(formKey: formKey),
           ),
-          const BbsEditActions(),
+          BbsEditActions(
+            formContainerKey: formContainerKey,
+            formKey: formKey,
+          ),
         ],
       ],
     );

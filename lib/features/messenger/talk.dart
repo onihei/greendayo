@@ -13,7 +13,7 @@ class Talk {
     return Talk(
       content: json['content'],
       sender: json['sender'],
-      createdAt: (json['createdAt'] as dynamic).toDate(),
+      createdAt: json['createdAt'] as DateTime,
     );
   }
 

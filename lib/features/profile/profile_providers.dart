@@ -26,6 +26,6 @@ Future<Profile> myProfile(Ref ref) async {
 }
 
 @riverpod
-Future<String> profilePhotoUrl(Ref ref, String uid) async {
+String profilePhotoUrl(Ref ref, String uid) {
   return '$storageBaseUrl/storage/users/$uid/photo';
 }

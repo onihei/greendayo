@@ -20,7 +20,8 @@ class TalkRepository {
       _firestore.collection('sessions').withConverter<Session>(
             fromFirestore: (snapshot, _) => Session.fromJson({
               ...snapshot.data()!,
-              'updatedAt': snapshot.get('updatedAt')
+              'updatedAt':
+                  (snapshot.get('updatedAt') as Timestamp).toDate(),
             }),
             toFirestore: (session, _) {
               final json = session.toJson();
@@ -36,7 +37,8 @@ class TalkRepository {
         .withConverter<Talk>(
           fromFirestore: (snapshot, _) => Talk.fromJson({
             ...snapshot.data()!,
-            'createdAt': snapshot.get('createdAt')
+            'createdAt':
+                (snapshot.get('createdAt') as Timestamp).toDate(),
           }),
           toFirestore: (talk, _) {
             final json = talk.toJson();

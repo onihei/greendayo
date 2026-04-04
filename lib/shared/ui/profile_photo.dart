@@ -11,18 +11,17 @@ class ProfilePhoto extends ConsumerWidget {
 
   @override
   Widget build(context, ref) {
-    final profilePhotoUrlAsync =
-        ref.watch(profilePhotoUrlProvider(profile.userId));
+    final url = ref.watch(profilePhotoUrlProvider(profile.userId));
     return ClipRRect(
       key: ValueKey(size),
       borderRadius: BorderRadius.circular(size),
-      child: Container(
+      child: SizedBox(
         width: size,
         height: size,
-        child: profilePhotoUrlAsync.when(
-          data: (url) => CachedNetworkImage(imageUrl: url, fit: BoxFit.cover),
-          error: (error, _) => Icon(Icons.account_circle, size: size),
-          loading: () => CircularProgressIndicator(),
+        child: CachedNetworkImage(
+          imageUrl: url,
+          fit: BoxFit.cover,
+          errorWidget: (_, __, ___) => Icon(Icons.account_circle, size: size),
         ),
       ),
     );

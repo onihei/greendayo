@@ -20,7 +20,8 @@ class SessionRepository {
       _firestore.collection('sessions').withConverter<Session>(
             fromFirestore: (snapshot, _) => Session.fromJson({
               ...snapshot.data()!,
-              'updatedAt': snapshot.get('updatedAt')
+              'updatedAt':
+                  (snapshot.get('updatedAt') as Timestamp).toDate(),
             }),
             toFirestore: (session, _) {
               final json = session.toJson();

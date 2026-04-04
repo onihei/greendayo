@@ -204,7 +204,7 @@ class TopPage extends HookConsumerWidget {
                       child: VideoPlayer(videoController),
                     );
                   },
-                  error: (error, stackTrace) => Text(error.toString() ?? ''),
+                  error: (error, stackTrace) => Text(error.toString()),
                   loading: () => SizedBox(height: screenSize.height * 0.95),
                 ),
               ),

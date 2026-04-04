@@ -28,7 +28,6 @@ class _ViewController extends _$ViewController {
     if (text.trim().isEmpty) {
       showSnackBar(
         context,
-        ref,
         content: Text('テキストを入力してください'),
         duration: Duration(seconds: 1),
       );
@@ -105,10 +104,81 @@ class TalkSessionWidget extends HookConsumerWidget {
     if (sessionId == null) {
       return Container();
     }
-    final animatedStateKey = GlobalKey<AnimatedListState>();
+    return _AnimatedTalkList(
+      sessionId: sessionId,
+      initialSnapshot: snapshot,
+    );
+  }
 
-    final scrollController = ScrollController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+  Widget _form(
+    BuildContext context,
+    WidgetRef ref,
+    ValueNotifier<String?> currentSessionId,
+  ) {
+    final vc = ref.watch(_viewControllerProvider);
+    final controller = useTextEditingController();
+    Widget? backButton;
+    final width = MediaQuery.of(context).size.width;
+    if (width < 600) {
+      backButton = IconButton(
+        onPressed: () async {
+          await vc.back(
+            context,
+          );
+        },
+        icon: const Icon(Icons.arrow_back),
+      );
+    }
+    return Container(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            if (backButton != null) backButton,
+            Expanded(
+              child: TextField(
+                keyboardType: TextInputType.multiline,
+                controller: controller,
+                maxLines: null,
+                textInputAction: TextInputAction.send,
+              ),
+            ),
+            IconButton(
+              onPressed: () async {
+                await vc.post(
+                  context,
+                  destinationUserId: userId,
+                  currentSessionId: currentSessionId,
+                  text: controller.text,
+                );
+              },
+              icon: const Icon(Icons.send),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedTalkList extends HookConsumerWidget {
+  const _AnimatedTalkList({
+    required this.sessionId,
+    required this.initialSnapshot,
+  });
+
+  final String sessionId;
+  final QuerySnapshot<Talk> initialSnapshot;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final animatedStateKey = useRef(GlobalKey<AnimatedListState>());
+    final scrollController = useScrollController();
+
+    useEffect(() {
       Future.delayed(const Duration(milliseconds: 200), () {
         if (scrollController.hasClients) {
           scrollController.animateTo(
@@ -118,45 +188,40 @@ class TalkSessionWidget extends HookConsumerWidget {
           );
         }
       });
-    });
-    return Consumer(
-      builder: (context, ref, _) {
-        ref.listen(talksStreamProvider(sessionId), (
-          previous,
-          next,
-        ) async {
-          final nextList = next.requireValue;
-          for (final change in nextList.docChanges) {
-            if (change.oldIndex == -1) {
-              animatedStateKey.currentState?.insertItem(
-                change.newIndex,
-                duration: const Duration(milliseconds: 200),
-              );
-            }
-            if (change.newIndex == -1) {
-              animatedStateKey.currentState?.removeItem(
-                change.oldIndex,
-                (context, animation) => const SizedBox.shrink(),
-              );
-            }
-          }
-        });
+      return null;
+    }, [initialSnapshot]);
 
-        return AnimatedList(
-          key: animatedStateKey,
-          controller: scrollController,
-          initialItemCount: snapshot.size,
-          itemBuilder: (
-            BuildContext context,
-            int index,
-            Animation<double> animation,
-          ) {
-            final talk = snapshot.docs[index];
-            return SizeTransition(
-              sizeFactor: animation,
-              child: _talkTile(context, ref, talk),
-            );
-          },
+    ref.listen(talksStreamProvider(sessionId), (previous, next) {
+      final nextList = next.requireValue;
+      for (final change in nextList.docChanges) {
+        if (change.oldIndex == -1) {
+          animatedStateKey.value.currentState?.insertItem(
+            change.newIndex,
+            duration: const Duration(milliseconds: 200),
+          );
+        }
+        if (change.newIndex == -1) {
+          animatedStateKey.value.currentState?.removeItem(
+            change.oldIndex,
+            (context, animation) => const SizedBox.shrink(),
+          );
+        }
+      }
+    });
+
+    return AnimatedList(
+      key: animatedStateKey.value,
+      controller: scrollController,
+      initialItemCount: initialSnapshot.size,
+      itemBuilder: (
+        BuildContext context,
+        int index,
+        Animation<double> animation,
+      ) {
+        final talk = initialSnapshot.docs[index];
+        return SizeTransition(
+          sizeFactor: animation,
+          child: _talkTile(context, ref, talk),
         );
       },
     );
@@ -211,59 +276,6 @@ class TalkSessionWidget extends HookConsumerWidget {
             isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: messageDetails,
-      ),
-    );
-  }
-
-  Widget _form(
-    BuildContext context,
-    WidgetRef ref,
-    ValueNotifier<String?> currentSessionId,
-  ) {
-    final vc = ref.watch(_viewControllerProvider);
-    final controller = useTextEditingController();
-    Widget? backButton;
-    final width = MediaQuery.of(context).size.width;
-    if (width < 600) {
-      backButton = IconButton(
-        onPressed: () async {
-          await vc.back(
-            context,
-          );
-        },
-        icon: const Icon(Icons.arrow_back),
-      );
-    }
-    return Container(
-      color: Theme.of(context).colorScheme.primaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            if (backButton != null) backButton,
-            Expanded(
-              child: TextField(
-                keyboardType: TextInputType.multiline,
-                controller: controller,
-                maxLines: null,
-                textInputAction: TextInputAction.send,
-              ),
-            ),
-            IconButton(
-              onPressed: () async {
-                await vc.post(
-                  context,
-                  destinationUserId: userId,
-                  currentSessionId: currentSessionId,
-                  text: controller.text,
-                );
-              },
-              icon: const Icon(Icons.send),
-            ),
-          ],
-        ),
       ),
     );
   }

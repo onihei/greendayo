@@ -75,18 +75,14 @@ class MessengerPage extends HookConsumerWidget implements NavigationItemWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedSessionId = ref.watch(_selectedSessionIdProvider);
-    ref.watch(_selectedSessionTitleProvider);
     final width = MediaQuery.of(context).size.width;
-    if (width < 600) {
-      Future.microtask(() async {
-        final title = await ref.read(_selectedSessionTitleProvider.future);
-        ref.read(appTitleProvider.notifier).setTitle(title);
-      });
-    } else {
-      Future.microtask(() async {
+    ref.listen(_selectedSessionTitleProvider, (_, next) {
+      if (width < 600) {
+        ref.read(appTitleProvider.notifier).setTitle(next.value);
+      } else {
         ref.read(appTitleProvider.notifier).setTitle(null);
-      });
-    }
+      }
+    });
     return Navigator(
       pages: [
         MaterialPage(
