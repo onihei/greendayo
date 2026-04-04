@@ -50,4 +50,4 @@ final class ProfileRepositoryProvider extends $FunctionalProvider<
   }
 }
 
-String _$profileRepositoryHash() => r'dbf1adbf76b68a77f1975222bd72c33c8400ae3b';
+String _$profileRepositoryHash() => r'8e731b12258038869dad2e04b1f2834db8b33ff3';

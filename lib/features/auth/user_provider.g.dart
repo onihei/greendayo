@@ -40,7 +40,7 @@ final class UserProvider
   }
 }
 
-String _$userHash() => r'214176a8d91d4a6e6832dd8c5b16fe5128960ed1';
+String _$userHash() => r'9a15bc0a9b6e6423053d1ec9df7705b46bc1e65c';
 
 @ProviderFor(SelectedUserId)
 final selectedUserIdProvider = SelectedUserIdProvider._();

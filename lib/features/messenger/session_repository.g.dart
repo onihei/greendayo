@@ -50,4 +50,4 @@ final class SessionRepositoryProvider extends $FunctionalProvider<
   }
 }
 
-String _$sessionRepositoryHash() => r'9b0cfeb4ea2a1c5e1a7ac11b8c615ba5a27ec2bf';
+String _$sessionRepositoryHash() => r'777068671c0cd885475c8e247c13ddfd8a0ddaed';

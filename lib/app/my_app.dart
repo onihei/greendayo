@@ -82,7 +82,9 @@ class MyRouterDelegate extends RouterDelegate<String>
         return userAsync.when(
           data: (user) => _buildNavigator(ref, user),
           loading: () => const SizedBox.shrink(),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (error, _) => Center(
+            child: Text('認証エラーが発生しました: $error'),
+          ),
         );
       },
     );

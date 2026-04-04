@@ -48,4 +48,4 @@ final class TalkRepositoryProvider
   }
 }
 
-String _$talkRepositoryHash() => r'c85008d8c8ca5f25d2653a3c9e3c915b7c5dd087';
+String _$talkRepositoryHash() => r'a6ce8357c11e2c4898512cc737d95187bfb6de6c';

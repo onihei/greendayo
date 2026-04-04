@@ -50,4 +50,4 @@ final class ArticleRepositoryProvider extends $FunctionalProvider<
   }
 }
 
-String _$articleRepositoryHash() => r'87787306df3640c6b07d3dfdb1f9ee3ad827bd9d';
+String _$articleRepositoryHash() => r'3f2a6a2e2347e8b5dcb2cd9d5afefeeba9c34aa6';

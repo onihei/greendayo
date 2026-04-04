@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +17,18 @@ Future<void> main() async {
       final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
       FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+      FlutterError.onError = (details) {
+        FlutterError.presentError(details);
+        debugPrint('FlutterError: ${details.exception}');
+        debugPrint('${details.stack}');
+      };
+
+      PlatformDispatcher.instance.onError = (error, stack) {
+        debugPrint('PlatformError: $error');
+        debugPrint('$stack');
+        return true;
+      };
+
       runApp(
         const ProviderScope(
           child: MyApp(),
@@ -23,9 +36,8 @@ Future<void> main() async {
       );
     },
     (error, stackTrace) {
-      print("Error: $error");
-      print("StackTrace: $stackTrace");
-      // FirebaseCrashlytics.instance.recordError(error, stackTrace);
+      debugPrint("Error: $error");
+      debugPrint("StackTrace: $stackTrace");
     },
   );
 }

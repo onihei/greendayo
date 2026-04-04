@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:greendayo/features/bbs/article.dart';
 import 'package:greendayo/shared/config.dart';
+import 'package:greendayo/shared/exceptions/app_exception.dart';
+import 'package:greendayo/shared/firebase/firebase_providers.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -11,9 +13,28 @@ import 'package:ulid/ulid.dart';
 part 'article_repository.g.dart';
 
 @riverpod
-ArticleRepository articleRepository(Ref ref) => ArticleRepository();
+ArticleRepository articleRepository(Ref ref) => ArticleRepository(
+      ref.read(firestoreProvider),
+      ref.read(httpClientProvider),
+    );
 
 class ArticleRepository {
+  final FirebaseFirestore _firestore;
+  final http.Client _httpClient;
+
+  ArticleRepository(this._firestore, this._httpClient);
+
+  CollectionReference<Article> get _articlesRef =>
+      _firestore.collection('articles').withConverter<Article>(
+            fromFirestore: (snapshot, _) => Article.fromJson(
+                {...snapshot.data()!, 'createdAt': snapshot.get('createdAt')}),
+            toFirestore: (article, _) {
+              final json = article.toJson();
+              json['createdAt'] = Timestamp.fromDate(article.createdAt);
+              return json;
+            },
+          );
+
   Stream<QuerySnapshot<Article>> observe() =>
       _articlesRef.orderBy('createdAt').limit(100).snapshots();
 
@@ -38,21 +59,11 @@ class ArticleRepository {
         filename: 'photo.jpg',
         contentType: MediaType('image', 'jpeg'),
       ));
-    final response = await request.send();
+    final response = await _httpClient.send(request);
     if (response.statusCode != 200) {
-      throw StateError('Upload failed: ${response.statusCode}');
+      throw AppException(
+          ErrorKind.server, 'アップロードに失敗しました: ${response.statusCode}');
     }
     return '$storageBaseUrl/storage/$storagePath';
   }
 }
-
-final _articlesRef =
-    FirebaseFirestore.instance.collection('articles').withConverter<Article>(
-          fromFirestore: (snapshot, _) =>
-              Article.fromJson({...snapshot.data()!, 'createdAt': snapshot.get('createdAt')}),
-          toFirestore: (article, _) {
-            final json = article.toJson();
-            json['createdAt'] = Timestamp.fromDate(article.createdAt);
-            return json;
-          },
-        );
