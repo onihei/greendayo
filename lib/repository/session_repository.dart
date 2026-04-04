@@ -1,17 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:greendayo/domain/model/profile.dart';
 import 'package:greendayo/entity/session.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'session_repository.g.dart';
 
 @riverpod
-class SessionRepository extends _$SessionRepository {
-  @override
-  SessionRepository build() {
-    return this;
-  }
+SessionRepository sessionRepository(Ref ref) => SessionRepository();
 
+class SessionRepository {
   Future<Session> get(String sessionId) async {
     final doc = await _sessionsRef.doc(sessionId).get();
     if (!doc.exists) {
@@ -20,11 +16,10 @@ class SessionRepository extends _$SessionRepository {
     return doc.data()!;
   }
 
-  Stream<QuerySnapshot<Session>> observe() {
-    final myProfile = ref.read(myProfileProvider).requireValue;
+  Stream<QuerySnapshot<Session>> observe({required String userId}) {
     return _sessionsRef
         .orderBy('updatedAt', descending: true)
-        .where("members", arrayContains: myProfile.userId)
+        .where("members", arrayContains: userId)
         .snapshots();
   }
 

@@ -9,15 +9,16 @@ part of 'talk_repository.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(TalkRepository)
-final talkRepositoryProvider = TalkRepositoryFamily._();
+@ProviderFor(talkRepository)
+final talkRepositoryProvider = TalkRepositoryProvider._();
 
 final class TalkRepositoryProvider
-    extends $NotifierProvider<TalkRepository, SessionTalkRepository> {
-  TalkRepositoryProvider._(
-      {required TalkRepositoryFamily super.from,
-      required String super.argument})
+    extends $FunctionalProvider<TalkRepository, TalkRepository, TalkRepository>
+    with $Provider<TalkRepository> {
+  TalkRepositoryProvider._()
       : super(
+          from: null,
+          argument: null,
           retry: null,
           name: r'talkRepositoryProvider',
           isAutoDispose: true,
@@ -28,80 +29,23 @@ final class TalkRepositoryProvider
   @override
   String debugGetCreateSourceHash() => _$talkRepositoryHash();
 
-  @override
-  String toString() {
-    return r'talkRepositoryProvider'
-        ''
-        '($argument)';
-  }
-
   @$internal
   @override
-  TalkRepository create() => TalkRepository();
+  $ProviderElement<TalkRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  TalkRepository create(Ref ref) {
+    return talkRepository(ref);
+  }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(SessionTalkRepository value) {
+  Override overrideWithValue(TalkRepository value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<SessionTalkRepository>(value),
+      providerOverride: $SyncValueProvider<TalkRepository>(value),
     );
   }
-
-  @override
-  bool operator ==(Object other) {
-    return other is TalkRepositoryProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
 }
 
-String _$talkRepositoryHash() => r'6a9612120a1360e07acda18e944968195750e91f';
-
-final class TalkRepositoryFamily extends $Family
-    with
-        $ClassFamilyOverride<TalkRepository, SessionTalkRepository,
-            SessionTalkRepository, SessionTalkRepository, String> {
-  TalkRepositoryFamily._()
-      : super(
-          retry: null,
-          name: r'talkRepositoryProvider',
-          dependencies: null,
-          $allTransitiveDependencies: null,
-          isAutoDispose: true,
-        );
-
-  TalkRepositoryProvider call(
-    String sessionId,
-  ) =>
-      TalkRepositoryProvider._(argument: sessionId, from: this);
-
-  @override
-  String toString() => r'talkRepositoryProvider';
-}
-
-abstract class _$TalkRepository extends $Notifier<SessionTalkRepository> {
-  late final _$args = ref.$arg as String;
-  String get sessionId => _$args;
-
-  SessionTalkRepository build(
-    String sessionId,
-  );
-  @$mustCallSuper
-  @override
-  void runBuild() {
-    final ref = this.ref as $Ref<SessionTalkRepository, SessionTalkRepository>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<SessionTalkRepository, SessionTalkRepository>,
-        SessionTalkRepository,
-        Object?,
-        Object?>;
-    element.handleCreate(
-        ref,
-        () => build(
-              _$args,
-            ));
-  }
-}
+String _$talkRepositoryHash() => r'c85008d8c8ca5f25d2653a3c9e3c915b7c5dd087';

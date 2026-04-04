@@ -134,9 +134,13 @@ class _ViewController extends _$ViewController {
     }
     final resized = img.copyResize(tempImage, width: min(tempImage.width, 500));
     final bytes = img.encodeJpg(resized, quality: 80).buffer.asUint8List();
-    await ref
-        .watch(profileRepositoryProvider)
-        .uploadMyProfilePhoto("image/jpeg", bytes);
+    final myProfile = await ref.read(myProfileProvider.future);
+    await ref.read(profileRepositoryProvider).uploadPhoto(
+          userId: myProfile.userId,
+          contentType: "image/jpeg",
+          bytes: bytes,
+        );
+    ref.invalidate(profilePhotoUrlProvider(myProfile.userId));
   }
 }
 

@@ -9,11 +9,13 @@ part of 'article_repository.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(ArticleRepository)
+@ProviderFor(articleRepository)
 final articleRepositoryProvider = ArticleRepositoryProvider._();
 
-final class ArticleRepositoryProvider
-    extends $NotifierProvider<ArticleRepository, ArticleRepository> {
+final class ArticleRepositoryProvider extends $FunctionalProvider<
+    ArticleRepository,
+    ArticleRepository,
+    ArticleRepository> with $Provider<ArticleRepository> {
   ArticleRepositoryProvider._()
       : super(
           from: null,
@@ -30,7 +32,14 @@ final class ArticleRepositoryProvider
 
   @$internal
   @override
-  ArticleRepository create() => ArticleRepository();
+  $ProviderElement<ArticleRepository> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ArticleRepository create(Ref ref) {
+    return articleRepository(ref);
+  }
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(ArticleRepository value) {
@@ -41,19 +50,4 @@ final class ArticleRepositoryProvider
   }
 }
 
-String _$articleRepositoryHash() => r'c5ed2dba37c0b7b168ef98239958ac5900a03bce';
-
-abstract class _$ArticleRepository extends $Notifier<ArticleRepository> {
-  ArticleRepository build();
-  @$mustCallSuper
-  @override
-  void runBuild() {
-    final ref = this.ref as $Ref<ArticleRepository, ArticleRepository>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<ArticleRepository, ArticleRepository>,
-        ArticleRepository,
-        Object?,
-        Object?>;
-    element.handleCreate(ref, build);
-  }
-}
+String _$articleRepositoryHash() => r'87787306df3640c6b07d3dfdb1f9ee3ad827bd9d';

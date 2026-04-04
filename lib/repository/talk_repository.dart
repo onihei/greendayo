@@ -6,23 +6,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'talk_repository.g.dart';
 
 @riverpod
-class TalkRepository extends _$TalkRepository {
-  @override
-  SessionTalkRepository build(String sessionId) {
-    return SessionTalkRepository(sessionId);
-  }
-}
+TalkRepository talkRepository(Ref ref) => TalkRepository();
 
-class SessionTalkRepository {
-  final String sessionId;
-
-  SessionTalkRepository(this.sessionId);
-
-  Stream<QuerySnapshot<Talk>> observe() {
+class TalkRepository {
+  Stream<QuerySnapshot<Talk>> observe(String sessionId) {
     return _talksRef(sessionId).orderBy('createdAt').snapshots();
   }
 
-  Future<String> save(Talk entity) async {
+  Future<String> save(String sessionId, Talk entity) async {
     final newDoc = _talksRef(sessionId).doc();
     await newDoc.set(entity);
     return newDoc.id;

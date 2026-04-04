@@ -7,5 +7,5 @@ part 'talk.g.dart';
 
 @riverpod
 Stream<QuerySnapshot<Talk>> talksStream(Ref ref, String sessionId) {
-  return ref.read(talkRepositoryProvider(sessionId)).observe();
+  return ref.read(talkRepositoryProvider).observe(sessionId);
 }

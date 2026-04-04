@@ -45,7 +45,7 @@ final class SessionsStreamProvider extends $FunctionalProvider<
   }
 }
 
-String _$sessionsStreamHash() => r'224542a948e000c536e123d4128843a9a02c5289';
+String _$sessionsStreamHash() => r'd2cac59dcaeae7332dc97cb19109c8ef128df5a2';
 
 @ProviderFor(session)
 final sessionProvider = SessionFamily._();

@@ -9,11 +9,13 @@ part of 'session_repository.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(SessionRepository)
+@ProviderFor(sessionRepository)
 final sessionRepositoryProvider = SessionRepositoryProvider._();
 
-final class SessionRepositoryProvider
-    extends $NotifierProvider<SessionRepository, SessionRepository> {
+final class SessionRepositoryProvider extends $FunctionalProvider<
+    SessionRepository,
+    SessionRepository,
+    SessionRepository> with $Provider<SessionRepository> {
   SessionRepositoryProvider._()
       : super(
           from: null,
@@ -30,7 +32,14 @@ final class SessionRepositoryProvider
 
   @$internal
   @override
-  SessionRepository create() => SessionRepository();
+  $ProviderElement<SessionRepository> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SessionRepository create(Ref ref) {
+    return sessionRepository(ref);
+  }
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(SessionRepository value) {
@@ -41,19 +50,4 @@ final class SessionRepositoryProvider
   }
 }
 
-String _$sessionRepositoryHash() => r'8d57023d9484ce5514d135ffb88e31695a6ded4d';
-
-abstract class _$SessionRepository extends $Notifier<SessionRepository> {
-  SessionRepository build();
-  @$mustCallSuper
-  @override
-  void runBuild() {
-    final ref = this.ref as $Ref<SessionRepository, SessionRepository>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<SessionRepository, SessionRepository>,
-        SessionRepository,
-        Object?,
-        Object?>;
-    element.handleCreate(ref, build);
-  }
-}
+String _$sessionRepositoryHash() => r'9b0cfeb4ea2a1c5e1a7ac11b8c615ba5a27ec2bf';

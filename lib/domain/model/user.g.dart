@@ -21,7 +21,7 @@ final class UserProvider
           argument: null,
           retry: null,
           name: r'userProvider',
-          isAutoDispose: true,
+          isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
@@ -40,7 +40,7 @@ final class UserProvider
   }
 }
 
-String _$userHash() => r'36ae390da092331330d3b38398f397ecea7cc124';
+String _$userHash() => r'214176a8d91d4a6e6832dd8c5b16fe5128960ed1';
 
 @ProviderFor(SelectedUserId)
 final selectedUserIdProvider = SelectedUserIdProvider._();

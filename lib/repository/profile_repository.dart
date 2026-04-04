@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:greendayo/config.dart';
-import 'package:greendayo/domain/model/profile.dart';
 import 'package:greendayo/entity/profile.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -12,12 +11,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'profile_repository.g.dart';
 
 @riverpod
-class ProfileRepository extends _$ProfileRepository {
-  @override
-  ProfileRepository build() {
-    return this;
-  }
+ProfileRepository profileRepository(Ref ref) => ProfileRepository();
 
+class ProfileRepository {
   Future<Profile> get(String userId) async {
     final doc = await _profilesRef.doc(userId).get();
     if (!doc.exists) {
@@ -46,17 +42,18 @@ class ProfileRepository extends _$ProfileRepository {
   }
 
   Future<String> save(Profile entity) async {
-    // documentIdをuserIdとする
     final newDoc = _profilesRef.doc(entity.userId);
     await newDoc.set(entity);
     return newDoc.id;
   }
 
-  Future<void> uploadMyProfilePhoto(String contentType, Uint8List bytes) async {
-    final myProfile = await ref.read(myProfileProvider.future);
-    final storagePath = 'users/${myProfile.userId}/photo';
-    final uri =
-        Uri.parse('$storageBaseUrl/storage/upload/$storagePath');
+  Future<void> uploadPhoto({
+    required String userId,
+    required String contentType,
+    required Uint8List bytes,
+  }) async {
+    final storagePath = 'users/$userId/photo';
+    final uri = Uri.parse('$storageBaseUrl/storage/upload/$storagePath');
     final request = http.MultipartRequest('POST', uri)
       ..files.add(http.MultipartFile.fromBytes(
         'file',
@@ -68,7 +65,6 @@ class ProfileRepository extends _$ProfileRepository {
     if (response.statusCode != 200) {
       throw StateError('Upload failed: ${response.statusCode}');
     }
-    ref.invalidate(profilePhotoUrlProvider(myProfile.userId));
   }
 
   Future<void> _uploadPhoto(String userId, String? url) async {
@@ -83,8 +79,7 @@ class ProfileRepository extends _$ProfileRepository {
       return;
     }
     final storagePath = 'users/$userId/photo';
-    final uri =
-        Uri.parse('$storageBaseUrl/storage/upload/$storagePath');
+    final uri = Uri.parse('$storageBaseUrl/storage/upload/$storagePath');
     final request = http.MultipartRequest('POST', uri)
       ..files.add(http.MultipartFile.fromBytes(
         'file',
@@ -99,7 +94,6 @@ class ProfileRepository extends _$ProfileRepository {
     }
   }
 }
-
 
 final _profilesRef =
     FirebaseFirestore.instance.collection('profiles').withConverter<Profile>(

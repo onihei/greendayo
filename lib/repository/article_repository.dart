@@ -11,12 +11,9 @@ import 'package:ulid/ulid.dart';
 part 'article_repository.g.dart';
 
 @riverpod
-class ArticleRepository extends _$ArticleRepository {
-  @override
-  ArticleRepository build() {
-    return this;
-  }
+ArticleRepository articleRepository(Ref ref) => ArticleRepository();
 
+class ArticleRepository {
   Stream<QuerySnapshot<Article>> observe() =>
       _articlesRef.orderBy('createdAt').limit(100).snapshots();
 
@@ -33,8 +30,7 @@ class ArticleRepository extends _$ArticleRepository {
 
   Future<String> uploadJpeg(Uint8List bytes) async {
     final storagePath = 'bbs/photo/${Ulid()}';
-    final uri =
-        Uri.parse('$storageBaseUrl/storage/upload/$storagePath');
+    final uri = Uri.parse('$storageBaseUrl/storage/upload/$storagePath');
     final request = http.MultipartRequest('POST', uri)
       ..files.add(http.MultipartFile.fromBytes(
         'file',
@@ -49,7 +45,6 @@ class ArticleRepository extends _$ArticleRepository {
     return '$storageBaseUrl/storage/$storagePath';
   }
 }
-
 
 final _articlesRef =
     FirebaseFirestore.instance.collection('articles').withConverter<Article>(

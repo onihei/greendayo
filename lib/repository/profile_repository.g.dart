@@ -9,11 +9,13 @@ part of 'profile_repository.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(ProfileRepository)
+@ProviderFor(profileRepository)
 final profileRepositoryProvider = ProfileRepositoryProvider._();
 
-final class ProfileRepositoryProvider
-    extends $NotifierProvider<ProfileRepository, ProfileRepository> {
+final class ProfileRepositoryProvider extends $FunctionalProvider<
+    ProfileRepository,
+    ProfileRepository,
+    ProfileRepository> with $Provider<ProfileRepository> {
   ProfileRepositoryProvider._()
       : super(
           from: null,
@@ -30,7 +32,14 @@ final class ProfileRepositoryProvider
 
   @$internal
   @override
-  ProfileRepository create() => ProfileRepository();
+  $ProviderElement<ProfileRepository> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ProfileRepository create(Ref ref) {
+    return profileRepository(ref);
+  }
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(ProfileRepository value) {
@@ -41,19 +50,4 @@ final class ProfileRepositoryProvider
   }
 }
 
-String _$profileRepositoryHash() => r'e09761aebca2052f04b65a98496a04c55bb3cf52';
-
-abstract class _$ProfileRepository extends $Notifier<ProfileRepository> {
-  ProfileRepository build();
-  @$mustCallSuper
-  @override
-  void runBuild() {
-    final ref = this.ref as $Ref<ProfileRepository, ProfileRepository>;
-    final element = ref.element as $ClassProviderElement<
-        AnyNotifier<ProfileRepository, ProfileRepository>,
-        ProfileRepository,
-        Object?,
-        Object?>;
-    element.handleCreate(ref, build);
-  }
-}
+String _$profileRepositoryHash() => r'dbf1adbf76b68a77f1975222bd72c33c8400ae3b';

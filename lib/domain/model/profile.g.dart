@@ -124,7 +124,7 @@ final class MyProfileProvider
   }
 }
 
-String _$myProfileHash() => r'01e76e6aa3e8301106c64d797f5faa417404aa09';
+String _$myProfileHash() => r'253a7a12774682bb442ca8299d10f9d4d566ce1c';
 
 @ProviderFor(profilePhotoUrl)
 final profilePhotoUrlProvider = ProfilePhotoUrlFamily._();
@@ -178,7 +178,7 @@ final class ProfilePhotoUrlProvider
   }
 }
 
-String _$profilePhotoUrlHash() => r'e6c51ad5436ac4403f97429d384bebef96f32e5a';
+String _$profilePhotoUrlHash() => r'f4d9e9eb443ffbeadc88c208cd3ec058b7c93973';
 
 final class ProfilePhotoUrlFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<String>, String> {

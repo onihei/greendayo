@@ -24,7 +24,7 @@ class TalkUseCase extends _$TalkUseCase {
       sender: myProfile.userId,
       createdAt: DateTime.now(),
     );
-    await ref.read(talkRepositoryProvider(sessionId)).save(newTalk);
+    await ref.read(talkRepositoryProvider).save(sessionId, newTalk);
     await ref.read(sessionRepositoryProvider).updateTimestamp(sessionId);
   }
 
@@ -48,7 +48,7 @@ class TalkUseCase extends _$TalkUseCase {
       sender: myProfile.userId,
       createdAt: now,
     );
-    await ref.read(talkRepositoryProvider(newSessionId)).save(newTalk);
+    await ref.read(talkRepositoryProvider).save(newSessionId, newTalk);
     return newSessionId;
   }
 

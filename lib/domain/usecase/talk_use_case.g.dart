@@ -41,7 +41,7 @@ final class TalkUseCaseProvider
   }
 }
 
-String _$talkUseCaseHash() => r'cd9e3ee6082ed41927895528e3a8718c76f7689b';
+String _$talkUseCaseHash() => r'80aca801774b504fbc7c624786942b4f7167abfe';
 
 abstract class _$TalkUseCase extends $Notifier<TalkUseCase> {
   TalkUseCase build();

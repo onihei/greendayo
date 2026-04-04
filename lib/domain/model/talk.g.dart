@@ -65,7 +65,7 @@ final class TalksStreamProvider extends $FunctionalProvider<
   }
 }
 
-String _$talksStreamHash() => r'7d65d801f40c7cd99efe0225e68360716381fe62';
+String _$talksStreamHash() => r'7c0f8e16d5c4c0fa6722c83750f0d19720ca2825';
 
 final class TalksStreamFamily extends $Family
     with $FunctionalFamilyOverride<Stream<QuerySnapshot<Talk>>, String> {
