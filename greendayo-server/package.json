@@ -7,9 +7,9 @@
   "scripts": {
     "dev": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "forever start --uid greendayo -a --killSignal=SIGTERM -c 'nodemon --exitcrash' index.js",
-    "stop": "forever stop greendayo",
-    "restart": "forever restart greendayo"
+    "start": "pm2 start index.js --name greendayo",
+    "stop": "pm2 stop greendayo",
+    "restart": "pm2 restart greendayo"
   },
   "keywords": [],
   "author": "",
