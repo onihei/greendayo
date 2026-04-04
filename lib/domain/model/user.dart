@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'user.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Stream<User?> user(Ref ref) async* {
   yield FirebaseAuth.instance.currentUser;
   await for (User? user in FirebaseAuth.instance.authStateChanges()) {

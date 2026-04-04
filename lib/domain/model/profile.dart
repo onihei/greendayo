@@ -1,12 +1,10 @@
+import 'package:greendayo/config.dart';
 import 'package:greendayo/domain/model/user.dart';
 import 'package:greendayo/entity/profile.dart';
 import 'package:greendayo/repository/profile_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'profile.g.dart';
-
-// const _storageBaseUrl = 'http://localhost:10005';
-const _storageBaseUrl = 'https://susipero.com';
 
 @riverpod
 Future<Profile> profile(Ref ref, String uid) async {
@@ -21,7 +19,7 @@ Future<Profile> profile(Ref ref, String uid) async {
 Future<Profile> myProfile(Ref ref) async {
   final user = await ref.watch(userProvider.future);
   if (user != null) {
-    return await ref.watch(profileProvider(user.uid).future);
+    return await ref.read(profileRepositoryProvider).createOrGet(user);
   } else {
     throw Exception('No authenticated user');
   }
@@ -29,5 +27,5 @@ Future<Profile> myProfile(Ref ref) async {
 
 @riverpod
 Future<String> profilePhotoUrl(Ref ref, String uid) async {
-  return '$_storageBaseUrl/storage/users/$uid/photo';
+  return '$storageBaseUrl/storage/users/$uid/photo';
 }

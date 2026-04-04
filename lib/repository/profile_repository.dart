@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:greendayo/config.dart';
 import 'package:greendayo/domain/model/profile.dart';
 import 'package:greendayo/entity/profile.dart';
 import 'package:http/http.dart' as http;
@@ -55,7 +56,7 @@ class ProfileRepository extends _$ProfileRepository {
     final myProfile = await ref.read(myProfileProvider.future);
     final storagePath = 'users/${myProfile.userId}/photo';
     final uri =
-        Uri.parse('$_storageBaseUrl/storage/upload/$storagePath');
+        Uri.parse('$storageBaseUrl/storage/upload/$storagePath');
     final request = http.MultipartRequest('POST', uri)
       ..files.add(http.MultipartFile.fromBytes(
         'file',
@@ -83,7 +84,7 @@ class ProfileRepository extends _$ProfileRepository {
     }
     final storagePath = 'users/$userId/photo';
     final uri =
-        Uri.parse('$_storageBaseUrl/storage/upload/$storagePath');
+        Uri.parse('$storageBaseUrl/storage/upload/$storagePath');
     final request = http.MultipartRequest('POST', uri)
       ..files.add(http.MultipartFile.fromBytes(
         'file',
@@ -99,8 +100,6 @@ class ProfileRepository extends _$ProfileRepository {
   }
 }
 
-// const _storageBaseUrl = 'http://localhost:10005';
-const _storageBaseUrl = 'https://susipero.com';
 
 final _profilesRef =
     FirebaseFirestore.instance.collection('profiles').withConverter<Profile>(
