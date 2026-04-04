@@ -1,0 +1,102 @@
+import 'dart:typed_data';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:greendayo/features/profile/profile.dart';
+import 'package:greendayo/shared/config.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'profile_repository.g.dart';
+
+@riverpod
+ProfileRepository profileRepository(Ref ref) => ProfileRepository();
+
+class ProfileRepository {
+  Future<Profile> get(String userId) async {
+    final doc = await _profilesRef.doc(userId).get();
+    if (!doc.exists) {
+      throw StateError("profile not found");
+    }
+    return doc.data()!;
+  }
+
+  Stream<DocumentSnapshot<Profile>> observe(String userId) =>
+      _profilesRef.doc(userId).snapshots();
+
+  Future<Profile> createOrGet(User user) async {
+    final doc = await _profilesRef.doc(user.uid).get();
+    if (doc.exists) {
+      return doc.data()!;
+    }
+    final profile = Profile(
+      userId: user.uid,
+      nickname: user.displayName ?? "名無し",
+      photoUrl: user.photoURL,
+    );
+
+    await _uploadPhoto(user.uid, user.photoURL);
+    await save(profile);
+    return profile;
+  }
+
+  Future<String> save(Profile entity) async {
+    final newDoc = _profilesRef.doc(entity.userId);
+    await newDoc.set(entity);
+    return newDoc.id;
+  }
+
+  Future<void> uploadPhoto({
+    required String userId,
+    required String contentType,
+    required Uint8List bytes,
+  }) async {
+    final storagePath = 'users/$userId/photo';
+    final uri = Uri.parse('$storageBaseUrl/storage/upload/$storagePath');
+    final request = http.MultipartRequest('POST', uri)
+      ..files.add(http.MultipartFile.fromBytes(
+        'file',
+        bytes,
+        filename: 'photo',
+        contentType: MediaType.parse(contentType),
+      ));
+    final response = await request.send();
+    if (response.statusCode != 200) {
+      throw StateError('Upload failed: ${response.statusCode}');
+    }
+  }
+
+  Future<void> _uploadPhoto(String userId, String? url) async {
+    http.Response data;
+    try {
+      data = await http.get(Uri.parse(url!));
+      if (data.statusCode != 200) {
+        throw StateError("load photo error:${data.statusCode}");
+      }
+    } catch (e) {
+      return;
+    }
+    final storagePath = 'users/$userId/photo';
+    final uri = Uri.parse('$storageBaseUrl/storage/upload/$storagePath');
+    final request = http.MultipartRequest('POST', uri)
+      ..files.add(http.MultipartFile.fromBytes(
+        'file',
+        data.bodyBytes,
+        filename: 'photo',
+        contentType: MediaType.parse(
+            data.headers['content-type'] ?? 'image/png'),
+      ));
+    final response = await request.send();
+    if (response.statusCode != 200) {
+      throw StateError('Upload failed: ${response.statusCode}');
+    }
+  }
+}
+
+final _profilesRef =
+    FirebaseFirestore.instance.collection('profiles').withConverter<Profile>(
+          fromFirestore: (snapshot, _) =>
+              Profile.fromJson(snapshot.id, snapshot.data()!),
+          toFirestore: (profile, _) => profile.toJson(),
+        );
