@@ -1,10 +1,30 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:greendayo/domain/model/user.dart';
 import 'package:greendayo/l10n/app_localizations.dart';
 import 'package:greendayo/ui/pages/home/home_page.dart';
 import 'package:greendayo/ui/pages/profile/profile_page.dart';
+import 'package:greendayo/ui/pages/top/top_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+final _theme = ThemeData(
+  brightness: Brightness.dark,
+  colorSchemeSeed: Colors.blueGrey,
+  useMaterial3: true,
+  textTheme: const TextTheme(
+    titleSmall: TextStyle(fontWeight: FontWeight.w700),
+    titleMedium: TextStyle(fontWeight: FontWeight.w700),
+    headlineSmall: TextStyle(fontWeight: FontWeight.w700),
+    headlineMedium: TextStyle(fontWeight: FontWeight.w700),
+    labelSmall: TextStyle(fontWeight: FontWeight.w700),
+  ),
+  inputDecorationTheme: const InputDecorationTheme(
+    isDense: true,
+    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  ),
+);
 
 class MyApp extends HookConsumerWidget {
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
@@ -21,22 +41,7 @@ class MyApp extends HookConsumerWidget {
       supportedLocales: const [Locale('ja')],
       title: 'すしぺろ',
       themeMode: ThemeMode.dark,
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        colorSchemeSeed: Colors.blueGrey,
-        useMaterial3: true,
-        textTheme: const TextTheme(
-          titleSmall: TextStyle(fontWeight: FontWeight.w700),
-          titleMedium: TextStyle(fontWeight: FontWeight.w700),
-          headlineSmall: TextStyle(fontWeight: FontWeight.w700),
-          headlineMedium: TextStyle(fontWeight: FontWeight.w700),
-          labelSmall: TextStyle(fontWeight: FontWeight.w700),
-        ),
-        inputDecorationTheme: const InputDecorationTheme(
-          isDense: true,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        ),
-      ),
+      darkTheme: _theme,
       routeInformationParser: MyRouteInformationParser(),
       routerDelegate: MyRouterDelegate(ref),
     );
@@ -61,6 +66,9 @@ class MyRouterDelegate extends RouterDelegate<String>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<String> {
   final WidgetRef ref;
 
+  /// ディープリンクで /profile/:id にアクセスされたが未認証だった場合に保持する
+  String? _pendingDeepLinkUserId;
+
   MyRouterDelegate(this.ref) : navigatorKey = GlobalKey<NavigatorState>();
 
   @override
@@ -70,45 +78,84 @@ class MyRouterDelegate extends RouterDelegate<String>
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
-        final selectedUserId = ref.watch(selectedUserIdProvider);
-        return Navigator(
-          pages: [
-            MaterialPage(
-              child: HomePage(),
-            ),
-            if (selectedUserId != null)
-              MaterialPage(
-                name: "profile",
-                child: ProfilePage(userId: selectedUserId),
-              ),
-          ],
-          onDidRemovePage: (page) {
-            if (page.name == "profile") {
-              ref.read(selectedUserIdProvider.notifier).clear();
-            }
-          },
+        final userAsync = ref.watch(userProvider);
+        return userAsync.when(
+          data: (user) => _buildNavigator(ref, user),
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
         );
+      },
+    );
+  }
+
+  Widget _buildNavigator(WidgetRef ref, firebase_auth.User? user) {
+    if (user == null) {
+      FlutterNativeSplash.remove();
+      return Navigator(
+        key: navigatorKey,
+        pages: [
+          MaterialPage(
+            child: TopPage(userId: _pendingDeepLinkUserId),
+          ),
+        ],
+        onDidRemovePage: (_) {},
+      );
+    }
+
+    // 認証済み: ディープリンクのpending userIdがあれば反映
+    if (_pendingDeepLinkUserId != null) {
+      final userId = _pendingDeepLinkUserId;
+      _pendingDeepLinkUserId = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(selectedUserIdProvider.notifier).select(userId);
+      });
+    }
+
+    FlutterNativeSplash.remove();
+    final selectedUserId = ref.watch(selectedUserIdProvider);
+    return Navigator(
+      key: navigatorKey,
+      pages: [
+        MaterialPage(
+          child: HomePage(),
+        ),
+        if (selectedUserId != null)
+          MaterialPage(
+            name: "profile",
+            child: ProfilePage(userId: selectedUserId),
+          ),
+      ],
+      onDidRemovePage: (page) {
+        if (page.name == "profile") {
+          ref.read(selectedUserIdProvider.notifier).clear();
+        }
       },
     );
   }
 
   @override
   Future<void> setNewRoutePath(String configuration) async {
-    final pattern = RegExp(
-      r"/profile(?:/(?=\w+))?(\w+)?$",
-    );
+    final pattern = RegExp(r"/profile(?:/(?=\w+))?(\w+)?$");
     final matches = pattern.allMatches(configuration);
     if (matches.isNotEmpty) {
       final userId = matches.first.group(1);
+      // 認証状態はまだ不明かもしれないので、一旦保持しておく
+      _pendingDeepLinkUserId = userId;
       ref.read(selectedUserIdProvider.notifier).select(userId);
     } else {
+      _pendingDeepLinkUserId = null;
       ref.read(selectedUserIdProvider.notifier).clear();
     }
   }
 
   @override
   String? get currentConfiguration {
-    final selectedUserId = ref.watch(selectedUserIdProvider);
+    final userAsync = ref.read(userProvider);
+    final user = userAsync.value;
+    if (user == null) {
+      return "/";
+    }
+    final selectedUserId = ref.read(selectedUserIdProvider);
     if (selectedUserId != null) {
       return "/profile/$selectedUserId";
     }

@@ -4,8 +4,6 @@ import 'package:greendayo/domain/model/profile.dart';
 import 'package:greendayo/navigation_item_widget.dart';
 import 'package:greendayo/ui/fragments/authed_drawer.dart';
 import 'package:greendayo/ui/pages/bbs/bbs_page.dart';
-import 'package:greendayo/ui/pages/community_page.dart';
-import 'package:greendayo/ui/pages/games_page.dart';
 import 'package:greendayo/ui/pages/messenger/messenger_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -40,16 +38,6 @@ class HomePage extends HookConsumerWidget {
         label: '掲示板',
       ),
       BottomNavigationBarItem(
-        icon: Icon(Icons.games_outlined),
-        activeIcon: Icon(Icons.games),
-        label: 'ゲーム',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.hive_outlined),
-        activeIcon: Icon(Icons.hive),
-        label: 'チーム',
-      ),
-      BottomNavigationBarItem(
         icon: Icon(Icons.email_outlined),
         activeIcon: Icon(Icons.email),
         label: 'メッセージ',
@@ -64,12 +52,6 @@ class HomePage extends HookConsumerWidget {
             tabs.value[index] = BbsPage();
             break;
           case 1:
-            tabs.value[index] = GamesPage();
-            break;
-          case 2:
-            tabs.value[index] = CommunityPage();
-            break;
-          case 3:
             tabs.value[index] = MessengerPage();
             break;
         }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:greendayo/domain/model/user.dart';
 import 'package:greendayo/ui/fragments/dot_image.dart';
 import 'package:greendayo/ui/fragments/footer.dart';
 import 'package:greendayo/ui/fragments/login_dialog.dart';
@@ -76,41 +75,28 @@ class _ViewController extends _$ViewController {
   }
 }
 
-class TopPage extends StatefulHookConsumerWidget {
+class TopPage extends HookConsumerWidget {
   final String? userId;
   const TopPage({super.key, this.userId});
 
   @override
-  ConsumerState<TopPage> createState() => _TopPageState();
-}
-
-class _TopPageState extends ConsumerState<TopPage> {
-  _TopPageState();
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.userId != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        final success = await showDialog(
-          context: context,
-          builder: (context) => LoginDialog(),
-        );
-        if (success == true) {
-          ref.read(selectedUserIdProvider.notifier).select(widget.userId);
-        }
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final vc = ref.watch(_viewControllerProvider);
     final scrollController = useScrollController();
     final scrollPosition = useState(0.0);
     scrollController.addListener(() {
       scrollPosition.value = scrollController.position.pixels;
     });
+
+    // ディープリンクでprofileにアクセスされた場合、ログインダイアログを自動表示
+    useEffect(() {
+      if (userId != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          vc.showLoginDialog(context);
+        });
+      }
+      return null;
+    }, [userId]);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
