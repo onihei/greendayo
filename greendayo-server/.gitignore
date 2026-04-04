@@ -1,4 +1,8 @@
 
 .idea
 node_modules
-uploads/
+uploads/*
+!uploads/.gitkeep
+!uploads/users/
+uploads/users/*
+!uploads/users/CmmaPTKyMhUyo5fiZcdNRBcTk4h1/

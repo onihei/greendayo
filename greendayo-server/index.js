@@ -48,6 +48,15 @@ app.post('/storage/upload/*', upload.single('file'), (req, res) => {
         return res.status(400).json({error: 'No file uploaded'});
     }
     const filePath = req.params[0];
+    // メタ情報をサイドカーファイルに保存
+    const metaPath = path.join(UPLOADS_DIR, path.dirname(filePath), path.basename(filePath) + '.meta.json');
+    const meta = {
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        originalName: req.file.originalname,
+        uploadedAt: new Date().toISOString(),
+    };
+    fs.writeFileSync(metaPath, JSON.stringify(meta));
     const url = `/storage/${filePath}`;
     res.json({url});
 });
@@ -57,6 +66,11 @@ app.get('/storage/*', (req, res) => {
     const filePath = path.join(UPLOADS_DIR, req.params[0]);
     if (!fs.existsSync(filePath)) {
         return res.status(404).json({error: 'Not found'});
+    }
+    const metaPath = filePath + '.meta.json';
+    if (fs.existsSync(metaPath)) {
+        const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+        if (meta.mimetype) res.set('Content-Type', meta.mimetype);
     }
     res.set('Cache-Control', 'public, max-age=315360000');
     res.sendFile(filePath);
@@ -69,6 +83,9 @@ app.delete('/storage/*', (req, res) => {
         return res.status(404).json({error: 'Not found'});
     }
     fs.unlinkSync(filePath);
+    // メタ情報も削除
+    const metaPath = filePath + '.meta.json';
+    if (fs.existsSync(metaPath)) fs.unlinkSync(metaPath);
     res.json({deleted: req.params[0]});
 });
 
