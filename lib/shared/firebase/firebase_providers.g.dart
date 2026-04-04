@@ -103,7 +103,7 @@ final class HttpClientProvider
           argument: null,
           retry: null,
           name: r'httpClientProvider',
-          isAutoDispose: true,
+          isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
@@ -130,4 +130,4 @@ final class HttpClientProvider
   }
 }
 
-String _$httpClientHash() => r'ecd4acdd7bf72fa50bdd6af529a0f33b9d3d9aca';
+String _$httpClientHash() => r'1bf6eabbdd814851d2512b83b0f42d9f74d55940';

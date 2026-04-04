@@ -20,7 +20,7 @@ final class TalkUseCaseProvider
           argument: null,
           retry: null,
           name: r'talkUseCaseProvider',
-          isAutoDispose: true,
+          isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
@@ -41,7 +41,7 @@ final class TalkUseCaseProvider
   }
 }
 
-String _$talkUseCaseHash() => r'80aca801774b504fbc7c624786942b4f7167abfe';
+String _$talkUseCaseHash() => r'b1797ec7d565d3dc33e762441508dd0bdaf14086';
 
 abstract class _$TalkUseCase extends $Notifier<TalkUseCase> {
   TalkUseCase build();

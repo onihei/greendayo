@@ -29,6 +29,7 @@ class BbsPage extends HookConsumerWidget implements NavigationItemWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(bbsControllerProvider);
     final result = ref.watch(articlesStreamProvider);
     final formContainerKey = useRef(GlobalKey());
     final formKey = useRef(GlobalKey());

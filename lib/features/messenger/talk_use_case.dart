@@ -7,7 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'talk_use_case.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class TalkUseCase extends _$TalkUseCase {
   @override
   TalkUseCase build() {
