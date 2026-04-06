@@ -6,7 +6,7 @@ REMOTE_WEB="/var/www/"
 REMOTE_SERVER="/home/onihei/workspace/greendayo/greendayo-server/"
 
 echo "=== Build ==="
-flutter build web --wasm
+flutter build web --wasm --dart-define=STORAGE_BASE_URL=https://susipero.com
 
 echo "=== Deploy Web ==="
 rsync -avz --delete \
