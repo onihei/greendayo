@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:greendayo/features/auth/user_provider.dart';
 import 'package:greendayo/features/bbs/article.dart';
 import 'package:greendayo/features/bbs/article_providers.dart';
 import 'package:greendayo/features/bbs/bbs_controller.dart';
@@ -87,9 +88,11 @@ class _ArticleCard extends ConsumerWidget {
         }
       },
       itemBuilder: (BuildContext context) {
+        final user = ref.read(userProvider).value;
         return [
           const PopupMenuItem(value: "profile", child: Text("プロフィールを見る")),
-          const PopupMenuItem(value: "delete", child: Text("削除する")),
+          if (user != null)
+            const PopupMenuItem(value: "delete", child: Text("削除する")),
         ];
       },
       child: article.isPhoto

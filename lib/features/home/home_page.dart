@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:greendayo/app/navigation_item_widget.dart';
+import 'package:greendayo/features/auth/login_dialog.dart';
+import 'package:greendayo/features/auth/user_provider.dart';
 import 'package:greendayo/features/bbs/bbs_page.dart';
 import 'package:greendayo/features/messenger/messenger_page.dart';
 import 'package:greendayo/features/profile/profile_providers.dart';
@@ -27,7 +29,11 @@ class HomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    ref.watch(myProfileProvider);
+    final user = ref.watch(userProvider).value;
+    final isAuthed = user != null;
+    if (isAuthed) {
+      ref.watch(myProfileProvider);
+    }
     final appTitle = ref.watch(appTitleProvider);
     final scaffoldKey = useRef(GlobalKey<ScaffoldState>());
     final tabIndex = useState(0);
@@ -66,7 +72,22 @@ class HomePage extends HookConsumerWidget {
         return Scaffold(
           extendBodyBehindAppBar: false,
           key: scaffoldKey.value,
-          appBar: AppBar(title: Text(appTitle ?? tab.title)),
+          appBar: AppBar(
+            title: Text(appTitle ?? tab.title),
+            actions: [
+              if (!isAuthed)
+                TextButton.icon(
+                  icon: const Icon(Icons.login),
+                  label: const Text('ログイン'),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const LoginDialog(),
+                    );
+                  },
+                ),
+            ],
+          ),
           body: tab,
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,

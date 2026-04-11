@@ -91,21 +91,8 @@ class MyRouterDelegate extends RouterDelegate<String>
   }
 
   Widget _buildNavigator(WidgetRef ref, firebase_auth.User? user) {
-    if (user == null) {
-      FlutterNativeSplash.remove();
-      return Navigator(
-        key: navigatorKey,
-        pages: [
-          MaterialPage(
-            child: TopPage(userId: _pendingDeepLinkUserId),
-          ),
-        ],
-        onDidRemovePage: (_) {},
-      );
-    }
-
-    // 認証済み: ディープリンクのpending userIdがあれば反映
-    if (_pendingDeepLinkUserId != null) {
+    // ディープリンクのpending userIdがあれば反映（認証済みの場合のみ）
+    if (user != null && _pendingDeepLinkUserId != null) {
       final userId = _pendingDeepLinkUserId;
       _pendingDeepLinkUserId = null;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -121,7 +108,7 @@ class MyRouterDelegate extends RouterDelegate<String>
         MaterialPage(
           child: HomePage(),
         ),
-        if (selectedUserId != null)
+        if (selectedUserId != null && user != null)
           MaterialPage(
             name: "profile",
             child: ProfilePage(userId: selectedUserId),

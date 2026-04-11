@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:greendayo/app/navigation_item_widget.dart';
+import 'package:greendayo/features/auth/login_dialog.dart';
 import 'package:greendayo/features/auth/user_provider.dart';
 import 'package:greendayo/features/messenger/session.dart';
 import 'package:greendayo/features/messenger/session_providers.dart';
@@ -74,6 +75,30 @@ class MessengerPage extends HookConsumerWidget implements NavigationItemWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider).value;
+    if (user == null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.email_outlined, size: 64),
+            const SizedBox(height: 16),
+            const Text('メッセージ機能を使うにはログインしてください'),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.login),
+              label: const Text('ログイン'),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const LoginDialog(),
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    }
     final selectedSessionId = ref.watch(_selectedSessionIdProvider);
     final width = MediaQuery.of(context).size.width;
     ref.listen(_selectedSessionTitleProvider, (_, next) {

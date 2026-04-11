@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:greendayo/app/navigation_item_widget.dart';
+import 'package:greendayo/features/auth/user_provider.dart';
 import 'package:greendayo/features/bbs/article_providers.dart';
 import 'package:greendayo/features/bbs/bbs_board.dart';
 import 'package:greendayo/features/bbs/bbs_controller.dart';
@@ -16,6 +17,8 @@ class BbsPage extends HookConsumerWidget implements NavigationItemWidget {
   @override
   Widget? get floatingActionButton => Consumer(
         builder: (context, ref, child) {
+          final user = ref.watch(userProvider).value;
+          if (user == null) return const SizedBox.shrink();
           final enabled = ref.watch(bbsFormEnabledProvider);
           final button = FloatingActionButton(
             child: const Icon(Icons.add),
