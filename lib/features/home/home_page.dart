@@ -4,6 +4,7 @@ import 'package:greendayo/app/navigation_item_widget.dart';
 import 'package:greendayo/features/auth/login_dialog.dart';
 import 'package:greendayo/features/auth/user_provider.dart';
 import 'package:greendayo/features/bbs/bbs_page.dart';
+import 'package:greendayo/features/games/game_page.dart';
 import 'package:greendayo/features/messenger/messenger_page.dart';
 import 'package:greendayo/features/profile/profile_providers.dart';
 import 'package:greendayo/shared/ui/authed_drawer.dart';
@@ -48,6 +49,11 @@ class HomePage extends HookConsumerWidget {
         activeIcon: Icon(Icons.email),
         label: 'メッセージ',
       ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.sports_esports_outlined),
+        activeIcon: Icon(Icons.sports_esports),
+        label: 'ゲーム',
+      ),
     ];
     final tabs =
         useState<List<Widget?>>(List.filled(navigationItems.length, null));
@@ -59,6 +65,9 @@ class HomePage extends HookConsumerWidget {
             break;
           case 1:
             tabs.value[index] = MessengerPage();
+            break;
+          case 2:
+            tabs.value[index] = GamePage();
             break;
         }
       }
