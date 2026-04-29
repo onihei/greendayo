@@ -23,5 +23,15 @@ class GameRepository {
           icon: Icons.spa,
           color: Color(0xFF34C759),
         ),
+        Game(
+          id: 'sumomo',
+          title: 'すもも',
+          subtitle: 'カタカナクロスワード',
+          description:
+              '自動生成パズルをサクッと一問。マスを埋めて、答え合わせまでひと息で。',
+          url: 'https://susipero.com/sumomo/',
+          icon: Icons.grid_on,
+          color: Color(0xFFE91E63),
+        ),
       ];
 }
