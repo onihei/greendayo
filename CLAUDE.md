@@ -139,3 +139,10 @@ VPS の `.env.production` (port 3100, Firebase 設定, CLAUDE_API_KEY, SUSIPERO_
 - 既存アップロード済みファイルの URL (`/storage/{path}`) を必ず維持する
 - ポート 3100 (3000 は VPS 上の他アプリ `battlechat.io` で使用中)
 - nginx 設定は VPS 上の `/etc/nginx/nginx.conf` に直接書かれている (sites-enabled は使われていない)。複数アプリ (nasbi/kaeru/sumomo/fx/kinoko/battlechat) と同居しているので変更時はサージカルに
+
+## Shared Nickname (across subdir games)
+
+`lib/nickname.ts` がサブディレクトリゲーム (nasbi / kaeru / sumomo) との共有
+ニックネーム規約の **正本 (canonical)**。各ゲームへは手でコピー展開する。
+規約は `AGENTS.md` の「Shared Nickname Convention」を参照。仕様変更は
+greendayo を最初に更新する。
