@@ -1,7 +1,0 @@
-arb-dir: lib/l10n
-
-nullable-getter: false
-
-template-arb-file: app_ja.arb
-
-default-locale: ja
