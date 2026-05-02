@@ -32,7 +32,7 @@ export const GAMES: Game[] = [
   {
     id: "sumomo",
     title: "すもも",
-    subtitle: "カタカナクロスワード",
+    subtitle: "新聞クロスワード",
     description:
       "自動生成パズルをサクッと一問。マスを埋めて、答え合わせまでひと息で。",
     url: "https://susipero.com/sumomo/",
