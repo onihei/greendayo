@@ -39,4 +39,14 @@ export const GAMES: Game[] = [
     icon: "🟪",
     color: "#E91E63",
   },
+  {
+    id: "kirin",
+    title: "キリン",
+    subtitle: "コンピュータ将棋",
+    description:
+      "3Dの駒を動かしてCPUと本将棋。手強さを選んで、待ったもありで気軽に一局。",
+    url: "https://susipero.com/kirin/",
+    icon: "♛",
+    color: "#FF9500",
+  },
 ];
