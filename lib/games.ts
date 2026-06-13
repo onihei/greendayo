@@ -5,7 +5,6 @@ export type Game = {
   description: string;
   url: string;
   icon: string;
-  color: string;
 };
 
 export const GAMES: Game[] = [
@@ -17,7 +16,6 @@ export const GAMES: Game[] = [
       "3Dの牌をジャラっと動かして、4人でガチ対戦！空いてる卓に飛び込んで打とう。",
     url: "https://susipero.com/nasbi/",
     icon: "🀄",
-    color: "#7B4DFF",
   },
   {
     id: "kaeru",
@@ -27,7 +25,6 @@ export const GAMES: Game[] = [
       "ペアを取り合うスピードバトル！CPUより先にタッチして、8人のライバルをケロッとぶっちぎれ。",
     url: "https://susipero.com/kaeru/",
     icon: "🐸",
-    color: "#34C759",
   },
   {
     id: "sumomo",
@@ -37,7 +34,6 @@ export const GAMES: Game[] = [
       "自動生成パズルをサクッと一問。マスを埋めて、答え合わせまでひと息で。",
     url: "https://susipero.com/sumomo/",
     icon: "🟪",
-    color: "#E91E63",
   },
   {
     id: "kirin",
@@ -47,6 +43,23 @@ export const GAMES: Game[] = [
       "3Dの駒を動かしてCPUと本将棋。手強さを選んで、待ったもありで気軽に一局。",
     url: "https://susipero.com/kirin/",
     icon: "♛",
-    color: "#FF9500",
+  },
+  {
+    id: "tuberun",
+    title: "TUBE RUN",
+    subtitle: "ネオン3Dランナー",
+    description:
+      "光るチューブをくるくる回って障害物を回避！コンボとニアミスでスコアを稼ぐ爽快ランナー。",
+    url: "https://susipero.com/tuberun/",
+    icon: "🚀",
+  },
+  {
+    id: "tower2",
+    title: "百鬼ノ砦",
+    subtitle: "和風タワーディフェンス",
+    description:
+      "夜の山里に湧く百鬼の群れを、侍や陰陽師を並べて迎え撃て！社の結界を守り抜く物量タワーディフェンス。",
+    url: "https://susipero.com/tower2/",
+    icon: "🏯",
   },
 ];
