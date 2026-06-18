@@ -62,4 +62,13 @@ export const GAMES: Game[] = [
     url: "https://susipero.com/tower2/",
     icon: "🏯",
   },
+  {
+    id: "nigi",
+    title: "にぎにぎパニック",
+    subtitle: "寿司マッチ3パズル",
+    description:
+      "隣り合う寿司ネタをドラッグで入れ替えて、縦横3つそろえて消す！大連鎖でスコアを稼ぎ、時間切れ前にノルマをそろえろ。",
+    url: "https://susipero.com/nigi/",
+    icon: "🍣",
+  },
 ];
