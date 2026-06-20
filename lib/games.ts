@@ -71,4 +71,13 @@ export const GAMES: Game[] = [
     url: "https://susipero.com/nigi/",
     icon: "🍣",
   },
+  {
+    id: "tsumi",
+    title: "タワーバトル",
+    subtitle: "物理スタック対戦",
+    description:
+      "コマを左右に動かして回して落とす物理パズル！高く積むほど高得点。遊んでる裏で相手とマッチング、見つかれば乱入タワーバトルへ。",
+    url: "https://susipero.com/tsumi/",
+    icon: "🗼",
+  },
 ];
