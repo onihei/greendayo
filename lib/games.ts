@@ -80,4 +80,13 @@ export const GAMES: Game[] = [
     url: "https://susipero.com/tsumi/",
     icon: "🗼",
   },
+  {
+    id: "battlechat2",
+    title: "バトルチャット2",
+    subtitle: "対戦ワードパズル",
+    description:
+      "キーボードの24文字から、かくれた5文字のことばを探すチャット風ワードゲーム！れんしゅう・タイムアタック・1対1リアルタイムバトルで勝負しよう。",
+    url: "https://susipero.com/battlechat2/",
+    icon: "💬",
+  },
 ];
