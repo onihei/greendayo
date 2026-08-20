@@ -96,6 +96,7 @@ sudo systemctl reload nginx           # ★ ここで本番が Next.js 版にな
 - [ ] `/profile/{自分のuid}` で編集 → AI 自己紹介が生成される
 - [ ] プロフィール写真を変更 → 即時反映
 - [ ] `/games` から外部ゲームに飛べる
+- [ ] `/lab` からよみぽよ (https://susipero.com/yomipoyo/) に飛べる
 - [ ] ボトムナビ・ドロワー動作
 
 ## 6. 異常時のロールバック

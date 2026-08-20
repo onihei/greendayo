@@ -30,6 +30,7 @@
 │  │  ├─ [userId]/page.tsx       公開プロフィール
 │  │  └─ me/edit/page.tsx        自分のプロフィール編集 (9問ステップ)
 │  ├─ games/page.tsx             ゲーム一覧 (外部リンク)
+│  ├─ lab/page.tsx               ラボ一覧 (非ゲームの外部リンク)
 │  └─ api/
 │     ├─ upload/route.ts         POST: ファイルアップロード
 │     ├─ upload/[...path]/route.ts DELETE
@@ -46,6 +47,7 @@
 │  ├─ upload-client.ts           POST/DELETE クライアント
 │  ├─ talk-use-case.ts           セッション開始 + メッセージ送信
 │  ├─ games.ts                   ゲームメタデータ
+│  ├─ lab.ts                     ラボ (非ゲーム) メタデータ
 │  ├─ firestore/                 CRUD 関数群 (旧 *_repository.dart 相当)
 │  │  ├─ articles.ts
 │  │  ├─ sessions.ts
@@ -76,7 +78,7 @@
 ### URL ファーストのルーティング
 
 App Router のファイルベース。状態が画面スタックを決める旧 Navigator 2.0 reactive スタイルは採用しない。
-未ログインで開けるルート: `/`, `/profile/[id]`, `/games`。
+未ログインで開けるルート: `/`, `/profile/[id]`, `/games`, `/lab`。
 
 ### 状態管理
 

@@ -29,8 +29,8 @@ TBD - created by archiving change migrate-to-nextjs. Update Purpose after archiv
   - `/messenger/{sessionId}` → トーク画面
   - `/profile/{userId}` → 公開プロフィール
   - `/profile/me/edit` → 自分のプロフィール編集
-  - `/games` → ゲーム一覧
-  - `/games/crossword` → クロスワード
+  - `/games` → ゲーム一覧 (外部ゲームへのリンク集)
+  - `/lab` → ラボ一覧 (ゲーム以外の外部コンテンツへのリンク集)
 
 #### Scenario: ログインダイアログ
 - **WHEN** 未ログイン状態でログインを促す UI を操作する
@@ -39,7 +39,7 @@ TBD - created by archiving change migrate-to-nextjs. Update Purpose after archiv
 
 ### Requirement: 未ログイン時の閲覧可能範囲
 
-掲示板 `/` および公開プロフィール `/profile/{userId}` は未ログインでも閲覧 SHALL できる。書き込み・編集等の操作は SHALL ログインを要する。
+掲示板 `/`、公開プロフィール `/profile/{userId}`、ゲーム一覧 `/games`、ラボ一覧 `/lab` は未ログインでも閲覧 SHALL できる。書き込み・編集等の操作は SHALL ログインを要する。
 
 #### Scenario: 未ログインで掲示板を開く
 - **WHEN** 未ログインのユーザーが `/` にアクセスする
