@@ -66,8 +66,8 @@ VPS 上で確認:
 ```bash
 ssh susipero
 pm2 status susipero
-curl -I http://127.0.0.1:3000/      # → 200
-curl http://127.0.0.1:3000/api/upload -X POST  # → 400 (file required) なら API 動作中
+curl -I http://127.0.0.1:3100/      # → 200
+curl http://127.0.0.1:3100/api/upload -X POST  # → 400 (file required) なら API 動作中
 ```
 
 ## 4. nginx 切替

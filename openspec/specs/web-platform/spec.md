@@ -9,7 +9,7 @@ TBD - created by archiving change migrate-to-nextjs. Update Purpose after archiv
 
 #### Scenario: ユーザーが susipero.com にアクセスする
 - **WHEN** ブラウザが `https://susipero.com/` をリクエストする
-- **THEN** nginx は `127.0.0.1:3000` の Next.js プロセスにリバースプロキシし、Next.js が React によりレンダリングされた HTML を返却する
+- **THEN** nginx は `127.0.0.1:3100` の Next.js プロセスにリバースプロキシし、Next.js が React によりレンダリングされた HTML を返却する
 - **AND** Flutter の CanvasKit/WASM 一式は配信されない
 
 #### Scenario: 旧 Socket.IO エンドポイントへのアクセス
