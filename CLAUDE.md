@@ -118,6 +118,10 @@ npm run start        # node .next/standalone/server.js (要 PORT 等の env)
 npx tsc --noEmit
 ```
 
+パッケージマネージャは **npm に統一**。正本のロックファイルは `package-lock.json`
+のみで、`deploy/deploy.sh` も `npm ci` を叩く。`pnpm-lock.yaml` / `pnpm-workspace.yaml`
+は追加しないこと (両方あると片方だけ更新されて腐る)。
+
 `.env.local` の中身は `.env.local.example` を参照。Firebase Web 設定 + `CLAUDE_API_KEY` + `SUSIPERO_UPLOADS_DIR=./uploads-dev`。
 
 ## デプロイ
