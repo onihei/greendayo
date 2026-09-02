@@ -89,4 +89,13 @@ export const GAMES: Game[] = [
     url: "https://susipero.com/battlechat2/",
     icon: "💬",
   },
+  {
+    id: "bikerun",
+    title: "BIKE RUN",
+    subtitle: "3D自転車ランナー",
+    description:
+      "タップでジャンプするだけのハイパーカジュアル3Dランナー！光る帯の上で踏み切ってPERFECT、ダブルジャンプとバックフリップでスコアを稼げ。",
+    url: "https://susipero.com/bikerun/",
+    icon: "🚴",
+  },
 ];
