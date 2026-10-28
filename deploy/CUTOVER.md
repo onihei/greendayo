@@ -87,7 +87,7 @@ sudo systemctl reload nginx           # ★ ここで本番が Next.js 版にな
 
 - [ ] 未ログインで掲示板が表示される
 - [ ] 既存記事の写真が `/storage/...` 経由で 200 (Network タブで確認)
-- [ ] Google ログインができる
+- [ ] GitHub ログインができる
 - [ ] 新規投稿 (テキスト) → ドラッグ → 表示される
 - [ ] 新規投稿 (画像) → アップロード → ファイルが `/var/lib/susipero/uploads/bbs/photo/` に存在
 - [ ] 画像投稿の削除でファイルも消える

@@ -9,7 +9,7 @@
 - フレームワーク: Next.js 16 (App Router) + TypeScript
 - スタイル: Tailwind CSS v4
 - 状態管理: Zustand (UI状態) + Firestore `onSnapshot` 直叩き (サーバ状態)
-- 認証: Firebase Auth (Google ログイン)
+- 認証: Firebase Auth (GitHub ログイン)
 - データベース: Cloud Firestore
 - AI: Anthropic Claude (自己紹介文生成)
 - ファイル配信: nginx が `/var/lib/susipero/uploads/` から直接配信

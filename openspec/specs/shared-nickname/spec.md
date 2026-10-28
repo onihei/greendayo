@@ -113,7 +113,7 @@
 
 ### Requirement: Independence From Authentication
 
-サイト共通ニックネームは Firebase Auth (Google ログイン) と独立 MUST。
+サイト共通ニックネームは Firebase Auth (GitHub ログイン) と独立 MUST。
 Firebase の displayName と `susipero:nickname` の間で自動同期を行っては
 NOT MUST。
 

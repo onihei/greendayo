@@ -22,5 +22,5 @@ This version has breaking changes — APIs, conventions, and file structure may 
   3. `sumomo:userName`
 - 旧キーは migration 後も**削除しない** (ロールバック余地のため)
 - userId (`<game>:userId`) は **共通化しない**。各ゲームが独立に持つ
-- Firebase Auth (Google ログイン) とは独立。displayName と自動同期しない
+- Firebase Auth (GitHub ログイン) とは独立。displayName と自動同期しない
 - 配布は **コピー運用**。npm/tarball 化はしない

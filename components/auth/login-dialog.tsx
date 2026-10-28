@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GithubAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useUiStore } from "@/stores/ui";
 
@@ -13,11 +13,11 @@ export function LoginDialog() {
 
   if (!open) return null;
 
-  const onGoogle = async () => {
+  const onGithub = async () => {
     setBusy(true);
     setError(null);
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      await signInWithPopup(auth, new GithubAuthProvider());
       close();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -41,10 +41,10 @@ export function LoginDialog() {
         <button
           type="button"
           disabled={busy}
-          onClick={onGoogle}
+          onClick={onGithub}
           className="w-full rounded-md bg-primary px-4 py-2 font-bold text-on-primary disabled:opacity-50"
         >
-          {busy ? "処理中…" : "Google でログイン"}
+          {busy ? "処理中…" : "GitHub でログイン"}
         </button>
         {error && <p className="mt-3 text-sm text-danger">{error}</p>}
         <button
