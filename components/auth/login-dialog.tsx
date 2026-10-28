@@ -47,6 +47,13 @@ export function LoginDialog() {
           {busy ? "処理中…" : "GitHub でログイン"}
         </button>
         {error && <p className="mt-3 text-sm text-danger">{error}</p>}
+        <p className="mt-3 text-xs text-muted">
+          ログインすると
+          <a href="/terms.html" target="_blank" className="underline">利用規約</a>
+          と
+          <a href="/privacy-policy.html" target="_blank" className="underline">プライバシーポリシー</a>
+          に同意したものとみなします。
+        </p>
         <button
           type="button"
           onClick={close}
